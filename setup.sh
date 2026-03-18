@@ -80,6 +80,14 @@ add_keyring() {
     echo "$REPO_LINE" > "/etc/apt/sources.list.d/${LIST_FILE}.list"
 }
 
+# --- External Modules ---
+MODULES_DIR="$(dirname "$0")/modules"
+for m in "$MODULES_DIR"/*.sh; do
+    if [ -f "$m" ]; then
+        source "$m"
+    fi
+done
+
 # --- Interactive Menu Functions ---
 
 show_main_menu() {
@@ -103,26 +111,6 @@ show_main_menu() {
         7) log_message "INFO" "Exiting..."; exit 0 ;;
         *) log_message "WARN" "Invalid option: $choice"; show_main_menu ;;
     esac
-}
-
-show_browsers_menu() {
-    echo -e "\n${YELLOW}-- Browsers --${NC}"
-    echo "1) Install Brave"
-    echo "2) Install Google Chrome"
-    echo "3) Install Firefox"
-    echo "4) Install All Browsers"
-    echo "5) Back"
-    echo -n "Select option: "
-    read -r b_choice
-    case $b_choice in
-        1) install_brave ;;
-        2) install_chrome ;;
-        3) install_firefox ;;
-        4) install_browsers ;;
-        5) show_main_menu ;;
-        *) log_message "WARN" "Invalid option"; show_browsers_menu ;;
-    esac
-    show_main_menu
 }
 
 show_utilities_menu() {
@@ -190,48 +178,6 @@ show_terminals_menu() {
 update_system() {
     log_message "INFO" "Updating package lists and upgrading system..."
     apt update && apt upgrade -y
-}
-
-install_brave() {
-    if ! is_installed brave-browser; then
-        add_keyring "https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg" \
-                    "/usr/share/keyrings/brave-browser-archive-keyring.gpg" \
-                    "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" \
-                    "brave-browser-release"
-        apt update && apt install -y brave-browser
-        log_message "SUCCESS" "Brave installed."
-    else
-        log_message "WARN" "Brave is already installed."
-    fi
-}
-
-install_chrome() {
-    if ! is_installed google-chrome-stable; then
-        log_message "INFO" "Installing Google Chrome..."
-        wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-        apt install -y ./google-chrome-stable_current_amd64.deb
-        rm google-chrome-stable_current_amd64.deb
-        log_message "SUCCESS" "Google Chrome installed."
-    else
-        log_message "WARN" "Google Chrome is already installed."
-    fi
-}
-
-install_firefox() {
-    if ! command -v firefox &> /dev/null; then
-        log_message "INFO" "Installing Firefox..."
-        apt install -y firefox
-        log_message "SUCCESS" "Firefox installed."
-    else
-        log_message "WARN" "Firefox is already installed."
-    fi
-}
-
-install_browsers() {
-    log_message "INFO" "--- Installing All Browsers ---"
-    install_brave
-    install_chrome
-    install_firefox
 }
 
 install_obsidian() {
