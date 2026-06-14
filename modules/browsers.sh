@@ -64,8 +64,9 @@ install_brave() {
                     "/usr/share/keyrings/brave-browser-archive-keyring.gpg" \
                     "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" \
                     "brave-browser-release"
-        apt update && apt install -y brave-browser
+        apt update && apt install -y -V brave-browser
         log_message "SUCCESS" "Brave installed."
+        log_version "Brave" brave-browser
     else
         log_message "WARN" "Brave is already installed."
     fi
@@ -74,10 +75,11 @@ install_brave() {
 install_chrome() {
     if ! is_installed google-chrome-stable; then
         log_message "INFO" "Installing Google Chrome..."
-        wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O /tmp/google-chrome.deb
-        apt install -y /tmp/google-chrome.deb
+        wget --progress=bar:force -O /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        apt install -y -V /tmp/google-chrome.deb
         rm -f /tmp/google-chrome.deb
         log_message "SUCCESS" "Google Chrome installed."
+        log_version "Google Chrome" google-chrome-stable
     else
         log_message "WARN" "Google Chrome is already installed."
     fi
@@ -86,8 +88,9 @@ install_chrome() {
 install_firefox() {
     if ! command -v firefox &> /dev/null; then
         log_message "INFO" "Installing Firefox..."
-        apt install -y firefox
+        apt install -y -V firefox
         log_message "SUCCESS" "Firefox installed."
+        log_version "Firefox" firefox firefox
     else
         log_message "WARN" "Firefox is already installed."
     fi
@@ -99,8 +102,9 @@ install_vivaldi() {
                     "/usr/share/keyrings/vivaldi-browser.gpg" \
                     "deb [signed-by=/usr/share/keyrings/vivaldi-browser.gpg arch=amd64] https://repo.vivaldi.com/archive/deb/ stable main" \
                     "vivaldi"
-        apt update && apt install -y vivaldi-stable
+        apt update && apt install -y -V vivaldi-stable
         log_message "SUCCESS" "Vivaldi installed."
+        log_version "Vivaldi" vivaldi-stable
     else
         log_message "WARN" "Vivaldi is already installed."
     fi
@@ -109,8 +113,9 @@ install_vivaldi() {
 install_chromium() {
     if ! is_installed chromium && ! is_installed chromium-browser; then
         log_message "INFO" "Installing Chromium..."
-        apt install -y chromium || apt install -y chromium-browser
+        apt install -y -V chromium || apt install -y -V chromium-browser
         log_message "SUCCESS" "Chromium installed."
+        log_version "Chromium" chromium chromium
     else
         log_message "WARN" "Chromium is already installed."
     fi
@@ -119,15 +124,13 @@ install_chromium() {
 install_firefox_dev() {
     if [ ! -d "/opt/firefox-developer" ]; then
         log_message "INFO" "Installing Firefox Developer Edition..."
-        wget -qO /tmp/firefox-dev.tar.bz2 "https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US"
+        wget --progress=bar:force -O /tmp/firefox-dev.tar.bz2 "https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US"
         tar xjf /tmp/firefox-dev.tar.bz2 -C /opt/
         mv /opt/firefox /opt/firefox-developer
         rm -f /tmp/firefox-dev.tar.bz2
         
-        # Create symlink
         ln -sf /opt/firefox-developer/firefox /usr/local/bin/firefox-dev
         
-        # Create Desktop entry
         cat <<EOF > /usr/share/applications/firefox-developer.desktop
 [Desktop Entry]
 Name=Firefox Developer Edition
@@ -138,26 +141,38 @@ Type=Application
 Categories=Network;WebBrowser;
 EOF
         log_message "SUCCESS" "Firefox Developer Edition installed."
+        log_version "Firefox Developer Edition" "" firefox-dev
     else
         log_message "WARN" "Firefox Developer Edition is already installed."
     fi
 }
 
 install_ungoogled_chromium() {
-    if ! command -v ungoogled-chromium &> /dev/null && ! (command -v flatpak &> /dev/null && flatpak list | grep -q com.github.Eloston.UngoogledChromium); then
-        log_message "INFO" "Installing Ungoogled Chromium (via Flatpak)..."
+    if command -v ungoogled-chromium &> /dev/null; then
+        log_message "WARN" "Ungoogled Chromium is already installed."
+        return
+    fi
+    if command -v flatpak &> /dev/null && flatpak list | grep -q com.github.Eloston.UngoogledChromium; then
+        log_message "WARN" "Ungoogled Chromium is already installed (Flatpak)."
+        return
+    fi
+
+    if apt-cache show ungoogled-chromium &> /dev/null; then
+        log_message "INFO" "Installing Ungoogled Chromium via apt..."
+        apt install -y -V ungoogled-chromium
+        log_message "SUCCESS" "Ungoogled Chromium installed via apt."
+        log_version "Ungoogled Chromium" ungoogled-chromium
+    else
+        log_message "INFO" "Installing Ungoogled Chromium via Flatpak..."
         if ! command -v flatpak &> /dev/null; then
             log_message "INFO" "Flatpak not found. Installing Flatpak..."
-            apt install -y flatpak
+            apt install -y -V flatpak
             flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
         fi
         flatpak install -y flathub com.github.Eloston.UngoogledChromium
         
-        # Make a symlink to easily run it from terminal
         ln -sf /var/lib/flatpak/exports/bin/com.github.Eloston.UngoogledChromium /usr/local/bin/ungoogled-chromium
-        log_message "SUCCESS" "Ungoogled Chromium installed."
-    else
-        log_message "WARN" "Ungoogled Chromium is already installed."
+        log_message "SUCCESS" "Ungoogled Chromium installed via Flatpak."
     fi
 }
 
@@ -168,8 +183,9 @@ install_librewolf() {
         local keyring_path="/usr/share/keyrings/librewolf.gpg"
         curl -fsSL "$keyring_url" | gpg --dearmor -o "$keyring_path"
         echo "deb [arch=amd64 signed-by=$keyring_path] https://deb.librewolf.net $(lsb_release -sc) main" > /etc/apt/sources.list.d/librewolf.list
-        apt update && apt install -y librewolf
+        apt update && apt install -y -V librewolf
         log_message "SUCCESS" "LibreWolf installed."
+        log_version "LibreWolf" librewolf
     else
         log_message "WARN" "LibreWolf is already installed."
     fi
