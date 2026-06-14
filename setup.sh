@@ -17,6 +17,7 @@
 LOG_FILE="install.log"
 MINIMAL_MODE=false
 FULL_MODE=false
+DRY_RUN=false
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -59,9 +60,24 @@ log_message() {
 }
 
 check_sudo() {
+    if [ "$DRY_RUN" = true ]; then
+        log_message "INFO" "[DRY-RUN] Skipping root check."
+        return
+    fi
     if [[ $EUID -ne 0 ]]; then
         log_message "ERROR" "This script must be run with sudo."
         exit 1
+    fi
+}
+
+run_install() {
+    local desc="$1"
+    local cmd="$2"
+    if [ "$DRY_RUN" = true ]; then
+        log_message "INFO" "[DRY-RUN] Would install: $desc"
+        log_message "INFO" "[DRY-RUN] Command: $cmd"
+    else
+        eval "$cmd"
     fi
 }
 
@@ -348,6 +364,7 @@ usage() {
     echo "Options:"
     echo "  --minimal    Install only Browsers and Terminals"
     echo "  --full       Install everything (Browsers, Utilities, IDEs, Terminals)"
+    echo "  --dry-run    Print what would be installed without actually installing"
     echo "  --help       Show this help message"
     echo ""
     echo "Run without options for interactive menu."
@@ -362,9 +379,10 @@ main() {
     if [[ $# -gt 0 ]]; then
         while [[ $# -gt 0 ]]; do
             case $1 in
-                --minimal) MINIMAL_MODE=true; shift ;;
-                --full)    FULL_MODE=true; shift ;;
-                --help)    usage ;;
+            --minimal) MINIMAL_MODE=true; shift ;;
+            --full)    FULL_MODE=true; shift ;;
+            --dry-run) DRY_RUN=true; shift ;;
+            --help)    usage ;;
                 *)         log_message "ERROR" "Unknown option: $1"; usage ;;
             esac
         done
