@@ -151,6 +151,16 @@ show_ides_menu() {
     show_main_menu
 }
 
+install_single_terminal() {
+    local pkg="$1"
+    if ! is_installed "$pkg"; then
+        apt install -y "$pkg"
+        log_message "SUCCESS" "$pkg installed."
+    else
+        log_message "WARN" "$pkg is already installed."
+    fi
+}
+
 show_terminals_menu() {
     echo -e "\n${YELLOW}-- Terminals --${NC}"
     echo "1) Install Kitty"
@@ -162,10 +172,10 @@ show_terminals_menu() {
     echo -n "Select option: "
     read -r t_choice
     case $t_choice in
-        1) apt install -y kitty; log_message "SUCCESS" "Kitty installed." ;;
-        2) apt install -y alacritty; log_message "SUCCESS" "Alacritty installed." ;;
-        3) apt install -y tilix; log_message "SUCCESS" "Tilix installed." ;;
-        4) apt install -y gnome-terminal; log_message "SUCCESS" "GNOME Terminal installed." ;;
+        1) install_single_terminal kitty ;;
+        2) install_single_terminal alacritty ;;
+        3) install_single_terminal tilix ;;
+        4) install_single_terminal gnome-terminal ;;
         5) install_terminals ;;
         6) show_main_menu ;;
         *) log_message "WARN" "Invalid option"; show_terminals_menu ;;
@@ -174,6 +184,25 @@ show_terminals_menu() {
 }
 
 # --- Installation Modules (Expanded) ---
+
+ensure_prerequisites() {
+    local -A pkg_map
+    pkg_map[curl]=curl
+    pkg_map[wget]=wget
+    pkg_map[gpg]=gnupg
+    pkg_map[lsb_release]=lsb-release
+
+    local missing_pkgs=()
+    for cmd in "${!pkg_map[@]}"; do
+        if ! command -v "$cmd" &> /dev/null; then
+            missing_pkgs+=("${pkg_map[$cmd]}")
+        fi
+    done
+    if [ ${#missing_pkgs[@]} -gt 0 ]; then
+        log_message "INFO" "Installing missing prerequisites: ${missing_pkgs[*]}"
+        apt install -y "${missing_pkgs[@]}"
+    fi
+}
 
 update_system() {
     log_message "INFO" "Updating package lists and upgrading system..."
@@ -245,6 +274,7 @@ install_terminals() {
 
 run_installation() {
     log_message "INFO" "Starting installation..."
+    ensure_prerequisites
     update_system
 
     if [ "$FULL_MODE" = true ] || [ "$MINIMAL_MODE" = true ]; then
