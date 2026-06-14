@@ -135,7 +135,7 @@ show_ides_menu() {
     echo -e "\n${YELLOW}-- IDEs --${NC}"
     echo "1) Install VS Code"
     echo "2) Install Sublime Text"
-    echo "3) Install Antigravity IDE"
+    echo "3) Install JetBrains Toolbox"
     echo "4) Install All IDEs"
     echo "5) Back"
     echo -n "Select option: "
@@ -143,7 +143,7 @@ show_ides_menu() {
     case $i_choice in
         1) install_vscode ;;
         2) install_sublime ;;
-        3) install_antigravity ;;
+        3) install_jetbrains_toolbox ;;
         4) install_ides ;;
         5) show_main_menu ;;
         *) log_message "WARN" "Invalid option"; show_ides_menu ;;
