@@ -13,6 +13,7 @@ BROWSERS_LIST=(
     "Chromium|install_chromium"
     "Firefox Developer Edition|install_firefox_dev"
     "Ungoogled Chromium|install_ungoogled_chromium"
+    "LibreWolf|install_librewolf"
 )
 
 show_browsers_menu() {
@@ -160,6 +161,20 @@ install_ungoogled_chromium() {
     fi
 }
 
+install_librewolf() {
+    if ! is_installed librewolf; then
+        log_message "INFO" "Installing LibreWolf..."
+        local keyring_url="https://deb.librewolf.net/keyring.gpg"
+        local keyring_path="/usr/share/keyrings/librewolf.gpg"
+        curl -fsSL "$keyring_url" | gpg --dearmor -o "$keyring_path"
+        echo "deb [arch=amd64 signed-by=$keyring_path] https://deb.librewolf.net $(lsb_release -sc) main" > /etc/apt/sources.list.d/librewolf.list
+        apt update && apt install -y librewolf
+        log_message "SUCCESS" "LibreWolf installed."
+    else
+        log_message "WARN" "LibreWolf is already installed."
+    fi
+}
+
 install_browsers() {
     log_message "INFO" "--- Installing All Browsers ---"
     for browser_info in "${BROWSERS_LIST[@]}"; do
@@ -187,6 +202,7 @@ check_browsers_installations() {
                     installed=true
                 fi
                 ;;
+            install_librewolf) is_installed librewolf && installed=true ;;
         esac
         
         if [ "$installed" = true ]; then
