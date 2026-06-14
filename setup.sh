@@ -210,12 +210,47 @@ update_system() {
 }
 
 install_obsidian() {
-    log_message "INFO" "Installing Obsidian..."
-    log_message "WARN" "Obsidian installation placeholder (consider Flatpak: flatpak install flathub md.obsidian.Obsidian)"
+    if ! is_installed obsidian && ! command -v obsidian &> /dev/null; then
+        if command -v flatpak &> /dev/null; then
+            log_message "INFO" "Installing Obsidian via Flatpak..."
+            flatpak install -y flathub md.obsidian.Obsidian
+            log_message "SUCCESS" "Obsidian installed via Flatpak."
+        else
+            log_message "INFO" "Flatpak not found. Downloading latest Obsidian .deb..."
+            local deb_url=$(curl -s https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest \
+                | grep "browser_download_url.*_amd64.deb" \
+                | head -1 \
+                | cut -d '"' -f 4)
+            if [ -n "$deb_url" ]; then
+                wget -qO /tmp/obsidian.deb "$deb_url"
+                dpkg -i /tmp/obsidian.deb || apt install -f -y
+                rm -f /tmp/obsidian.deb
+                log_message "SUCCESS" "Obsidian installed."
+            else
+                log_message "ERROR" "Could not fetch Obsidian .deb URL."
+            fi
+        fi
+    else
+        log_message "WARN" "Obsidian is already installed."
+    fi
 }
 
 install_wps() {
-    log_message "INFO" "WPS Office installation placeholder (via .deb from official site)"
+    if ! is_installed wps-office; then
+        log_message "INFO" "Downloading WPS Office..."
+        local deb_url=$(curl -sL "https://www.wps.com/linux" \
+            | grep -oP 'https?://[^"'"'"' ]*\.deb[^"'"'"' >]*' \
+            | head -1)
+        if [ -z "$deb_url" ]; then
+            deb_url="https://wps-linux-personal.wpscdn.cn/wps/download/ep/Linux2019/11691/wps-office_11.1.0.11691_amd64.deb"
+        fi
+        wget -qO /tmp/wps.deb "$deb_url"
+        dpkg -i /tmp/wps.deb || apt install -f -y
+        rm -f /tmp/wps.deb
+        log_message "SUCCESS" "WPS Office installed."
+    else
+        log_message "WARN" "WPS Office is already installed."
+    fi
 }
 
 install_utilities() {
@@ -246,15 +281,33 @@ install_sublime() {
     fi
 }
 
-install_antigravity() {
-    log_message "INFO" "Antigravity IDE: Custom repository logic would go here."
+install_jetbrains_toolbox() {
+    if [ ! -d "/opt/jetbrains-toolbox" ]; then
+        log_message "INFO" "Installing JetBrains Toolbox..."
+        local toolbox_url=$(curl -s "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" \
+            | grep -oP '"linux":{"[^}]*"link":"[^"]*"' \
+            | grep -oP '"link":"[^"]*"' \
+            | cut -d '"' -f 4)
+        if [ -n "$toolbox_url" ]; then
+            wget -qO /tmp/jetbrains-toolbox.tar.gz "$toolbox_url"
+            mkdir -p /opt/jetbrains-toolbox
+            tar xzf /tmp/jetbrains-toolbox.tar.gz -C /opt/jetbrains-toolbox --strip-components=1
+            rm -f /tmp/jetbrains-toolbox.tar.gz
+            ln -sf /opt/jetbrains-toolbox/jetbrains-toolbox /usr/local/bin/jetbrains-toolbox
+            log_message "SUCCESS" "JetBrains Toolbox installed."
+        else
+            log_message "ERROR" "Could not fetch JetBrains Toolbox download URL."
+        fi
+    else
+        log_message "WARN" "JetBrains Toolbox is already installed."
+    fi
 }
 
 install_ides() {
     log_message "INFO" "--- Installing All IDEs ---"
     install_vscode
     install_sublime
-    install_antigravity
+    install_jetbrains_toolbox
 }
 
 install_terminals() {
