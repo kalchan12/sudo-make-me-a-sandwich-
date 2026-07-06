@@ -64,6 +64,8 @@ install_brave() {
         return
     fi
 
+    confirm_install "Brave" "brave-browser" || return
+
     case $DISTRO in
         debian)
             add_keyring "https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg" \
@@ -86,6 +88,8 @@ install_chrome() {
         log_message "WARN" "Google Chrome is already installed."
         return
     fi
+
+    confirm_install "Google Chrome" "" "Download from google.com" || return
 
     case $DISTRO in
         debian)
@@ -113,6 +117,7 @@ install_firefox() {
         return
     fi
 
+    confirm_install "Firefox" "firefox" || return
     install_with_fallback "Firefox" "firefox" "firefox" "org.mozilla.firefox" "firefox"
     log_version "Firefox" firefox firefox
 }
@@ -122,6 +127,8 @@ install_vivaldi() {
         log_message "WARN" "Vivaldi is already installed."
         return
     fi
+
+    confirm_install "Vivaldi" "vivaldi-stable" || return
 
     case $DISTRO in
         debian)
@@ -146,6 +153,8 @@ install_chromium() {
         return
     fi
 
+    confirm_install "Chromium" "chromium" || return
+
     case $DISTRO in
         debian)
             apt install -y -V chromium || apt install -y -V chromium-browser
@@ -168,6 +177,8 @@ install_firefox_dev() {
         log_message "WARN" "Firefox Developer Edition is already installed."
         return
     fi
+
+    confirm_install "Firefox Developer Edition" "" "Download from mozilla.org" || return
 
     case $DISTRO in
         debian)
@@ -213,6 +224,8 @@ install_ungoogled_chromium() {
         return
     fi
 
+    confirm_install "Ungoogled Chromium" "ungoogled-chromium" || return
+
     case $DISTRO in
         debian)
             if apt-cache show ungoogled-chromium &> /dev/null; then
@@ -244,6 +257,8 @@ install_librewolf() {
         log_message "WARN" "LibreWolf is already installed."
         return
     fi
+
+    confirm_install "LibreWolf" "librewolf" || return
 
     case $DISTRO in
         debian)

@@ -18,6 +18,7 @@ LOG_FILE="$(cd "$(dirname "$0")" && pwd)/install.log"
 MINIMAL_MODE=false
 FULL_MODE=false
 DRY_RUN=false
+YES_MODE=false
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -180,9 +181,10 @@ show_main_menu() {
     echo "2) Utilities"
     echo "3) IDEs"
     echo "4) Terminals"
-    echo "5) Full Installation (All Categories)"
-    echo "6) Minimal Installation (Browsers + Terminals)"
-    echo "7) Exit"
+    echo "5) Agentic IDEs"
+    echo "6) Full Installation (All Categories)"
+    echo "7) Minimal Installation (Browsers + Terminals)"
+    echo "8) Exit"
     echo -n "Select an option: "
     read -r choice
     case $choice in
@@ -190,9 +192,10 @@ show_main_menu() {
         2) show_utilities_menu ;;
         3) show_ides_menu ;;
         4) show_terminals_menu ;;
-        5) FULL_MODE=true; run_installation ;;
-        6) MINIMAL_MODE=true; run_installation ;;
-        7) log_message "INFO" "Exiting..."; exit 0 ;;
+        5) show_agentic_ides_menu ;;
+        6) FULL_MODE=true; run_installation ;;
+        7) MINIMAL_MODE=true; run_installation ;;
+        8) log_message "INFO" "Exiting..."; exit 0 ;;
         *) log_message "WARN" "Invalid option: $choice"; show_main_menu ;;
     esac
 }
@@ -202,16 +205,20 @@ show_utilities_menu() {
     echo "1) Install Obsidian"
     echo "2) Install WPS Office"
     echo "3) Install OBS Studio"
-    echo "4) Install All Utilities"
-    echo "5) Back"
+    echo "4) Install ffmpeg"
+    echo "5) Install yt-dlp"
+    echo "6) Install All Utilities"
+    echo "7) Back"
     echo -n "Select option: "
     read -r u_choice
     case $u_choice in
         1) install_obsidian ;;
         2) install_wps ;;
         3) install_obs_studio ;;
-        4) install_utilities ;;
-        5) show_main_menu ;;
+        4) install_ffmpeg ;;
+        5) install_yt_dlp ;;
+        6) install_utilities ;;
+        7) show_main_menu ;;
         *) log_message "WARN" "Invalid option"; show_utilities_menu ;;
     esac
     show_main_menu
@@ -240,6 +247,7 @@ show_ides_menu() {
 install_single_terminal() {
     local pkg="$1"
     if ! pkg_is_installed "$pkg" && ! command -v "$pkg" &> /dev/null; then
+        confirm_install "$pkg" "$pkg" || return
         log_message "INFO" "Installing $pkg..."
         pkg_install_native "$pkg"
         log_message "SUCCESS" "$pkg installed."
@@ -287,6 +295,8 @@ install_obsidian() {
         return
     fi
 
+    confirm_install "Obsidian" "obsidian" || return
+
     case $DISTRO in
         debian)
             if apt-cache show obsidian &> /dev/null; then
@@ -330,6 +340,8 @@ install_wps() {
         return
     fi
 
+    confirm_install "WPS Office" "" || return
+
     case $DISTRO in
         debian)
             if command -v flatpak &> /dev/null; then
@@ -351,7 +363,18 @@ install_wps() {
 }
 
 install_obs_studio() {
+    confirm_install "OBS Studio" "obs-studio" || return
     install_with_fallback "OBS Studio" "obs-studio" "obs-studio" "com.obsproject.Studio" "obs"
+}
+
+install_ffmpeg() {
+    confirm_install "ffmpeg" "ffmpeg" || return
+    install_with_fallback "ffmpeg" "ffmpeg" "ffmpeg" "org.ffmpeg.ffmpeg" "ffmpeg"
+}
+
+install_yt_dlp() {
+    confirm_install "yt-dlp" "yt-dlp" || return
+    install_with_fallback "yt-dlp" "yt-dlp" "yt-dlp" "" "yt-dlp"
 }
 
 install_utilities() {
@@ -359,6 +382,8 @@ install_utilities() {
     install_obsidian
     install_wps
     install_obs_studio
+    install_ffmpeg
+    install_yt_dlp
 }
 
 install_vscode() {
@@ -366,6 +391,8 @@ install_vscode() {
         log_message "WARN" "VS Code is already installed."
         return
     fi
+
+    confirm_install "VS Code" "code" || return
 
     case $DISTRO in
         debian)
@@ -390,6 +417,8 @@ install_sublime() {
         return
     fi
 
+    confirm_install "Sublime Text" "sublime-text" || return
+
     case $DISTRO in
         debian)
             add_keyring "https://download.sublimetext.com/sublimehq-pub.gpg" \
@@ -412,6 +441,8 @@ install_jetbrains_toolbox() {
         log_message "WARN" "JetBrains Toolbox is already installed."
         return
     fi
+
+    confirm_install "JetBrains Toolbox" "" "Direct download from JetBrains" || return
 
     log_message "INFO" "Installing JetBrains Toolbox..."
     local toolbox_url=$(curl -s "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" \
@@ -470,6 +501,7 @@ run_installation() {
     if [ "$FULL_MODE" = true ]; then
         install_utilities
         install_ides
+        install_all_agentic_ides
     fi
 
     log_message "SUCCESS" "Installation tasks complete! Check $LOG_FILE for details."
@@ -479,7 +511,8 @@ usage() {
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
     echo "  --minimal    Install only Browsers and Terminals"
-    echo "  --full       Install everything (Browsers, Utilities, IDEs, Terminals)"
+    echo "  --full       Install everything (Browsers, Utilities, IDEs, Agentic IDEs, Terminals)"
+    echo "  -y, --yes    Auto-confirm all installations (skip prompts)"
     echo "  --dry-run    Print what would be installed without actually installing"
     echo "  --help       Show this help message"
     echo ""
@@ -498,6 +531,7 @@ main() {
             case $1 in
             --minimal) MINIMAL_MODE=true; shift ;;
             --full)    FULL_MODE=true; shift ;;
+            -y|--yes)  YES_MODE=true; shift ;;
             --dry-run) DRY_RUN=true; shift ;;
             --help)    usage ;;
                 *)         log_message "ERROR" "Unknown option: $1"; usage ;;
