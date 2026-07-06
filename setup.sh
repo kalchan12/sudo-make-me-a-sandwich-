@@ -254,6 +254,7 @@ ensure_prerequisites() {
     pkg_map[wget]=wget
     pkg_map[gpg]=gnupg
     pkg_map[lsb_release]=lsb-release
+    pkg_map[jq]=jq
 
     local missing_pkgs=()
     for cmd in "${!pkg_map[@]}"; do
@@ -291,10 +292,9 @@ install_obsidian() {
     else
         log_message "INFO" "Flatpak not found. Downloading latest Obsidian .deb..."
         local deb_url=$(curl -s https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest \
-            | grep "browser_download_url.*_amd64.deb" \
-            | head -1 \
-            | cut -d '"' -f 4)
-        if [ -n "$deb_url" ]; then
+            | jq -r '.assets[] | select(.name | endswith("_amd64.deb")) | .browser_download_url' \
+            | head -1)
+        if [ -n "$deb_url" ] && [ "$deb_url" != "null" ]; then
             wget --progress=bar:force -O /tmp/obsidian.deb "$deb_url"
             dpkg -i /tmp/obsidian.deb || apt install -f -y
             rm -f /tmp/obsidian.deb
@@ -307,21 +307,21 @@ install_obsidian() {
 }
 
 install_wps() {
-    if ! is_installed wps-office; then
-        log_message "INFO" "Downloading WPS Office..."
-        local deb_url=$(curl -sL "https://www.wps.com/linux" \
-            | grep -oP 'https?://[^"'"'"' ]*\.deb[^"'"'"' >]*' \
-            | head -1)
-        if [ -z "$deb_url" ]; then
-            deb_url="https://wps-linux-personal.wpscdn.cn/wps/download/ep/Linux2019/11691/wps-office_11.1.0.11691_amd64.deb"
-        fi
-        wget --progress=bar:force -O /tmp/wps.deb "$deb_url"
-        dpkg -i /tmp/wps.deb || apt install -f -y
-        rm -f /tmp/wps.deb
-        log_message "SUCCESS" "WPS Office installed."
-        log_version "WPS Office" wps-office
-    else
+    if is_installed wps-office || command -v wps &> /dev/null; then
         log_message "WARN" "WPS Office is already installed."
+        return
+    fi
+
+    if command -v flatpak &> /dev/null; then
+        log_message "INFO" "Installing WPS Office via Flatpak..."
+        flatpak install -y flathub com.wps.Office
+        log_message "SUCCESS" "WPS Office installed via Flatpak."
+    else
+        log_message "INFO" "Installing Flatpak for WPS Office..."
+        apt install -y -V flatpak
+        flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+        flatpak install -y flathub com.wps.Office
+        log_message "SUCCESS" "WPS Office installed via Flatpak."
     fi
 }
 
@@ -359,10 +359,8 @@ install_jetbrains_toolbox() {
     if [ ! -d "/opt/jetbrains-toolbox" ]; then
         log_message "INFO" "Installing JetBrains Toolbox..."
         local toolbox_url=$(curl -s "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" \
-            | grep -oP '"linux":{"[^}]*"link":"[^"]*"' \
-            | grep -oP '"link":"[^"]*"' \
-            | cut -d '"' -f 4)
-        if [ -n "$toolbox_url" ]; then
+            | jq -r '.TBA[0].downloads.linux.link')
+        if [ -n "$toolbox_url" ] && [ "$toolbox_url" != "null" ]; then
             wget --progress=bar:force -O /tmp/jetbrains-toolbox.tar.gz "$toolbox_url"
             mkdir -p /opt/jetbrains-toolbox
             tar xzf /tmp/jetbrains-toolbox.tar.gz -C /opt/jetbrains-toolbox --strip-components=1
