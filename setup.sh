@@ -110,27 +110,39 @@ install_apt_or_flatpak() {
     local flatpak_id="$2"
     local display_name="${3:-$pkg_name}"
 
-    if is_installed "$pkg_name" || command -v "$pkg_name" &> /dev/null; then
+    if pkg_is_installed "$pkg_name" || command -v "$pkg_name" &> /dev/null; then
         log_message "WARN" "$display_name is already installed."
         return
     fi
 
-    if apt-cache show "$pkg_name" &> /dev/null; then
-        log_message "INFO" "Installing $display_name via apt..."
-        apt install -y -V "$pkg_name"
-        log_message "SUCCESS" "$display_name installed via apt."
-        log_version "$display_name" "$pkg_name"
-    elif command -v flatpak &> /dev/null; then
-        log_message "INFO" "Installing $display_name via Flatpak..."
-        flatpak install -y flathub "$flatpak_id"
-        log_message "SUCCESS" "$display_name installed via Flatpak."
-    else
-        log_message "ERROR" "$display_name not available via apt or Flatpak."
-        return 1
-    fi
+    case $DISTRO in
+        debian)
+            if apt-cache show "$pkg_name" &> /dev/null; then
+                log_message "INFO" "Installing $display_name via apt..."
+                apt install -y -V "$pkg_name"
+                log_message "SUCCESS" "$display_name installed via apt."
+                log_version "$display_name" "$pkg_name"
+            elif command -v flatpak &> /dev/null; then
+                log_message "INFO" "Installing $display_name via Flatpak..."
+                flatpak install -y flathub "$flatpak_id"
+                log_message "SUCCESS" "$display_name installed via Flatpak."
+            else
+                log_message "ERROR" "$display_name not available via apt or Flatpak."
+                return 1
+            fi
+            ;;
+        arch)
+            install_with_fallback "$display_name" "$pkg_name" "$pkg_name" "$flatpak_id" "$pkg_name"
+            return $?
+            ;;
+    esac
 }
 
 add_keyring() {
+    if [ "$DISTRO" != "debian" ]; then
+        return 1
+    fi
+
     local KEY_URL=$1
     local KEYRING_PATH=$2
     local REPO_LINE=$3
@@ -143,6 +155,14 @@ add_keyring() {
     fi
     echo "$REPO_LINE" > "/etc/apt/sources.list.d/${LIST_FILE}.list"
 }
+
+# --- Core Modules ---
+CORE_DIR="$(dirname "$0")/core"
+for c in "$CORE_DIR"/*.sh; do
+    if [ -f "$c" ]; then
+        source "$c"
+    fi
+done
 
 # --- External Modules ---
 MODULES_DIR="$(dirname "$0")/modules"
@@ -181,15 +201,17 @@ show_utilities_menu() {
     echo -e "\n${YELLOW}-- Utilities --${NC}"
     echo "1) Install Obsidian"
     echo "2) Install WPS Office"
-    echo "3) Install All Utilities"
-    echo "4) Back"
+    echo "3) Install OBS Studio"
+    echo "4) Install All Utilities"
+    echo "5) Back"
     echo -n "Select option: "
     read -r u_choice
     case $u_choice in
         1) install_obsidian ;;
         2) install_wps ;;
-        3) install_utilities ;;
-        4) show_main_menu ;;
+        3) install_obs_studio ;;
+        4) install_utilities ;;
+        5) show_main_menu ;;
         *) log_message "WARN" "Invalid option"; show_utilities_menu ;;
     esac
     show_main_menu
@@ -217,9 +239,9 @@ show_ides_menu() {
 
 install_single_terminal() {
     local pkg="$1"
-    if ! is_installed "$pkg"; then
+    if ! pkg_is_installed "$pkg" && ! command -v "$pkg" &> /dev/null; then
         log_message "INFO" "Installing $pkg..."
-        apt install -y -V "$pkg"
+        pkg_install_native "$pkg"
         log_message "SUCCESS" "$pkg installed."
         log_version "$pkg" "$pkg"
     else
@@ -252,139 +274,162 @@ show_terminals_menu() {
 # --- Installation Modules (Expanded) ---
 
 ensure_prerequisites() {
-    local -A pkg_map
-    pkg_map[curl]=curl
-    pkg_map[wget]=wget
-    pkg_map[gpg]=gnupg
-    pkg_map[lsb_release]=lsb-release
-    pkg_map[jq]=jq
-    pkg_map[flatpak]=flatpak
-
-    local missing_pkgs=()
-    for cmd in "${!pkg_map[@]}"; do
-        if ! command -v "$cmd" &> /dev/null; then
-            missing_pkgs+=("${pkg_map[$cmd]}")
-        fi
-    done
-    if [ ${#missing_pkgs[@]} -gt 0 ]; then
-        log_message "INFO" "Installing missing prerequisites: ${missing_pkgs[*]}"
-        apt install -y -V "${missing_pkgs[@]}"
-    fi
+    pkg_ensure_prerequisites
 }
 
 update_system() {
-    log_message "INFO" "Updating package lists and upgrading system..."
-    apt update && apt upgrade -y -V
-    log_message "SUCCESS" "System is up to date."
+    pkg_update_system
 }
 
 install_obsidian() {
-    if is_installed obsidian || command -v obsidian &> /dev/null; then
+    if command -v obsidian &> /dev/null; then
         log_message "WARN" "Obsidian is already installed."
         return
     fi
 
-    if apt-cache show obsidian &> /dev/null; then
-        log_message "INFO" "Installing Obsidian via apt..."
-        apt install -y -V obsidian
-        log_message "SUCCESS" "Obsidian installed via apt."
-        log_version "Obsidian" obsidian
-    elif command -v flatpak &> /dev/null; then
-        log_message "INFO" "Installing Obsidian via Flatpak..."
-        flatpak install -y flathub md.obsidian.Obsidian
-        log_message "SUCCESS" "Obsidian installed via Flatpak."
-    else
-        log_message "INFO" "Flatpak not found. Downloading latest Obsidian .deb..."
-        local deb_url=$(curl -s https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest \
-            | jq -r '.assets[] | select(.name | endswith("_amd64.deb")) | .browser_download_url' \
-            | head -1)
-        if [ -n "$deb_url" ] && [ "$deb_url" != "null" ]; then
-            if ! wget --progress=bar:force -O /tmp/obsidian.deb "$deb_url"; then
-                log_message "ERROR" "Failed to download Obsidian .deb"
-                rm -f /tmp/obsidian.deb
-                return
+    case $DISTRO in
+        debian)
+            if apt-cache show obsidian &> /dev/null; then
+                log_message "INFO" "Installing Obsidian via apt..."
+                apt install -y -V obsidian
+                log_message "SUCCESS" "Obsidian installed via apt."
+            elif command -v flatpak &> /dev/null; then
+                log_message "INFO" "Installing Obsidian via Flatpak..."
+                flatpak install -y flathub md.obsidian.Obsidian
+                log_message "SUCCESS" "Obsidian installed via Flatpak."
+            else
+                log_message "INFO" "Flatpak not found. Downloading latest Obsidian .deb..."
+                local deb_url=$(curl -s https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest \
+                    | jq -r '.assets[] | select(.name | endswith("_amd64.deb")) | .browser_download_url' \
+                    | head -1)
+                if [ -n "$deb_url" ] && [ "$deb_url" != "null" ]; then
+                    if ! wget --progress=bar:force -O /tmp/obsidian.deb "$deb_url"; then
+                        log_message "ERROR" "Failed to download Obsidian .deb"
+                        rm -f /tmp/obsidian.deb
+                        return
+                    fi
+                    dpkg -i /tmp/obsidian.deb || apt install -f -y
+                    rm -f /tmp/obsidian.deb
+                    log_message "SUCCESS" "Obsidian installed via .deb."
+                else
+                    log_message "ERROR" "Could not fetch Obsidian .deb URL."
+                fi
             fi
-            dpkg -i /tmp/obsidian.deb || apt install -f -y
-            rm -f /tmp/obsidian.deb
-            log_message "SUCCESS" "Obsidian installed via .deb."
-            log_version "Obsidian" obsidian
-        else
-            log_message "ERROR" "Could not fetch Obsidian .deb URL."
-        fi
-    fi
+            ;;
+        arch)
+            install_with_fallback "Obsidian" "obsidian" "obsidian" "md.obsidian.Obsidian" "obsidian"
+            return $?
+            ;;
+    esac
+    log_version "Obsidian" obsidian
 }
 
 install_wps() {
-    if is_installed wps-office || command -v wps &> /dev/null; then
+    if command -v wps &> /dev/null; then
         log_message "WARN" "WPS Office is already installed."
         return
     fi
 
-    if command -v flatpak &> /dev/null; then
-        log_message "INFO" "Installing WPS Office via Flatpak..."
-        flatpak install -y flathub com.wps.Office
-        log_message "SUCCESS" "WPS Office installed via Flatpak."
-    else
-        log_message "INFO" "Installing Flatpak for WPS Office..."
-        apt install -y -V flatpak
-        flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-        flatpak install -y flathub com.wps.Office
-        log_message "SUCCESS" "WPS Office installed via Flatpak."
-    fi
+    case $DISTRO in
+        debian)
+            if command -v flatpak &> /dev/null; then
+                log_message "INFO" "Installing WPS Office via Flatpak..."
+                flatpak install -y flathub com.wps.Office
+            else
+                log_message "INFO" "Installing Flatpak for WPS Office..."
+                apt install -y -V flatpak
+                flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+                flatpak install -y flathub com.wps.Office
+            fi
+            ;;
+        arch)
+            install_with_fallback "WPS Office" "" "wps-office" "com.wps.Office" "wps"
+            return $?
+            ;;
+    esac
+    log_message "SUCCESS" "WPS Office installed via Flatpak."
+}
+
+install_obs_studio() {
+    install_with_fallback "OBS Studio" "obs-studio" "obs-studio" "com.obsproject.Studio" "obs"
 }
 
 install_utilities() {
     log_message "INFO" "--- Installing Utilities ---"
     install_obsidian
     install_wps
+    install_obs_studio
 }
 
 install_vscode() {
-    if ! is_installed code; then
-        add_keyring "https://packages.microsoft.com/keys/microsoft.asc" \
-                    "/usr/share/keyrings/packages.microsoft.gpg" \
-                    "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
-                    "vscode"
-        apt update && apt install -y -V code
-        log_message "SUCCESS" "VS Code installed."
-        log_version "VS Code" code
+    if command -v code &> /dev/null; then
+        log_message "WARN" "VS Code is already installed."
+        return
     fi
+
+    case $DISTRO in
+        debian)
+            add_keyring "https://packages.microsoft.com/keys/microsoft.asc" \
+                        "/usr/share/keyrings/packages.microsoft.gpg" \
+                        "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
+                        "vscode"
+            apt update && apt install -y -V code
+            ;;
+        arch)
+            install_with_fallback "VS Code" "code" "visual-studio-code-bin" "com.visualstudio.code" "code"
+            return $?
+            ;;
+    esac
+    log_message "SUCCESS" "VS Code installed."
+    log_version "VS Code" code
 }
 
 install_sublime() {
-    if ! is_installed sublime-text; then
-        add_keyring "https://download.sublimetext.com/sublimehq-pub.gpg" \
-                    "/usr/share/keyrings/sublimehq-archive-keyring.gpg" \
-                    "deb [signed-by=/usr/share/keyrings/sublimehq-archive-keyring.gpg] https://download.sublimetext.com/ apt/stable/" \
-                    "sublime-text"
-        apt update && apt install -y -V sublime-text
-        log_message "SUCCESS" "Sublime Text installed."
-        log_version "Sublime Text" sublime-text
+    if command -v subl &> /dev/null; then
+        log_message "WARN" "Sublime Text is already installed."
+        return
     fi
+
+    case $DISTRO in
+        debian)
+            add_keyring "https://download.sublimetext.com/sublimehq-pub.gpg" \
+                        "/usr/share/keyrings/sublimehq-archive-keyring.gpg" \
+                        "deb [signed-by=/usr/share/keyrings/sublimehq-archive-keyring.gpg] https://download.sublimetext.com/ apt/stable/" \
+                        "sublime-text"
+            apt update && apt install -y -V sublime-text
+            ;;
+        arch)
+            install_with_fallback "Sublime Text" "" "sublime-text" "com.sublimetext.three" "subl"
+            return $?
+            ;;
+    esac
+    log_message "SUCCESS" "Sublime Text installed."
+    log_version "Sublime Text" sublime-text
 }
 
 install_jetbrains_toolbox() {
-    if [ ! -d "/opt/jetbrains-toolbox" ]; then
-        log_message "INFO" "Installing JetBrains Toolbox..."
-        local toolbox_url=$(curl -s "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" \
-            | jq -r '.TBA[0].downloads.linux.link')
-        if [ -n "$toolbox_url" ] && [ "$toolbox_url" != "null" ]; then
-            if ! wget --progress=bar:force -O /tmp/jetbrains-toolbox.tar.gz "$toolbox_url"; then
-                log_message "ERROR" "Failed to download JetBrains Toolbox"
-                rm -f /tmp/jetbrains-toolbox.tar.gz
-                return
-            fi
-            mkdir -p /opt/jetbrains-toolbox
-            tar xzf /tmp/jetbrains-toolbox.tar.gz -C /opt/jetbrains-toolbox --strip-components=1
-            rm -f /tmp/jetbrains-toolbox.tar.gz
-            ln -sf /opt/jetbrains-toolbox/jetbrains-toolbox /usr/local/bin/jetbrains-toolbox
-            log_message "SUCCESS" "JetBrains Toolbox installed."
-            log_version "JetBrains Toolbox" "" jetbrains-toolbox
-        else
-            log_message "ERROR" "Could not fetch JetBrains Toolbox download URL."
-        fi
-    else
+    if [ -d "/opt/jetbrains-toolbox" ] || command -v jetbrains-toolbox &> /dev/null; then
         log_message "WARN" "JetBrains Toolbox is already installed."
+        return
+    fi
+
+    log_message "INFO" "Installing JetBrains Toolbox..."
+    local toolbox_url=$(curl -s "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" \
+        | jq -r '.TBA[0].downloads.linux.link')
+    if [ -n "$toolbox_url" ] && [ "$toolbox_url" != "null" ]; then
+        if ! wget --progress=bar:force -O /tmp/jetbrains-toolbox.tar.gz "$toolbox_url"; then
+            log_message "ERROR" "Failed to download JetBrains Toolbox"
+            rm -f /tmp/jetbrains-toolbox.tar.gz
+            return
+        fi
+        mkdir -p /opt/jetbrains-toolbox
+        tar xzf /tmp/jetbrains-toolbox.tar.gz -C /opt/jetbrains-toolbox --strip-components=1
+        rm -f /tmp/jetbrains-toolbox.tar.gz
+        ln -sf /opt/jetbrains-toolbox/jetbrains-toolbox /usr/local/bin/jetbrains-toolbox
+        log_message "SUCCESS" "JetBrains Toolbox installed."
+        log_version "JetBrains Toolbox" "" jetbrains-toolbox
+    else
+        log_message "ERROR" "Could not fetch JetBrains Toolbox download URL."
     fi
 }
 
@@ -399,9 +444,9 @@ install_terminals() {
     log_message "INFO" "--- Installing All Terminals ---"
     local terminals=("kitty" "alacritty" "tilix" "gnome-terminal")
     for t in "${terminals[@]}"; do
-        if ! is_installed "$t"; then
+        if ! pkg_is_installed "$t" && ! command -v "$t" &> /dev/null; then
             log_message "INFO" "Installing $t..."
-            apt install -y -V "$t"
+            pkg_install_native "$t"
             log_message "SUCCESS" "$t installed."
             log_version "$t" "$t"
         else
@@ -445,6 +490,7 @@ usage() {
 main() {
     check_sudo
     show_banner
+    detect_distro
 
     # Check for flags
     if [[ $# -gt 0 ]]; then
