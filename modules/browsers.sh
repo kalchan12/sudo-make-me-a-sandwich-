@@ -59,88 +59,132 @@ show_browsers_menu() {
 }
 
 install_brave() {
-    if ! is_installed brave-browser; then
-        add_keyring "https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg" \
-                    "/usr/share/keyrings/brave-browser-archive-keyring.gpg" \
-                    "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" \
-                    "brave-browser-release"
-        apt update && apt install -y -V brave-browser
-        log_message "SUCCESS" "Brave installed."
-        log_version "Brave" brave-browser
-    else
+    if command -v brave-browser &> /dev/null; then
         log_message "WARN" "Brave is already installed."
+        return
     fi
+
+    case $DISTRO in
+        debian)
+            add_keyring "https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg" \
+                        "/usr/share/keyrings/brave-browser-archive-keyring.gpg" \
+                        "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" \
+                        "brave-browser-release"
+            apt update && apt install -y -V brave-browser
+            ;;
+        arch)
+            install_with_fallback "Brave" "brave-browser" "brave-bin" "com.brave.Browser" "brave-browser"
+            return $?
+            ;;
+    esac
+    log_message "SUCCESS" "Brave installed."
+    log_version "Brave" brave-browser
 }
 
 install_chrome() {
-    if ! is_installed google-chrome-stable; then
-        log_message "INFO" "Installing Google Chrome..."
-        if ! wget --progress=bar:force -O /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb; then
-            log_message "ERROR" "Failed to download Google Chrome"
-            rm -f /tmp/google-chrome.deb
-            return
-        fi
-        apt install -y -V /tmp/google-chrome.deb
-        rm -f /tmp/google-chrome.deb
-        log_message "SUCCESS" "Google Chrome installed."
-        log_version "Google Chrome" google-chrome-stable
-    else
+    if command -v google-chrome-stable &> /dev/null; then
         log_message "WARN" "Google Chrome is already installed."
+        return
     fi
+
+    case $DISTRO in
+        debian)
+            log_message "INFO" "Installing Google Chrome..."
+            if ! wget --progress=bar:force -O /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb; then
+                log_message "ERROR" "Failed to download Google Chrome"
+                rm -f /tmp/google-chrome.deb
+                return
+            fi
+            apt install -y -V /tmp/google-chrome.deb
+            rm -f /tmp/google-chrome.deb
+            ;;
+        arch)
+            install_with_fallback "Google Chrome" "" "google-chrome" "com.google.Chrome" "google-chrome-stable"
+            return $?
+            ;;
+    esac
+    log_message "SUCCESS" "Google Chrome installed."
+    log_version "Google Chrome" google-chrome-stable
 }
 
 install_firefox() {
-    if ! command -v firefox &> /dev/null; then
-        log_message "INFO" "Installing Firefox..."
-        apt install -y -V firefox
-        log_message "SUCCESS" "Firefox installed."
-        log_version "Firefox" firefox firefox
-    else
+    if command -v firefox &> /dev/null; then
         log_message "WARN" "Firefox is already installed."
+        return
     fi
+
+    install_with_fallback "Firefox" "firefox" "firefox" "org.mozilla.firefox" "firefox"
+    log_version "Firefox" firefox firefox
 }
 
 install_vivaldi() {
-    if ! is_installed vivaldi-stable; then
-        add_keyring "https://repo.vivaldi.com/archive/linux_signing_key.pub" \
-                    "/usr/share/keyrings/vivaldi-browser.gpg" \
-                    "deb [signed-by=/usr/share/keyrings/vivaldi-browser.gpg arch=amd64] https://repo.vivaldi.com/archive/deb/ stable main" \
-                    "vivaldi"
-        apt update && apt install -y -V vivaldi-stable
-        log_message "SUCCESS" "Vivaldi installed."
-        log_version "Vivaldi" vivaldi-stable
-    else
+    if command -v vivaldi-stable &> /dev/null; then
         log_message "WARN" "Vivaldi is already installed."
+        return
     fi
+
+    case $DISTRO in
+        debian)
+            add_keyring "https://repo.vivaldi.com/archive/linux_signing_key.pub" \
+                        "/usr/share/keyrings/vivaldi-browser.gpg" \
+                        "deb [signed-by=/usr/share/keyrings/vivaldi-browser.gpg arch=amd64] https://repo.vivaldi.com/archive/deb/ stable main" \
+                        "vivaldi"
+            apt update && apt install -y -V vivaldi-stable
+            ;;
+        arch)
+            install_with_fallback "Vivaldi" "vivaldi" "vivaldi" "com.vivaldi.Vivaldi" "vivaldi-stable"
+            return $?
+            ;;
+    esac
+    log_message "SUCCESS" "Vivaldi installed."
+    log_version "Vivaldi" vivaldi-stable
 }
 
 install_chromium() {
-    if ! is_installed chromium && ! is_installed chromium-browser; then
-        log_message "INFO" "Installing Chromium..."
-        apt install -y -V chromium || apt install -y -V chromium-browser
-        log_message "SUCCESS" "Chromium installed."
-        log_version "Chromium" chromium chromium
-    else
+    if command -v chromium &> /dev/null || command -v chromium-browser &> /dev/null; then
         log_message "WARN" "Chromium is already installed."
+        return
     fi
+
+    case $DISTRO in
+        debian)
+            apt install -y -V chromium || apt install -y -V chromium-browser
+            ;;
+        arch)
+            install_with_fallback "Chromium" "chromium" "chromium" "org.chromium.Chromium" "chromium"
+            return $?
+            ;;
+    esac
+    log_message "SUCCESS" "Chromium installed."
+    log_version "Chromium" chromium chromium
 }
 
 install_firefox_dev() {
-    if [ ! -d "/opt/firefox-developer" ] || [ ! -f "/opt/firefox-developer/firefox" ]; then
-        rm -rf /opt/firefox-developer
-        log_message "INFO" "Installing Firefox Developer Edition..."
-        if ! wget --progress=bar:force -O /tmp/firefox-dev.tar.bz2 "https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US"; then
-            log_message "ERROR" "Failed to download Firefox Developer Edition"
+    if [ -d "/opt/firefox-developer" ] && [ -f "/opt/firefox-developer/firefox" ]; then
+        log_message "WARN" "Firefox Developer Edition is already installed."
+        return
+    fi
+    if command -v firefox-dev &> /dev/null; then
+        log_message "WARN" "Firefox Developer Edition is already installed."
+        return
+    fi
+
+    case $DISTRO in
+        debian)
+            rm -rf /opt/firefox-developer
+            log_message "INFO" "Installing Firefox Developer Edition..."
+            if ! wget --progress=bar:force -O /tmp/firefox-dev.tar.bz2 "https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US"; then
+                log_message "ERROR" "Failed to download Firefox Developer Edition"
+                rm -f /tmp/firefox-dev.tar.bz2
+                return
+            fi
+            tar xjf /tmp/firefox-dev.tar.bz2 -C /opt/
+            mv /opt/firefox /opt/firefox-developer
             rm -f /tmp/firefox-dev.tar.bz2
-            return
-        fi
-        tar xjf /tmp/firefox-dev.tar.bz2 -C /opt/
-        mv /opt/firefox /opt/firefox-developer
-        rm -f /tmp/firefox-dev.tar.bz2
-        
-        ln -sf /opt/firefox-developer/firefox /usr/local/bin/firefox-dev
-        
-        cat <<EOF > /usr/share/applications/firefox-developer.desktop
+
+            ln -sf /opt/firefox-developer/firefox /usr/local/bin/firefox-dev
+
+            cat <<EOF > /usr/share/applications/firefox-developer.desktop
 [Desktop Entry]
 Name=Firefox Developer Edition
 Exec=/opt/firefox-developer/firefox %u
@@ -149,11 +193,14 @@ Terminal=false
 Type=Application
 Categories=Network;WebBrowser;
 EOF
-        log_message "SUCCESS" "Firefox Developer Edition installed."
-        log_version "Firefox Developer Edition" "" firefox-dev
-    else
-        log_message "WARN" "Firefox Developer Edition is already installed."
-    fi
+            ;;
+        arch)
+            install_with_fallback "Firefox Developer Edition" "" "firefox-developer-edition" "" "firefox-dev"
+            return $?
+            ;;
+    esac
+    log_message "SUCCESS" "Firefox Developer Edition installed."
+    log_version "Firefox Developer Edition" "" firefox-dev
 }
 
 install_ungoogled_chromium() {
@@ -166,39 +213,55 @@ install_ungoogled_chromium() {
         return
     fi
 
-    if apt-cache show ungoogled-chromium &> /dev/null; then
-        log_message "INFO" "Installing Ungoogled Chromium via apt..."
-        apt install -y -V ungoogled-chromium
-        log_message "SUCCESS" "Ungoogled Chromium installed via apt."
-        log_version "Ungoogled Chromium" ungoogled-chromium
-    else
-        log_message "INFO" "Installing Ungoogled Chromium via Flatpak..."
-        if ! command -v flatpak &> /dev/null; then
-            log_message "INFO" "Flatpak not found. Installing Flatpak..."
-            apt install -y -V flatpak
-            flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-        fi
-        flatpak install -y flathub com.github.Eloston.UngoogledChromium
-        
-        ln -sf /var/lib/flatpak/exports/bin/com.github.Eloston.UngoogledChromium /usr/local/bin/ungoogled-chromium
-        log_message "SUCCESS" "Ungoogled Chromium installed via Flatpak."
-    fi
+    case $DISTRO in
+        debian)
+            if apt-cache show ungoogled-chromium &> /dev/null; then
+                log_message "INFO" "Installing Ungoogled Chromium via apt..."
+                apt install -y -V ungoogled-chromium
+                log_message "SUCCESS" "Ungoogled Chromium installed via apt."
+            else
+                log_message "INFO" "Installing Ungoogled Chromium via Flatpak..."
+                if ! command -v flatpak &> /dev/null; then
+                    log_message "INFO" "Flatpak not found. Installing Flatpak..."
+                    apt install -y -V flatpak
+                    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+                fi
+                flatpak install -y flathub com.github.Eloston.UngoogledChromium
+                ln -sf /var/lib/flatpak/exports/bin/com.github.Eloston.UngoogledChromium /usr/local/bin/ungoogled-chromium
+                log_message "SUCCESS" "Ungoogled Chromium installed via Flatpak."
+            fi
+            ;;
+        arch)
+            install_with_fallback "Ungoogled Chromium" "" "ungoogled-chromium-git" "com.github.Eloston.UngoogledChromium" "ungoogled-chromium"
+            return $?
+            ;;
+    esac
+    log_version "Ungoogled Chromium" ungoogled-chromium
 }
 
 install_librewolf() {
-    if ! is_installed librewolf; then
-        log_message "INFO" "Installing LibreWolf..."
-        ensure_prerequisites
-        local keyring_url="https://deb.librewolf.net/keyring.gpg"
-        local keyring_path="/usr/share/keyrings/librewolf.gpg"
-        curl -fsSL "$keyring_url" | gpg --dearmor -o "$keyring_path"
-        echo "deb [arch=amd64 signed-by=$keyring_path] https://deb.librewolf.net $(lsb_release -sc) main" > /etc/apt/sources.list.d/librewolf.list
-        apt update && apt install -y -V librewolf
-        log_message "SUCCESS" "LibreWolf installed."
-        log_version "LibreWolf" librewolf
-    else
+    if command -v librewolf &> /dev/null; then
         log_message "WARN" "LibreWolf is already installed."
+        return
     fi
+
+    case $DISTRO in
+        debian)
+            log_message "INFO" "Installing LibreWolf..."
+            ensure_prerequisites
+            local keyring_url="https://deb.librewolf.net/keyring.gpg"
+            local keyring_path="/usr/share/keyrings/librewolf.gpg"
+            curl -fsSL "$keyring_url" | gpg --dearmor -o "$keyring_path"
+            echo "deb [arch=amd64 signed-by=$keyring_path] https://deb.librewolf.net $(lsb_release -sc) main" > /etc/apt/sources.list.d/librewolf.list
+            apt update && apt install -y -V librewolf
+            ;;
+        arch)
+            install_with_fallback "LibreWolf" "librewolf" "librewolf-bin" "io.gitlab.librewolf-community" "librewolf"
+            return $?
+            ;;
+    esac
+    log_message "SUCCESS" "LibreWolf installed."
+    log_version "LibreWolf" librewolf
 }
 
 install_browsers() {
