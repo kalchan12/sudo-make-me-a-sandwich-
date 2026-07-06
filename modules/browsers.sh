@@ -280,18 +280,18 @@ check_browsers_installations() {
         
         local installed=false
         case $func_name in
-            install_brave) is_installed brave-browser && installed=true ;;
-            install_chrome) is_installed google-chrome-stable && installed=true ;;
+            install_brave) command -v brave-browser &> /dev/null && installed=true ;;
+            install_chrome) command -v google-chrome-stable &> /dev/null && installed=true ;;
             install_firefox) command -v firefox &> /dev/null && installed=true ;;
-            install_vivaldi) is_installed vivaldi-stable && installed=true ;;
-            install_chromium) (is_installed chromium || is_installed chromium-browser) && installed=true ;;
-            install_firefox_dev) [ -d "/opt/firefox-developer" ] && installed=true ;;
+            install_vivaldi) command -v vivaldi-stable &> /dev/null && installed=true ;;
+            install_chromium) ( command -v chromium &> /dev/null || command -v chromium-browser &> /dev/null ) && installed=true ;;
+            install_firefox_dev) ( [ -d "/opt/firefox-developer" ] || command -v firefox-dev &> /dev/null ) && installed=true ;;
             install_ungoogled_chromium)
                 if command -v ungoogled-chromium &> /dev/null || (command -v flatpak &> /dev/null && flatpak list | grep -q com.github.Eloston.UngoogledChromium); then
                     installed=true
                 fi
                 ;;
-            install_librewolf) is_installed librewolf && installed=true ;;
+            install_librewolf) command -v librewolf &> /dev/null && installed=true ;;
         esac
         
         if [ "$installed" = true ]; then
