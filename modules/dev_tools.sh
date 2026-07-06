@@ -272,9 +272,14 @@ show_dev_tools_menu() {
     echo "$all_idx) Install All Dev Tools"
     local back_idx=$((all_idx + 1))
     echo "$back_idx) Back"
+    echo -e "${CYAN}(Use 'eN' to learn about tool N, e.g. 'e1')${NC}"
     echo -n "Select option: "
     read -r dt_choice
-    if [ "$dt_choice" = "all" ] || [ "$dt_choice" = "$all_idx" ]; then
+    if [[ "$dt_choice" =~ ^e([0-9]+)$ ]]; then
+        _explain_by_index DEV_TOOLS_LIST "${BASH_REMATCH[1]}"
+        show_dev_tools_menu
+        return
+    elif [ "$dt_choice" = "all" ] || [ "$dt_choice" = "$all_idx" ]; then
         install_dev_tools
     elif [ "$dt_choice" = "$back_idx" ]; then
         show_main_menu

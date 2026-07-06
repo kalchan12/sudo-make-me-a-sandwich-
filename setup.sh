@@ -199,8 +199,19 @@ show_utilities_menu() {
     echo "5) Install yt-dlp"
     echo "6) Install All Utilities"
     echo "7) Back"
+    echo -e "${CYAN}(Use 'eN' to learn about tool N, e.g. 'e1')${NC}"
     echo -n "Select option: "
     read -r u_choice
+    if [[ "$u_choice" =~ ^e([0-9]+)$ ]]; then
+        case "${BASH_REMATCH[1]}" in
+            1) _explain_tool "Obsidian" ;;
+            2) _explain_tool "WPS Office" ;;
+            3) _explain_tool "OBS Studio" ;;
+            4) _explain_tool "ffmpeg" ;;
+            5) _explain_tool "yt-dlp" ;;
+        esac
+        show_utilities_menu; return
+    fi
     case $u_choice in
         1) install_obsidian ;;
         2) install_wps ;;
@@ -221,8 +232,17 @@ show_ides_menu() {
     echo "3) Install JetBrains Toolbox"
     echo "4) Install All IDEs"
     echo "5) Back"
+    echo -e "${CYAN}(Use 'eN' to learn about tool N, e.g. 'e1')${NC}"
     echo -n "Select option: "
     read -r i_choice
+    if [[ "$i_choice" =~ ^e([0-9]+)$ ]]; then
+        case "${BASH_REMATCH[1]}" in
+            1) _explain_tool "VS Code" ;;
+            2) _explain_tool "Sublime Text" ;;
+            3) _explain_tool "JetBrains Toolbox" ;;
+        esac
+        show_ides_menu; return
+    fi
     case $i_choice in
         1) install_vscode ;;
         2) install_sublime ;;
@@ -255,8 +275,18 @@ show_terminals_menu() {
     echo "4) Install GNOME Terminal"
     echo "5) Install All Terminals"
     echo "6) Back"
+    echo -e "${CYAN}(Use 'eN' to learn about tool N, e.g. 'e1')${NC}"
     echo -n "Select option: "
     read -r t_choice
+    if [[ "$t_choice" =~ ^e([0-9]+)$ ]]; then
+        case "${BASH_REMATCH[1]}" in
+            1) _explain_tool "Kitty" ;;
+            2) _explain_tool "Alacritty" ;;
+            3) _explain_tool "Tilix" ;;
+            4) _explain_tool "GNOME Terminal" ;;
+        esac
+        show_terminals_menu; return
+    fi
     case $t_choice in
         1) install_single_terminal kitty ;;
         2) install_single_terminal alacritty ;;
@@ -531,19 +561,39 @@ usage() {
     echo "  --full       Install everything (Browsers, Utilities, IDEs, Shells, Agentic IDEs, Dev Tools, Languages, Terminals)"
     echo "  -y, --yes    Auto-confirm all installations (skip prompts)"
     echo "  --dry-run    Print what would be installed without actually installing"
+    echo "  --explain    Show info about a tool (e.g., --explain tmux)"
     echo "  --help       Show this help message"
     echo ""
     echo "Run without options for interactive menu."
+    echo "Inside menus, type 'eN' to learn about tool N (e.g., 'e1')."
     exit 0
 }
 
 main() {
+    # Handle non-sudo flags early
+    if [[ $# -gt 0 ]]; then
+        case $1 in
+            --help)
+                usage
+                ;;
+            --explain)
+                if [ -n "$2" ]; then
+                    _explain_tool "$2"
+                    exit 0
+                else
+                    log_message "ERROR" "--explain requires a tool name"
+                    usage
+                fi
+                ;;
+        esac
+    fi
+
     check_sudo
     show_banner
     detect_distro
     show_persona
 
-    # Check for flags
+    # Check for install flags
     if [[ $# -gt 0 ]]; then
         while [[ $# -gt 0 ]]; do
             case $1 in
@@ -551,7 +601,7 @@ main() {
             --full)    FULL_MODE=true; shift ;;
             -y|--yes)  YES_MODE=true; shift ;;
             --dry-run) DRY_RUN=true; shift ;;
-            --help)    usage ;;
+            --help|--explain) shift ;;
                 *)         log_message "ERROR" "Unknown option: $1"; usage ;;
             esac
         done

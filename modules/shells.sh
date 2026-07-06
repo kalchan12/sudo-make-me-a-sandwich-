@@ -24,11 +24,16 @@ show_shells_menu() {
 
     local back_idx=$((i+1))
     echo "$back_idx) Back"
+    echo -e "${CYAN}(Use 'eN' to learn about tool N, e.g. 'e1')${NC}"
 
     echo -n "Select option: "
     read -r s_choice
 
-    if [[ "$s_choice" -eq "$all_idx" ]]; then
+    if [[ "$s_choice" =~ ^e([0-9]+)$ ]]; then
+        _explain_by_index SHELLS_LIST "${BASH_REMATCH[1]}"
+        show_shells_menu
+        return
+    elif [[ "$s_choice" -eq "$all_idx" ]]; then
         install_shells
     elif [[ "$s_choice" -eq "$back_idx" ]]; then
         show_main_menu

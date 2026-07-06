@@ -20,11 +20,16 @@ show_agentic_ides_menu() {
 
     local back_idx=$((i+1))
     echo "$back_idx) Back"
+    echo -e "${CYAN}(Use 'eN' to learn about tool N, e.g. 'e1')${NC}"
 
     echo -n "Select option: "
     read -r a_choice
 
-    if [[ "$a_choice" -eq "$all_idx" ]]; then
+    if [[ "$a_choice" =~ ^e([0-9]+)$ ]]; then
+        _explain_by_index AGENTIC_IDES_LIST "${BASH_REMATCH[1]}"
+        show_agentic_ides_menu
+        return
+    elif [[ "$a_choice" -eq "$all_idx" ]]; then
         install_all_agentic_ides
     elif [[ "$a_choice" -eq "$back_idx" ]]; then
         show_main_menu

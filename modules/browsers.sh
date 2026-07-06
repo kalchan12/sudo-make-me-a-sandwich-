@@ -34,11 +34,16 @@ show_browsers_menu() {
     
     local back_idx=$((i+2))
     echo "$back_idx) Back"
+    echo -e "${CYAN}(Use 'eN' to learn about tool N, e.g. 'e1')${NC}"
     
     echo -n "Select option: "
     read -r b_choice
     
-    if [[ "$b_choice" -eq "$all_idx" ]]; then
+    if [[ "$b_choice" =~ ^e([0-9]+)$ ]]; then
+        _explain_by_index BROWSERS_LIST "${BASH_REMATCH[1]}"
+        show_browsers_menu
+        return
+    elif [[ "$b_choice" -eq "$all_idx" ]]; then
         install_browsers
     elif [[ "$b_choice" -eq "$check_idx" ]]; then
         check_browsers_installations
