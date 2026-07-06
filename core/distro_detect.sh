@@ -1,14 +1,28 @@
 # Distro detection
 detect_distro() {
+    local pretty_name=""
+    local distro_id=""
+    if [ -f /etc/os-release ]; then
+        pretty_name=$(grep -oP '(?<=^PRETTY_NAME=")[^"]*' /etc/os-release)
+        distro_id=$(grep -oP '(?<=^ID=)[a-z]+' /etc/os-release)
+    fi
+    local kernel_version
+    kernel_version=$(uname -r)
+
     if [ -f /etc/debian_version ]; then
         DISTRO="debian"
+        log_message "INFO" "Detected distro: Debian-based ($pretty_name, kernel $kernel_version)"
     elif [ -f /etc/arch-release ]; then
         DISTRO="arch"
+        if [ "$distro_id" = "arch" ]; then
+            log_message "INFO" "Detected distro: Arch Linux ($pretty_name, kernel $kernel_version)"
+        else
+            log_message "INFO" "Detected distro: Arch-based ($pretty_name, kernel $kernel_version)"
+        fi
     else
         log_message "ERROR" "Unsupported distro (only Debian-based and Arch Linux are supported)"
         exit 1
     fi
-    log_message "INFO" "Detected distro: $DISTRO"
 }
 
 pkg_is_installed() {
