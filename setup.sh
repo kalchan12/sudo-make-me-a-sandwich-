@@ -173,6 +173,29 @@ for m in "$MODULES_DIR"/*.sh; do
     fi
 done
 
+# --- Item Lists for Selection UI ---
+# Format: "Display Name|function_call_with_args|pkg_name_for_size"
+TERMINALS_LIST=(
+    "Kitty|install_single_terminal kitty|kitty"
+    "Alacritty|install_single_terminal alacritty|alacritty"
+    "Tilix|install_single_terminal tilix|tilix"
+    "GNOME Terminal|install_single_terminal gnome-terminal|gnome-terminal"
+)
+
+UTILITIES_LIST=(
+    "Obsidian|install_obsidian|obsidian"
+    "WPS Office|install_wps|"
+    "OBS Studio|install_obs_studio|obs-studio"
+    "ffmpeg|install_ffmpeg|ffmpeg"
+    "yt-dlp|install_yt_dlp|yt-dlp"
+)
+
+IDES_LIST=(
+    "VS Code|install_vscode|code"
+    "Sublime Text|install_sublime|sublime-text"
+    "JetBrains Toolbox|install_jetbrains_toolbox|"
+)
+
 # --- Interactive Menu Functions ---
 
 show_main_menu() {
@@ -379,11 +402,11 @@ install_yt_dlp() {
 
 install_utilities() {
     log_message "INFO" "--- Installing Utilities ---"
-    install_obsidian
-    install_wps
-    install_obs_studio
-    install_ffmpeg
-    install_yt_dlp
+    for info in "${UTILITIES_LIST[@]}"; do
+        local call="${info#*|}"
+        call="${call%%|*}"
+        $call
+    done
 }
 
 install_vscode() {
@@ -466,23 +489,19 @@ install_jetbrains_toolbox() {
 
 install_ides() {
     log_message "INFO" "--- Installing All IDEs ---"
-    install_vscode
-    install_sublime
-    install_jetbrains_toolbox
+    for info in "${IDES_LIST[@]}"; do
+        local call="${info#*|}"
+        call="${call%%|*}"
+        $call
+    done
 }
 
 install_terminals() {
     log_message "INFO" "--- Installing All Terminals ---"
-    local terminals=("kitty" "alacritty" "tilix" "gnome-terminal")
-    for t in "${terminals[@]}"; do
-        if ! pkg_is_installed "$t" && ! command -v "$t" &> /dev/null; then
-            log_message "INFO" "Installing $t..."
-            pkg_install_native "$t"
-            log_message "SUCCESS" "$t installed."
-            log_version "$t" "$t"
-        else
-            log_message "WARN" "$t is already installed."
-        fi
+    for info in "${TERMINALS_LIST[@]}"; do
+        local call="${info#*|}"
+        call="${call%%|*}"
+        $call
     done
 }
 
@@ -490,18 +509,27 @@ install_terminals() {
 
 run_installation() {
     log_message "INFO" "Starting installation..."
-    ensure_prerequisites
-    update_system
 
-    if [ "$FULL_MODE" = true ] || [ "$MINIMAL_MODE" = true ]; then
-        install_browsers
-        install_terminals
-    fi
+    if [ "$YES_MODE" = true ]; then
+        ensure_prerequisites
+        update_system
 
-    if [ "$FULL_MODE" = true ]; then
-        install_utilities
-        install_ides
-        install_all_agentic_ides
+        if [ "$FULL_MODE" = true ] || [ "$MINIMAL_MODE" = true ]; then
+            install_browsers
+            install_terminals
+        fi
+
+        if [ "$FULL_MODE" = true ]; then
+            install_utilities
+            install_ides
+            install_all_agentic_ides
+        fi
+    else
+        case $FULL_MODE$MINIMAL_MODE in
+            truefalse) show_selection_and_install "full" ;;
+            falsetrue) show_selection_and_install "minimal" ;;
+        esac
+        return
     fi
 
     log_message "SUCCESS" "Installation tasks complete! Check $LOG_FILE for details."
