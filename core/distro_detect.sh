@@ -2,9 +2,11 @@
 detect_distro() {
     local pretty_name=""
     local distro_id=""
+    local distro_like=""
     if [ -f /etc/os-release ]; then
         pretty_name=$(grep -oP '(?<=^PRETTY_NAME=")[^"]*' /etc/os-release)
         distro_id=$(grep -oP '(?<=^ID=)[a-z]+' /etc/os-release)
+        distro_like=$(grep -oP '(?<=^ID_LIKE=")[^"]*' /etc/os-release)
     fi
     local kernel_version
     kernel_version=$(uname -r)
@@ -19,8 +21,14 @@ detect_distro() {
         else
             log_message "INFO" "Detected distro: Arch-based ($pretty_name, kernel $kernel_version)"
         fi
+    elif [ "$distro_id" = "fedora" ] || echo "$distro_like" | grep -qi "fedora"; then
+        DISTRO="fedora"
+        log_message "INFO" "Detected distro: Fedora-based ($pretty_name, kernel $kernel_version)"
+    elif [ -f /etc/fedora-release ]; then
+        DISTRO="fedora"
+        log_message "INFO" "Detected distro: Fedora-based ($pretty_name, kernel $kernel_version)"
     else
-        log_message "ERROR" "Unsupported distro (only Debian-based and Arch Linux are supported)"
+        log_message "ERROR" "Unsupported distro (only Debian-based, Arch and Fedora-based are supported)"
         exit 1
     fi
 }
@@ -29,6 +37,7 @@ pkg_is_installed() {
     case $DISTRO in
         debian) dpkg -s "$1" &> /dev/null ;;
         arch) pacman -Q "$1" &> /dev/null 2>&1 ;;
+        fedora) rpm -q "$1" &> /dev/null ;;
         *) return 1 ;;
     esac
 }
@@ -37,6 +46,7 @@ pkg_install_native() {
     case $DISTRO in
         debian) apt install -y -V "$@" ;;
         arch) pacman -S --noconfirm "$@" ;;
+        fedora) dnf install -y "$@" ;;
     esac
 }
 
@@ -44,6 +54,7 @@ pkg_is_available() {
     case $DISTRO in
         debian) apt-cache show "$1" &> /dev/null ;;
         arch) pacman -Si "$1" &> /dev/null 2>&1 ;;
+        fedora) dnf info "$1" &> /dev/null ;;
         *) return 1 ;;
     esac
 }
@@ -92,9 +103,9 @@ install_with_fallback() {
         return 0
     fi
 
-    if [ -n "$flatpak_id" ] && [ "$DISTRO" = "debian" ]; then
+    if [ -n "$flatpak_id" ]; then
         log_message "INFO" "Installing Flatpak for $display_name..."
-        apt install -y -V flatpak
+        pkg_install_native flatpak
         flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
         flatpak install -y flathub "$flatpak_id"
         log_message "SUCCESS" "$display_name installed via Flatpak."
@@ -111,6 +122,7 @@ pkg_update_system() {
     case $DISTRO in
         debian) apt update && apt upgrade -y -V ;;
         arch) pacman -Syu --noconfirm ;;
+        fedora) dnf upgrade -y ;;
     esac
     log_message "SUCCESS" "System is up to date."
 }
@@ -127,9 +139,17 @@ pkg_ensure_prerequisites() {
     local missing_pkgs=()
     for cmd in "${!pkg_map[@]}"; do
         if ! command -v "$cmd" &> /dev/null; then
-            missing_pkgs+=("${pkg_map[$cmd]}")
+            local pkg="${pkg_map[$cmd]}"
+            if [ "$DISTRO" = "fedora" ] && [ "$cmd" = "lsb_release" ]; then
+                pkg="redhat-lsb-core"
+            fi
+            missing_pkgs+=("$pkg")
         fi
     done
+
+    if [ "$DISTRO" = "fedora" ] && ! dnf config-manager --help &>/dev/null 2>&1; then
+        missing_pkgs+=("dnf-utils")
+    fi
 
     if [ ${#missing_pkgs[@]} -gt 0 ]; then
         log_message "INFO" "Installing missing prerequisites: ${missing_pkgs[*]}"

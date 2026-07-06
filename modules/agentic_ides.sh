@@ -55,7 +55,7 @@ install_opencode() {
             install_with_fallback "OpenCode" "opencode" "opencode-bin" "" "opencode"
             return $?
             ;;
-        debian)
+        debian|fedora)
             log_message "INFO" "Installing OpenCode via official install script..."
             if ! curl -fsSL https://opencode.ai/install | bash; then
                 log_message "ERROR" "Failed to install OpenCode"
@@ -99,6 +99,17 @@ install_zcode() {
             dpkg -i /tmp/zcode.deb || apt install -f -y
             rm -f /tmp/zcode.deb
             ;;
+        fedora)
+            log_message "INFO" "Downloading ZCode..."
+            local rpm_url="https://cdn-zcode.z.ai/zcode/electron/releases/3.2.1/ZCode-3.2.1-linux-x64.rpm"
+            if ! wget --progress=bar:force -O /tmp/zcode.rpm "$rpm_url"; then
+                log_message "ERROR" "Failed to download ZCode"
+                rm -f /tmp/zcode.rpm
+                return 1
+            fi
+            dnf install -y /tmp/zcode.rpm
+            rm -f /tmp/zcode.rpm
+            ;;
     esac
     log_message "SUCCESS" "ZCode installed."
 }
@@ -121,7 +132,7 @@ install_antigravity() {
                 > /etc/apt/sources.list.d/antigravity.list
             apt update && apt install -y -V antigravity
             ;;
-        arch)
+        arch|fedora)
             log_message "INFO" "Downloading Antigravity..."
             local tarball_url="https://storage.googleapis.com/antigravity-public/antigravity-hub/2.2.1-5287492581195776/linux-x64/Antigravity.tar.gz"
             if ! wget --progress=bar:force -O /tmp/antigravity.tar.gz "$tarball_url"; then
@@ -162,6 +173,17 @@ install_kiro() {
             fi
             dpkg -i /tmp/kiro.deb || apt install -f -y
             rm -f /tmp/kiro.deb
+            ;;
+        fedora)
+            log_message "INFO" "Downloading Kiro..."
+            local rpm_url="https://prod.download.desktop.kiro.dev/releases/stable/linux-x64/signed/1.0.89/rpm/kiro-ide-1.0.89-stable-linux-x64.rpm"
+            if ! wget --progress=bar:force -O /tmp/kiro.rpm "$rpm_url"; then
+                log_message "ERROR" "Failed to download Kiro"
+                rm -f /tmp/kiro.rpm
+                return 1
+            fi
+            dnf install -y /tmp/kiro.rpm
+            rm -f /tmp/kiro.rpm
             ;;
     esac
     log_message "SUCCESS" "Kiro installed."

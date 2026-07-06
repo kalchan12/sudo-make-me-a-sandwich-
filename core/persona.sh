@@ -8,6 +8,8 @@ _distro_persona() {
         blackarch) echo "Kali's darker, more extensive cousin. 3000+ tools installed. You've used maybe 30." ;;
         ubuntu) echo "The people's distro. You just want things to work, and that's perfectly valid." ;;
         fedora) echo "Red Hat's playground. You like your software fresh but not raw." ;;
+        nobara) echo "Fedora, but make it gaming. Proton and drivers handled for you." ;;
+        ultramarine) echo "Fedora with the Pantheon desktop. Beautiful and modern." ;;
         manjaro) echo "Arch for the rest of us. You want AUR access without the terminal trauma." ;;
         debian) echo "The universal operating system. Rock-solid stability is your love language." ;;
         pop) echo "System76's masterpiece. Tiling by default, and now you can't go back." ;;

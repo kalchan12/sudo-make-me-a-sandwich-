@@ -73,6 +73,22 @@ confirm_install() {
                     [ -n "$inst_size" ] && echo -e "${CYAN} Install size:${NC}  $(echo "$inst_size" | sed 's/ //g')"
                 fi
                 ;;
+            fedora)
+                dnf info "$pkg_name" 2>/dev/null > "$info_file"
+                if [ -s "$info_file" ]; then
+                    local ver desc dl_size
+                    while IFS= read -r line; do
+                        case "$line" in
+                            "Version"*":"*) ver="${line#*: }" ;;
+                            "Summary"*":"*) desc="${line#*: }" ;;
+                            "Download Size"*":"*) dl_size="${line#*: }" ;;
+                        esac
+                    done < "$info_file"
+                    [ -n "$ver" ] && echo -e "${CYAN} Version:${NC}       $ver"
+                    [ -n "$desc" ] && echo -e "${CYAN} Description:${NC}  $(echo "$desc" | head -c 100)"
+                    [ -n "$dl_size" ] && echo -e "${CYAN} Download size:${NC} $dl_size"
+                fi
+                ;;
         esac
         rm -f "$info_file"
     fi

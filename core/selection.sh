@@ -18,6 +18,15 @@ _get_item_size() {
             size=$(pacman -Si "$pkg" 2>/dev/null | grep "^Download Size" | awk -F': ' '{print $2}')
             echo "${size:-?}"
             ;;
+        fedora)
+            local size
+            size=$(dnf repoquery --queryformat="%{size}" "$pkg" 2>/dev/null)
+            if [ -n "$size" ] && [ "$size" -gt 0 ] 2>/dev/null; then
+                show_size "$size"
+            else
+                echo "?"
+            fi
+            ;;
     esac
 }
 

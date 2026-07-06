@@ -8,7 +8,7 @@
 #  ███████║╚██████╔╝██████╔╝╚██████╔╝╚██████╔╝    ██║ ╚═╝ ██║██║  ██║██║  ██╗███████║
 #  ╚══════╝ ╚═════╝ ╚═════╝  ╚═════╝  ╚═════╝     ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝
 #
-#  Modular Linux Bootstrapper (Debian-based)
+#  Modular Linux Bootstrapper (Debian/Arch/Fedora)
 #  Author: psycho
 #  Repo: https://github.com/kalchan12/sudo-make-me-a-sandwich-
 # ==============================================================================
@@ -107,6 +107,15 @@ add_keyring() {
         return 1
     fi
     echo "$REPO_LINE" > "/etc/apt/sources.list.d/${LIST_FILE}.list"
+}
+
+add_rpm_keyring() {
+    local KEY_URL="$1"
+    log_message "INFO" "Importing RPM GPG key..."
+    if ! rpm --import "$KEY_URL"; then
+        log_message "ERROR" "Failed to import RPM GPG key"
+        return 1
+    fi
 }
 
 # --- Core Modules ---
@@ -307,6 +316,10 @@ install_obsidian() {
             install_with_fallback "Obsidian" "obsidian" "obsidian" "md.obsidian.Obsidian" "obsidian"
             return $?
             ;;
+        fedora)
+            install_with_fallback "Obsidian" "obsidian" "" "md.obsidian.Obsidian" "obsidian"
+            return $?
+            ;;
     esac
     log_version "Obsidian" obsidian
 }
@@ -333,6 +346,10 @@ install_wps() {
             ;;
         arch)
             install_with_fallback "WPS Office" "" "wps-office" "com.wps.Office" "wps"
+            return $?
+            ;;
+        fedora)
+            install_with_fallback "WPS Office" "" "" "com.wps.Office" "wps"
             return $?
             ;;
     esac
@@ -383,6 +400,18 @@ install_vscode() {
             install_with_fallback "VS Code" "code" "visual-studio-code-bin" "com.visualstudio.code" "code"
             return $?
             ;;
+        fedora)
+            add_rpm_keyring "https://packages.microsoft.com/keys/microsoft.asc"
+            cat > /etc/yum.repos.d/vscode.repo <<EOF
+[code]
+name=Visual Studio Code
+baseurl=https://packages.microsoft.com/yumrepos/vscode
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+EOF
+            dnf install -y code
+            ;;
     esac
     log_message "SUCCESS" "VS Code installed."
     log_version "VS Code" code
@@ -407,6 +436,11 @@ install_sublime() {
         arch)
             install_with_fallback "Sublime Text" "" "sublime-text" "com.sublimetext.three" "subl"
             return $?
+            ;;
+        fedora)
+            add_rpm_keyring "https://download.sublimetext.com/sublimehq-rpm-pub.gpg"
+            dnf config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo
+            dnf install -y sublime-text
             ;;
     esac
     log_message "SUCCESS" "Sublime Text installed."

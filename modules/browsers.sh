@@ -78,6 +78,11 @@ install_brave() {
             install_with_fallback "Brave" "brave-browser" "brave-bin" "com.brave.Browser" "brave-browser"
             return $?
             ;;
+        fedora)
+            dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
+            add_rpm_keyring "https://brave-browser-rpm-release.s3.brave.com/brave-browser-archive-keyring.gpg"
+            dnf install -y brave-browser
+            ;;
     esac
     log_message "SUCCESS" "Brave installed."
     log_version "Brave" brave-browser
@@ -105,6 +110,16 @@ install_chrome() {
         arch)
             install_with_fallback "Google Chrome" "" "google-chrome" "com.google.Chrome" "google-chrome-stable"
             return $?
+            ;;
+        fedora)
+            log_message "INFO" "Installing Google Chrome..."
+            if ! wget --progress=bar:force -O /tmp/google-chrome.rpm https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm; then
+                log_message "ERROR" "Failed to download Google Chrome"
+                rm -f /tmp/google-chrome.rpm
+                return
+            fi
+            dnf install -y /tmp/google-chrome.rpm
+            rm -f /tmp/google-chrome.rpm
             ;;
     esac
     log_message "SUCCESS" "Google Chrome installed."
@@ -142,6 +157,10 @@ install_vivaldi() {
             install_with_fallback "Vivaldi" "vivaldi" "vivaldi" "com.vivaldi.Vivaldi" "vivaldi-stable"
             return $?
             ;;
+        fedora)
+            dnf config-manager --add-repo https://repo.vivaldi.com/archive/vivaldi-fedora.repo
+            dnf install -y vivaldi-stable
+            ;;
     esac
     log_message "SUCCESS" "Vivaldi installed."
     log_version "Vivaldi" vivaldi-stable
@@ -163,6 +182,10 @@ install_chromium() {
             install_with_fallback "Chromium" "chromium" "chromium" "org.chromium.Chromium" "chromium"
             return $?
             ;;
+        fedora)
+            install_with_fallback "Chromium" "chromium" "" "org.chromium.Chromium" "chromium"
+            return $?
+            ;;
     esac
     log_message "SUCCESS" "Chromium installed."
     log_version "Chromium" chromium chromium
@@ -181,7 +204,7 @@ install_firefox_dev() {
     confirm_install "Firefox Developer Edition" "" "Download from mozilla.org" || return
 
     case $DISTRO in
-        debian)
+        debian|fedora)
             rm -rf /opt/firefox-developer
             log_message "INFO" "Installing Firefox Developer Edition..."
             if ! wget --progress=bar:force -O /tmp/firefox-dev.tar.bz2 "https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US"; then
@@ -236,7 +259,7 @@ install_ungoogled_chromium() {
                 log_message "INFO" "Installing Ungoogled Chromium via Flatpak..."
                 if ! command -v flatpak &> /dev/null; then
                     log_message "INFO" "Flatpak not found. Installing Flatpak..."
-                    apt install -y -V flatpak
+                    pkg_install_native flatpak
                     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
                 fi
                 flatpak install -y flathub com.github.Eloston.UngoogledChromium
@@ -246,6 +269,10 @@ install_ungoogled_chromium() {
             ;;
         arch)
             install_with_fallback "Ungoogled Chromium" "" "ungoogled-chromium-git" "com.github.Eloston.UngoogledChromium" "ungoogled-chromium"
+            return $?
+            ;;
+        fedora)
+            install_with_fallback "Ungoogled Chromium" "" "" "com.github.Eloston.UngoogledChromium" "ungoogled-chromium"
             return $?
             ;;
     esac
@@ -273,6 +300,10 @@ install_librewolf() {
         arch)
             install_with_fallback "LibreWolf" "librewolf" "librewolf-bin" "io.gitlab.librewolf-community" "librewolf"
             return $?
+            ;;
+        fedora)
+            dnf copr enable -y kunzusan/librewolf
+            dnf install -y librewolf
             ;;
     esac
     log_message "SUCCESS" "LibreWolf installed."
