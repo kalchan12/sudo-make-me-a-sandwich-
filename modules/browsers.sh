@@ -122,7 +122,8 @@ install_chromium() {
 }
 
 install_firefox_dev() {
-    if [ ! -d "/opt/firefox-developer" ]; then
+    if [ ! -d "/opt/firefox-developer" ] || [ ! -f "/opt/firefox-developer/firefox" ]; then
+        rm -rf /opt/firefox-developer
         log_message "INFO" "Installing Firefox Developer Edition..."
         wget --progress=bar:force -O /tmp/firefox-dev.tar.bz2 "https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US"
         tar xjf /tmp/firefox-dev.tar.bz2 -C /opt/
@@ -179,6 +180,7 @@ install_ungoogled_chromium() {
 install_librewolf() {
     if ! is_installed librewolf; then
         log_message "INFO" "Installing LibreWolf..."
+        ensure_prerequisites
         local keyring_url="https://deb.librewolf.net/keyring.gpg"
         local keyring_path="/usr/share/keyrings/librewolf.gpg"
         curl -fsSL "$keyring_url" | gpg --dearmor -o "$keyring_path"
