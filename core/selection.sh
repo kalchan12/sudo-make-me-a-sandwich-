@@ -74,6 +74,10 @@ _show_selection_menu() {
         for info in "${IDES_LIST[@]}"; do
             all_items+=("$info")
         done
+        echo -e "  ${CYAN}── Shells ──${NC}"
+        for info in "${SHELLS_LIST[@]}"; do
+            all_items+=("$info")
+        done
         echo -e "  ${CYAN}── Agentic IDEs ──${NC}"
         for info in "${AGENTIC_IDES_LIST[@]}"; do
             all_items+=("$info")
@@ -112,6 +116,14 @@ _show_selection_menu() {
             install_zcode) command -v zcode &>/dev/null || [ -d /opt/zcode ] && already=true ;;
             install_antigravity) command -v antigravity &>/dev/null || [ -d /opt/antigravity ] && already=true ;;
             install_kiro) command -v kiro &>/dev/null || [ -d /opt/kiro ] && already=true ;;
+            install_zsh) command -v zsh &>/dev/null && already=true ;;
+            install_fish) command -v fish &>/dev/null && already=true ;;
+            install_dash) command -v dash &>/dev/null && already=true ;;
+            install_ksh) command -v ksh &>/dev/null && already=true ;;
+            install_tcsh) command -v tcsh &>/dev/null && already=true ;;
+            install_nushell) command -v nu &>/dev/null && already=true ;;
+            install_elvish) command -v elvish &>/dev/null && already=true ;;
+            install_xonsh) command -v xonsh &>/dev/null && already=true ;;
         esac
 
         if [ "$already" = true ]; then

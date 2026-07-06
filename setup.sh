@@ -156,10 +156,11 @@ show_main_menu() {
     echo "2) Utilities"
     echo "3) IDEs"
     echo "4) Terminals"
-    echo "5) Agentic IDEs"
-    echo "6) Full Installation (All Categories)"
-    echo "7) Minimal Installation (Browsers + Terminals)"
-    echo "8) Exit"
+    echo "5) Shells"
+    echo "6) Agentic IDEs"
+    echo "7) Full Installation (All Categories)"
+    echo "8) Minimal Installation (Browsers + Terminals)"
+    echo "9) Exit"
     echo -n "Select an option: "
     read -r choice
     case $choice in
@@ -167,10 +168,11 @@ show_main_menu() {
         2) show_utilities_menu ;;
         3) show_ides_menu ;;
         4) show_terminals_menu ;;
-        5) show_agentic_ides_menu ;;
-        6) FULL_MODE=true; run_installation ;;
-        7) MINIMAL_MODE=true; run_installation ;;
-        8) log_message "INFO" "Exiting..."; exit 0 ;;
+        5) show_shells_menu ;;
+        6) show_agentic_ides_menu ;;
+        7) FULL_MODE=true; run_installation ;;
+        8) MINIMAL_MODE=true; run_installation ;;
+        9) log_message "INFO" "Exiting..."; exit 0 ;;
         *) log_message "WARN" "Invalid option: $choice"; show_main_menu ;;
     esac
 }
@@ -474,6 +476,7 @@ run_installation() {
         if [ "$FULL_MODE" = true ]; then
             install_utilities
             install_ides
+            install_shells
             install_all_agentic_ides
         fi
     else
@@ -491,7 +494,7 @@ usage() {
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
     echo "  --minimal    Install only Browsers and Terminals"
-    echo "  --full       Install everything (Browsers, Utilities, IDEs, Agentic IDEs, Terminals)"
+    echo "  --full       Install everything (Browsers, Utilities, IDEs, Shells, Agentic IDEs, Terminals)"
     echo "  -y, --yes    Auto-confirm all installations (skip prompts)"
     echo "  --dry-run    Print what would be installed without actually installing"
     echo "  --help       Show this help message"
