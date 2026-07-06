@@ -152,6 +152,51 @@ _ram_persona() {
     echo "$ddr_msg"
 }
 
+BOX_W=58
+
+_sep() {
+    local n=$(( BOX_W + 2 ))
+    local line=""
+    local i=0
+    while [ "$i" -lt "$n" ]; do
+        line="${line}═"
+        i=$(( i + 1 ))
+    done
+    echo "$line"
+}
+
+_pad() {
+    local content="$1"
+    local len
+    len=$(echo -e "$content" | sed 's/\x1b\[[0-9;]*m//g' | wc -m)
+    local pad=$(( BOX_W - len ))
+    [ "$pad" -lt 2 ] && pad=2
+    echo -e "${YELLOW}║${NC} $content$(printf '%*s' "$pad" '') ${YELLOW}║${NC}"
+}
+
+_pad_lines() {
+    local text="$1"
+    local maxw=$(( BOX_W - 4 ))
+    while IFS= read -r line; do
+        local len
+        len=$(echo -e "$line" | sed 's/\x1b\[[0-9;]*m//g' | wc -m)
+        if [ "$len" -le "$maxw" ]; then
+            _pad "$line"
+        else
+            local wrapped
+            wrapped=$(echo "$line" | fold -s -w "$maxw")
+            while IFS= read -r sub; do
+                _pad "$sub"
+            done <<< "$wrapped"
+        fi
+    done <<< "$text"
+}
+
+_dot() {
+    local n=$(( BOX_W - 2 ))
+    echo -e "${YELLOW}║${NC}  $(printf '%*s' "$n" '' | tr ' ' '·')  ${YELLOW}║${NC}"
+}
+
 show_persona() {
     local distro_id=""
     local pretty_name=""
@@ -172,19 +217,24 @@ show_persona() {
         cpu_cores=$(grep -c "processor" /proc/cpuinfo)
     fi
 
-    local ram_total=""
-    ram_total=$(free -h 2>/dev/null | awk '/^Mem:/ {print $2}' | sed 's/Gi/GB/;s/G/GB/')
-
     local ddr_type=""
     if command -v dmidecode &>/dev/null; then
         ddr_type=$(dmidecode --type 17 2>/dev/null | grep "^[[:space:]]*Type:" | head -1 | awk '{print $2}')
         [ "$ddr_type" = "Unknown" ] && ddr_type=""
     fi
 
+    local total_bytes
+    total_bytes=$(free -b 2>/dev/null | awk '/^Mem:/ {print $2}')
     local ram_gb
-    ram_gb=$(free -g 2>/dev/null | awk '/^Mem:/ {print $2}')
-    [ -z "$ram_gb" ] && ram_gb=$(free -m | awk '/^Mem:/ {print $2}')
-    [ -n "$ram_gb" ] && [ "$ram_gb" -gt 0 ] 2>/dev/null || ram_gb=0
+    if [ -n "$total_bytes" ] && [ "$total_bytes" -gt 0 ] 2>/dev/null; then
+        ram_gb=$(( (total_bytes + 1073741823) / 1073741824 ))
+    else
+        ram_gb=0
+    fi
+
+    local ram_total="${ram_gb} GB"
+    local ram_detail="$ram_total"
+    [ -n "$ddr_type" ] && ram_detail="$ram_detail — $ddr_type"
 
     local distro_persona
     distro_persona=$(_distro_persona "$distro_id")
@@ -192,43 +242,35 @@ show_persona() {
     de_persona=$(_de_persona "$desktop")
     local cpu_output
     cpu_output=$(_cpu_persona "$cpu_model" "$cpu_cores")
-
-    echo ""
-    echo -e "${YELLOW}╔══════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${YELLOW}║${NC}              ${PURPLE}System Profile${NC}                  ${YELLOW}║${NC}"
-    echo -e "${YELLOW}╠══════════════════════════════════════════════════════════╣${NC}"
-
-    echo -e "${YELLOW}║${NC}  ${CYAN}── Distro ──${NC}                                         ${YELLOW}║${NC}"
-    echo -e "${YELLOW}║${NC}  $pretty_name"
-    local line
-    while IFS= read -r line; do
-        echo -e "${YELLOW}║${NC}  ${PURPLE}$line${NC}"
-    done <<< "$distro_persona"
-    echo -e "${YELLOW}║${NC}                                                ${YELLOW}║${NC}"
-
-    echo -e "${YELLOW}║${NC}  ${CYAN}── Desktop ──${NC}                                       ${YELLOW}║${NC}"
-    echo -e "${YELLOW}║${NC}  $desktop"
-    while IFS= read -r line; do
-        echo -e "${YELLOW}║${NC}  ${PURPLE}$line${NC}"
-    done <<< "$de_persona"
-    echo -e "${YELLOW}║${NC}                                                ${YELLOW}║${NC}"
-
-    echo -e "${YELLOW}║${NC}  ${CYAN}── CPU ──${NC}                                           ${YELLOW}║${NC}"
-    while IFS= read -r line; do
-        echo -e "${YELLOW}║${NC}  $line"
-    done <<< "$cpu_output"
-    echo -e "${YELLOW}║${NC}                                                ${YELLOW}║${NC}"
-
-    echo -e "${YELLOW}║${NC}  ${CYAN}── RAM ──${NC}                                           ${YELLOW}║${NC}"
-    local ram_info="$ram_total"
-    [ -n "$ddr_type" ] && ram_info="$ram_info $ddr_type"
-    echo -e "${YELLOW}║${NC}  $ram_info"
     local ram_output
     ram_output=$(_ram_persona "$ram_gb" "$ddr_type")
-    while IFS= read -r line; do
-        echo -e "${YELLOW}║${NC}  ${PURPLE}$line${NC}"
-    done <<< "$ram_output"
 
-    echo -e "${YELLOW}╚══════════════════════════════════════════════════════════╝${NC}"
+    local sep
+    sep=$(_sep)
+
+    echo ""
+    echo -e "${YELLOW}╔${sep}╗${NC}"
+    _pad "${PURPLE}System Profile${NC}"
+    echo -e "${YELLOW}╠${sep}╣${NC}"
+
+    _pad "${CYAN}* Distro${NC}"
+    _pad "$pretty_name"
+    [ -n "$distro_persona" ] && _pad_lines "$distro_persona"
+    _dot
+
+    _pad "${CYAN}* Desktop${NC}"
+    _pad "$desktop"
+    [ -n "$de_persona" ] && _pad_lines "$de_persona"
+    _dot
+
+    _pad "${CYAN}* CPU${NC}"
+    _pad_lines "$cpu_output"
+    _dot
+
+    _pad "${CYAN}* RAM${NC}"
+    _pad "$ram_detail"
+    [ -n "$ram_output" ] && _pad_lines "$ram_output"
+
+    echo -e "${YELLOW}╚${sep}╝${NC}"
     echo ""
 }
