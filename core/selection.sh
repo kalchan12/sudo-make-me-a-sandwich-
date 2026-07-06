@@ -217,11 +217,7 @@ show_selection_and_install() {
         local call="$_ITEM_CALL"
 
         log_message "INFO" "Installing $_ITEM_NAME ..."
-        if [[ "$call" == *" "* ]]; then
-            $call
-        else
-            $call
-        fi
+        $call
     done
 
     SELECTION_MODE=false

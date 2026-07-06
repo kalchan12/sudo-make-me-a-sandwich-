@@ -38,3 +38,6 @@
 [2026-07-06 17:28:53] [INFO] Updating package lists and upgrading system...
 [2026-07-06 17:28:56] [SUCCESS] System is up to date.
 [2026-07-06 17:29:45] [INFO] Detected distro: Debian-based (Linux Mint 22.3, kernel 6.17.0-35-generic)
+[2026-07-06 17:33:18] [INFO] Installing alacritty...
+[2026-07-06 17:33:35] [SUCCESS] alacritty installed.
+[2026-07-06 17:33:35] [INFO] alacritty version: 0.13.2-1ubuntu1

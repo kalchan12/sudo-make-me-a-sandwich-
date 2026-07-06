@@ -71,21 +71,6 @@ check_sudo() {
     fi
 }
 
-run_install() {
-    local desc="$1"
-    local cmd="$2"
-    if [ "$DRY_RUN" = true ]; then
-        log_message "INFO" "[DRY-RUN] Would install: $desc"
-        log_message "INFO" "[DRY-RUN] Command: $cmd"
-    else
-        eval "$cmd"
-    fi
-}
-
-is_installed() {
-    dpkg -s "$1" &> /dev/null
-}
-
 log_version() {
     local display="$1"
     local pkg="$2"
@@ -104,39 +89,6 @@ log_version() {
         echo -e "${CYAN}  └─ $display: ${NC}$version"
         log_message "INFO" "$display version: $version"
     fi
-}
-
-install_apt_or_flatpak() {
-    local pkg_name="$1"
-    local flatpak_id="$2"
-    local display_name="${3:-$pkg_name}"
-
-    if pkg_is_installed "$pkg_name" || command -v "$pkg_name" &> /dev/null; then
-        log_message "WARN" "$display_name is already installed."
-        return
-    fi
-
-    case $DISTRO in
-        debian)
-            if apt-cache show "$pkg_name" &> /dev/null; then
-                log_message "INFO" "Installing $display_name via apt..."
-                apt install -y -V "$pkg_name"
-                log_message "SUCCESS" "$display_name installed via apt."
-                log_version "$display_name" "$pkg_name"
-            elif command -v flatpak &> /dev/null; then
-                log_message "INFO" "Installing $display_name via Flatpak..."
-                flatpak install -y flathub "$flatpak_id"
-                log_message "SUCCESS" "$display_name installed via Flatpak."
-            else
-                log_message "ERROR" "$display_name not available via apt or Flatpak."
-                return 1
-            fi
-            ;;
-        arch)
-            install_with_fallback "$display_name" "$pkg_name" "$pkg_name" "$flatpak_id" "$pkg_name"
-            return $?
-            ;;
-    esac
 }
 
 add_keyring() {
