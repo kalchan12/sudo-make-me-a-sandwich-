@@ -244,7 +244,7 @@ show_languages_menu() {
     echo "$all_idx) Install All Languages"
     local back_idx=$((all_idx + 1))
     echo "$back_idx) Back"
-    echo -e "${CYAN}(Use 'eN' to learn about tool N, e.g. 'e1')${NC}"
+    echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
     echo -n "Select option: "
     read -r lang_choice
     if [[ "$lang_choice" =~ ^e([0-9]+)$ ]]; then

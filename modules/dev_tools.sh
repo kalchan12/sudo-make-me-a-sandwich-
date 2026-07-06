@@ -272,7 +272,7 @@ show_dev_tools_menu() {
     echo "$all_idx) Install All Dev Tools"
     local back_idx=$((all_idx + 1))
     echo "$back_idx) Back"
-    echo -e "${CYAN}(Use 'eN' to learn about tool N, e.g. 'e1')${NC}"
+    echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
     echo -n "Select option: "
     read -r dt_choice
     if [[ "$dt_choice" =~ ^e([0-9]+)$ ]]; then

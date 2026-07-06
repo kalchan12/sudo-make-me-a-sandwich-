@@ -199,7 +199,7 @@ show_utilities_menu() {
     echo "5) Install yt-dlp"
     echo "6) Install All Utilities"
     echo "7) Back"
-    echo -e "${CYAN}(Use 'eN' to learn about tool N, e.g. 'e1')${NC}"
+    echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
     echo -n "Select option: "
     read -r u_choice
     if [[ "$u_choice" =~ ^e([0-9]+)$ ]]; then
@@ -232,7 +232,7 @@ show_ides_menu() {
     echo "3) Install JetBrains Toolbox"
     echo "4) Install All IDEs"
     echo "5) Back"
-    echo -e "${CYAN}(Use 'eN' to learn about tool N, e.g. 'e1')${NC}"
+    echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
     echo -n "Select option: "
     read -r i_choice
     if [[ "$i_choice" =~ ^e([0-9]+)$ ]]; then
@@ -275,7 +275,7 @@ show_terminals_menu() {
     echo "4) Install GNOME Terminal"
     echo "5) Install All Terminals"
     echo "6) Back"
-    echo -e "${CYAN}(Use 'eN' to learn about tool N, e.g. 'e1')${NC}"
+    echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
     echo -n "Select option: "
     read -r t_choice
     if [[ "$t_choice" =~ ^e([0-9]+)$ ]]; then
@@ -565,7 +565,7 @@ usage() {
     echo "  --help       Show this help message"
     echo ""
     echo "Run without options for interactive menu."
-    echo "Inside menus, type 'eN' to learn about tool N (e.g., 'e1')."
+    echo "Inside menus, enter a number to install, or e<N> for details (e.g., e1)."
     exit 0
 }
 
