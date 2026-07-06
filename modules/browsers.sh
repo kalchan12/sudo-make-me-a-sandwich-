@@ -75,7 +75,11 @@ install_brave() {
 install_chrome() {
     if ! is_installed google-chrome-stable; then
         log_message "INFO" "Installing Google Chrome..."
-        wget --progress=bar:force -O /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        if ! wget --progress=bar:force -O /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb; then
+            log_message "ERROR" "Failed to download Google Chrome"
+            rm -f /tmp/google-chrome.deb
+            return
+        fi
         apt install -y -V /tmp/google-chrome.deb
         rm -f /tmp/google-chrome.deb
         log_message "SUCCESS" "Google Chrome installed."
@@ -125,7 +129,11 @@ install_firefox_dev() {
     if [ ! -d "/opt/firefox-developer" ] || [ ! -f "/opt/firefox-developer/firefox" ]; then
         rm -rf /opt/firefox-developer
         log_message "INFO" "Installing Firefox Developer Edition..."
-        wget --progress=bar:force -O /tmp/firefox-dev.tar.bz2 "https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US"
+        if ! wget --progress=bar:force -O /tmp/firefox-dev.tar.bz2 "https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US"; then
+            log_message "ERROR" "Failed to download Firefox Developer Edition"
+            rm -f /tmp/firefox-dev.tar.bz2
+            return
+        fi
         tar xjf /tmp/firefox-dev.tar.bz2 -C /opt/
         mv /opt/firefox /opt/firefox-developer
         rm -f /tmp/firefox-dev.tar.bz2

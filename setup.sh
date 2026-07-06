@@ -14,7 +14,7 @@
 # ==============================================================================
 
 # --- Configuration & Colors ---
-LOG_FILE="install.log"
+LOG_FILE="$(cd "$(dirname "$0")" && pwd)/install.log"
 MINIMAL_MODE=false
 FULL_MODE=false
 DRY_RUN=false
@@ -137,7 +137,10 @@ add_keyring() {
     local LIST_FILE=$4
 
     log_message "INFO" "Adding repository keys for ${LIST_FILE}..."
-    curl -fsSL "$KEY_URL" | gpg --dearmor -o "$KEYRING_PATH"
+    if ! curl -fsSL "$KEY_URL" | gpg --dearmor -o "$KEYRING_PATH"; then
+        log_message "ERROR" "Failed to download key for ${LIST_FILE}"
+        return 1
+    fi
     echo "$REPO_LINE" > "/etc/apt/sources.list.d/${LIST_FILE}.list"
 }
 
@@ -255,6 +258,7 @@ ensure_prerequisites() {
     pkg_map[gpg]=gnupg
     pkg_map[lsb_release]=lsb-release
     pkg_map[jq]=jq
+    pkg_map[flatpak]=flatpak
 
     local missing_pkgs=()
     for cmd in "${!pkg_map[@]}"; do
@@ -295,7 +299,11 @@ install_obsidian() {
             | jq -r '.assets[] | select(.name | endswith("_amd64.deb")) | .browser_download_url' \
             | head -1)
         if [ -n "$deb_url" ] && [ "$deb_url" != "null" ]; then
-            wget --progress=bar:force -O /tmp/obsidian.deb "$deb_url"
+            if ! wget --progress=bar:force -O /tmp/obsidian.deb "$deb_url"; then
+                log_message "ERROR" "Failed to download Obsidian .deb"
+                rm -f /tmp/obsidian.deb
+                return
+            fi
             dpkg -i /tmp/obsidian.deb || apt install -f -y
             rm -f /tmp/obsidian.deb
             log_message "SUCCESS" "Obsidian installed via .deb."
@@ -361,7 +369,11 @@ install_jetbrains_toolbox() {
         local toolbox_url=$(curl -s "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" \
             | jq -r '.TBA[0].downloads.linux.link')
         if [ -n "$toolbox_url" ] && [ "$toolbox_url" != "null" ]; then
-            wget --progress=bar:force -O /tmp/jetbrains-toolbox.tar.gz "$toolbox_url"
+            if ! wget --progress=bar:force -O /tmp/jetbrains-toolbox.tar.gz "$toolbox_url"; then
+                log_message "ERROR" "Failed to download JetBrains Toolbox"
+                rm -f /tmp/jetbrains-toolbox.tar.gz
+                return
+            fi
             mkdir -p /opt/jetbrains-toolbox
             tar xzf /tmp/jetbrains-toolbox.tar.gz -C /opt/jetbrains-toolbox --strip-components=1
             rm -f /tmp/jetbrains-toolbox.tar.gz
