@@ -507,6 +507,7 @@ main() {
     check_sudo
     show_banner
     detect_distro
+    show_persona
 
     # Check for flags
     if [[ $# -gt 0 ]]; then
