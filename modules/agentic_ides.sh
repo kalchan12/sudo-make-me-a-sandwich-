@@ -189,10 +189,4 @@ install_kiro() {
     log_message "SUCCESS" "Kiro installed."
 }
 
-install_all_agentic_ides() {
-    log_message "INFO" "--- Installing All Agentic IDEs ---"
-    for ide_info in "${AGENTIC_IDES_LIST[@]}"; do
-        local func_name="${ide_info##*|}"
-        $func_name
-    done
-}
+install_all_agentic_ides() { _install_list "Agentic IDEs" AGENTIC_IDES_LIST; }

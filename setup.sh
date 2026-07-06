@@ -167,9 +167,11 @@ show_main_menu() {
     echo "4) Terminals"
     echo "5) Shells"
     echo "6) Agentic IDEs"
-    echo "7) Full Installation (All Categories)"
-    echo "8) Minimal Installation (Browsers + Terminals)"
-    echo "9) Exit"
+    echo "7) Dev Tools"
+    echo "8) Programming Languages"
+    echo "9) Full Installation (All Categories)"
+    echo "10) Minimal Installation (Browsers + Terminals)"
+    echo "11) Exit"
     echo -n "Select an option: "
     read -r choice
     case $choice in
@@ -179,9 +181,11 @@ show_main_menu() {
         4) show_terminals_menu ;;
         5) show_shells_menu ;;
         6) show_agentic_ides_menu ;;
-        7) FULL_MODE=true; run_installation ;;
-        8) MINIMAL_MODE=true; run_installation ;;
-        9) log_message "INFO" "Exiting..."; exit 0 ;;
+        7) show_dev_tools_menu ;;
+        8) show_languages_menu ;;
+        9) FULL_MODE=true; run_installation ;;
+        10) MINIMAL_MODE=true; run_installation ;;
+        11) log_message "INFO" "Exiting..."; exit 0 ;;
         *) log_message "WARN" "Invalid option: $choice"; show_main_menu ;;
     esac
 }
@@ -267,12 +271,15 @@ show_terminals_menu() {
 
 # --- Installation Modules (Expanded) ---
 
-ensure_prerequisites() {
-    pkg_ensure_prerequisites
-}
-
-update_system() {
-    pkg_update_system
+_install_list() {
+    local name="$1"
+    local -n list="$2"
+    log_message "INFO" "--- Installing All $name ---"
+    for info in "${list[@]}"; do
+        local call="${info#*|}"
+        call="${call%%|*}"
+        $call
+    done
 }
 
 install_obsidian() {
@@ -339,7 +346,7 @@ install_wps() {
                 flatpak install -y flathub com.wps.Office
             else
                 log_message "INFO" "Installing Flatpak for WPS Office..."
-                apt install -y -V flatpak
+                pkg_install_native flatpak
                 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
                 flatpak install -y flathub com.wps.Office
             fi
@@ -357,28 +364,33 @@ install_wps() {
 }
 
 install_obs_studio() {
+    if command -v obs &> /dev/null; then
+        log_message "WARN" "OBS Studio is already installed."
+        return
+    fi
     confirm_install "OBS Studio" "obs-studio" || return
     install_with_fallback "OBS Studio" "obs-studio" "obs-studio" "com.obsproject.Studio" "obs"
 }
 
 install_ffmpeg() {
+    if command -v ffmpeg &> /dev/null; then
+        log_message "WARN" "ffmpeg is already installed."
+        return
+    fi
     confirm_install "ffmpeg" "ffmpeg" || return
     install_with_fallback "ffmpeg" "ffmpeg" "ffmpeg" "org.ffmpeg.ffmpeg" "ffmpeg"
 }
 
 install_yt_dlp() {
+    if command -v yt-dlp &> /dev/null; then
+        log_message "WARN" "yt-dlp is already installed."
+        return
+    fi
     confirm_install "yt-dlp" "yt-dlp" || return
     install_with_fallback "yt-dlp" "yt-dlp" "yt-dlp" "" "yt-dlp"
 }
 
-install_utilities() {
-    log_message "INFO" "--- Installing Utilities ---"
-    for info in "${UTILITIES_LIST[@]}"; do
-        local call="${info#*|}"
-        call="${call%%|*}"
-        $call
-    done
-}
+install_utilities() { _install_list "Utilities" UTILITIES_LIST; }
 
 install_vscode() {
     if command -v code &> /dev/null; then
@@ -475,23 +487,9 @@ install_jetbrains_toolbox() {
     fi
 }
 
-install_ides() {
-    log_message "INFO" "--- Installing All IDEs ---"
-    for info in "${IDES_LIST[@]}"; do
-        local call="${info#*|}"
-        call="${call%%|*}"
-        $call
-    done
-}
+install_ides() { _install_list "IDEs" IDES_LIST; }
 
-install_terminals() {
-    log_message "INFO" "--- Installing All Terminals ---"
-    for info in "${TERMINALS_LIST[@]}"; do
-        local call="${info#*|}"
-        call="${call%%|*}"
-        $call
-    done
-}
+install_terminals() { _install_list "Terminals" TERMINALS_LIST; }
 
 # --- Execution Logic ---
 
@@ -499,8 +497,8 @@ run_installation() {
     log_message "INFO" "Starting installation..."
 
     if [ "$YES_MODE" = true ]; then
-        ensure_prerequisites
-        update_system
+        pkg_ensure_prerequisites
+        pkg_update_system
 
         if [ "$FULL_MODE" = true ] || [ "$MINIMAL_MODE" = true ]; then
             install_browsers
@@ -512,6 +510,8 @@ run_installation() {
             install_ides
             install_shells
             install_all_agentic_ides
+            install_dev_tools
+            install_all_languages
         fi
     else
         case $FULL_MODE$MINIMAL_MODE in
@@ -528,7 +528,7 @@ usage() {
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
     echo "  --minimal    Install only Browsers and Terminals"
-    echo "  --full       Install everything (Browsers, Utilities, IDEs, Shells, Agentic IDEs, Terminals)"
+    echo "  --full       Install everything (Browsers, Utilities, IDEs, Shells, Agentic IDEs, Dev Tools, Languages, Terminals)"
     echo "  -y, --yes    Auto-confirm all installations (skip prompts)"
     echo "  --dry-run    Print what would be installed without actually installing"
     echo "  --help       Show this help message"

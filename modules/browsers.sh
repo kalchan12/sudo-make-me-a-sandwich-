@@ -290,7 +290,7 @@ install_librewolf() {
     case $DISTRO in
         debian)
             log_message "INFO" "Installing LibreWolf..."
-            ensure_prerequisites
+            pkg_ensure_prerequisites
             local keyring_url="https://deb.librewolf.net/keyring.gpg"
             local keyring_path="/usr/share/keyrings/librewolf.gpg"
             curl -fsSL "$keyring_url" | gpg --dearmor -o "$keyring_path"
@@ -310,13 +310,7 @@ install_librewolf() {
     log_version "LibreWolf" librewolf
 }
 
-install_browsers() {
-    log_message "INFO" "--- Installing All Browsers ---"
-    for browser_info in "${BROWSERS_LIST[@]}"; do
-        local func_name="${browser_info##*|}"
-        $func_name
-    done
-}
+install_browsers() { _install_list "Browsers" BROWSERS_LIST; }
 
 check_browsers_installations() {
     log_message "INFO" "--- Checking Browser Installations ---"

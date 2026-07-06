@@ -91,6 +91,14 @@ _show_selection_menu() {
         for info in "${AGENTIC_IDES_LIST[@]}"; do
             all_items+=("$info")
         done
+        echo -e "  ${CYAN}── Dev Tools ──${NC}"
+        for info in "${DEV_TOOLS_LIST[@]}"; do
+            all_items+=("$info")
+        done
+        echo -e "  ${CYAN}── Languages ──${NC}"
+        for info in "${LANGUAGES_LIST[@]}"; do
+            all_items+=("$info")
+        done
     fi
 
     local total_bytes=0
@@ -133,6 +141,44 @@ _show_selection_menu() {
             install_nushell) command -v nu &>/dev/null && already=true ;;
             install_elvish) command -v elvish &>/dev/null && already=true ;;
             install_xonsh) command -v xonsh &>/dev/null && already=true ;;
+            install_tmux) command -v tmux &>/dev/null && already=true ;;
+            install_neovim) command -v nvim &>/dev/null && already=true ;;
+            install_docker) command -v docker &>/dev/null && already=true ;;
+            install_jq) command -v jq &>/dev/null && already=true ;;
+            install_ripgrep) command -v rg &>/dev/null && already=true ;;
+            install_fzf) command -v fzf &>/dev/null && already=true ;;
+            install_bat) command -v bat &>/dev/null || command -v batcat &>/dev/null && already=true ;;
+            install_fd) command -v fd &>/dev/null || command -v fdfind &>/dev/null && already=true ;;
+            install_btop) command -v btop &>/dev/null && already=true ;;
+            install_lazygit) command -v lazygit &>/dev/null && already=true ;;
+            install_zoxide) command -v zoxide &>/dev/null && already=true ;;
+            install_delta) command -v delta &>/dev/null && already=true ;;
+            install_tldr) command -v tldr &>/dev/null && already=true ;;
+            install_httpie) command -v http &>/dev/null && already=true ;;
+            install_glances) command -v glances &>/dev/null && already=true ;;
+            install_thefuck) command -v thefuck &>/dev/null && already=true ;;
+            install_eza) command -v eza &>/dev/null && already=true ;;
+            install_dust) command -v dust &>/dev/null && already=true ;;
+            install_flameshot) command -v flameshot &>/dev/null && already=true ;;
+            install_keepassxc) command -v keepassxc &>/dev/null && already=true ;;
+            install_mpv) command -v mpv &>/dev/null && already=true ;;
+            install_syncthing) command -v syncthing &>/dev/null && already=true ;;
+            install_vlc) command -v vlc &>/dev/null && already=true ;;
+            install_python) command -v python3 &>/dev/null && already=true ;;
+            install_nodejs) command -v node &>/dev/null && already=true ;;
+            install_typescript) command -v tsc &>/dev/null && already=true ;;
+            install_go) command -v go &>/dev/null && already=true ;;
+            install_rust) command -v rustc &>/dev/null && already=true ;;
+            install_java) command -v java &>/dev/null && already=true ;;
+            install_gcc) command -v gcc &>/dev/null && already=true ;;
+            install_dotnet) command -v dotnet &>/dev/null && already=true ;;
+            install_ruby) command -v ruby &>/dev/null && already=true ;;
+            install_php) command -v php &>/dev/null && already=true ;;
+            install_lua) command -v lua &>/dev/null && already=true ;;
+            install_r) command -v R &>/dev/null && already=true ;;
+            install_zig) command -v zig &>/dev/null && already=true ;;
+            install_dart) command -v dart &>/dev/null && already=true ;;
+            install_kotlin) command -v kotlin &>/dev/null && already=true ;;
         esac
 
         if [ "$already" = true ]; then
@@ -217,8 +263,8 @@ show_selection_and_install() {
     local -a selected=()
 
     log_message "INFO" "Preparing installation selection..."
-    ensure_prerequisites
-    update_system
+    pkg_ensure_prerequisites
+    pkg_update_system
 
     _show_selection_menu "$mode" selected || {
         log_message "INFO" "Nothing to install."

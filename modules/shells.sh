@@ -78,10 +78,4 @@ install_xonsh() {
     install_with_fallback "Xonsh" "xonsh" "xonsh" "" "xonsh"
 }
 
-install_shells() {
-    log_message "INFO" "--- Installing All Shells ---"
-    for info in "${SHELLS_LIST[@]}"; do
-        local func_name="${info##*|}"
-        $func_name
-    done
-}
+install_shells() { _install_list "Shells" SHELLS_LIST; }
