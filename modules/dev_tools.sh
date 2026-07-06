@@ -107,7 +107,7 @@ install_eza() {
         return
     fi
     confirm_install "eza" "eza" || return
-    install_with_fallback "eza" "eza" "eza" "" "eza"
+    install_with_fallback "eza" "eza" "eza" "io.github.eza-community.eza" "eza"
 }
 
 install_zoxide() {
@@ -152,7 +152,18 @@ install_thefuck() {
         return
     fi
     confirm_install "thefuck" "thefuck" || return
-    install_with_fallback "thefuck" "thefuck" "thefuck" "" "thefuck"
+    if pkg_is_available thefuck; then
+        pkg_install_native thefuck
+    elif command -v pip3 &> /dev/null; then
+        pip3 install thefuck
+    elif command -v pip &> /dev/null; then
+        pip install thefuck
+    else
+        log_message "ERROR" "thefuck is not available in repos. Install python3-pip and try again."
+        return
+    fi
+    log_message "SUCCESS" "thefuck installed."
+    log_version "thefuck" thefuck
 }
 
 install_dust() {
@@ -161,7 +172,12 @@ install_dust() {
         return
     fi
     confirm_install "dust" "dust" || return
-    install_with_fallback "dust" "dust" "dust" "" "dust"
+    case $DISTRO in
+        debian) pkg_install_native du-dust ;;
+        arch|fedora) pkg_install_native dust ;;
+    esac
+    log_message "SUCCESS" "dust installed."
+    log_version "dust" dust
 }
 
 # --- Dev Platforms ---
@@ -208,7 +224,7 @@ install_lazygit() {
         return
     fi
     confirm_install "lazygit" "lazygit" || return
-    install_with_fallback "lazygit" "lazygit" "lazygit" "" "lazygit"
+    install_with_fallback "lazygit" "lazygit" "lazygit" "io.github.jesseduffield.lazygit" "lazygit"
 }
 
 # --- Media & Productivity ---
