@@ -399,6 +399,9 @@ install_obs_studio() {
         return
     fi
     confirm_install "OBS Studio" "obs-studio" || return
+    if [ "$DISTRO" = "debian" ]; then
+        _check_deps "OBS Studio (recommended)" libavcodec-extra
+    fi
     install_with_fallback "OBS Studio" "obs-studio" "obs-studio" "com.obsproject.Studio" "obs"
 }
 
@@ -496,6 +499,7 @@ install_jetbrains_toolbox() {
     fi
 
     confirm_install "JetBrains Toolbox" "" "Direct download from JetBrains" || return
+    _check_deps "JetBrains Toolbox" curl jq wget || return
 
     log_message "INFO" "Installing JetBrains Toolbox..."
     local toolbox_url=$(curl -s "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" \
