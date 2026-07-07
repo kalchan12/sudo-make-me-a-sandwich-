@@ -152,6 +152,7 @@ install_thefuck() {
         return
     fi
     confirm_install "thefuck" "thefuck" || return
+    _check_deps "thefuck" python3 python3-pip || return
     if pkg_is_available thefuck; then
         pkg_install_native thefuck
     elif command -v pip3 &> /dev/null; then
