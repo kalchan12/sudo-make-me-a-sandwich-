@@ -156,3 +156,19 @@ pkg_ensure_prerequisites() {
         pkg_install_native "${missing_pkgs[@]}"
     fi
 }
+
+_check_deps() {
+    local tool="$1"
+    shift
+    local missing=()
+    for dep in "$@"; do
+        if ! command -v "$dep" &> /dev/null && ! pkg_is_installed "$dep" &> /dev/null 2>&1; then
+            missing+=("$dep")
+        fi
+    done
+    if [ ${#missing[@]} -gt 0 ]; then
+        log_message "INFO" "$tool requires: ${missing[*]}"
+        confirm_install "dependencies (${missing[*]})" "" || return 1
+        pkg_install_native "${missing[@]}"
+    fi
+}
