@@ -61,6 +61,7 @@ install_typescript() {
         return
     fi
     confirm_install "TypeScript" "" || return
+    _check_deps "TypeScript" node npm || return
     if command -v npm &> /dev/null; then
         npm install -g typescript
         log_message "SUCCESS" "TypeScript installed."
