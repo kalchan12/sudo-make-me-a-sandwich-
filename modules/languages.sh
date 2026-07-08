@@ -234,46 +234,43 @@ install_kotlin() {
 # --- Languages Menu ---
 
 show_languages_menu() {
-    echo -e "\n${YELLOW}-- Programming Languages --${NC}"
-    local i=1
-    for info in "${LANGUAGES_LIST[@]}"; do
-        local name="${info%%|*}"
-        echo "$i) Install $name"
-        ((i++))
-    done
-    local all_idx=$i
-    echo "$all_idx) Install All Languages"
-    local back_idx=$((all_idx + 1))
-    echo "$back_idx) Back"
-    echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-    echo -n "Select option: "
-    read -r lang_choice
-    if [[ "$lang_choice" =~ ^e([0-9]+)$ ]]; then
-        _explain_by_index LANGUAGES_LIST "${BASH_REMATCH[1]}"
-        show_languages_menu
-        return
-    elif [ "$lang_choice" = "all" ] || [ "$lang_choice" = "$all_idx" ]; then
-        install_all_languages
-    elif [ "$lang_choice" = "$back_idx" ]; then
-        show_main_menu
-        return
-    elif [[ "$lang_choice" =~ ^[0-9]+$ ]] && [ "$lang_choice" -ge 1 ] && [ "$lang_choice" -lt "$all_idx" ]; then
-        local idx=0
+    while true; do
+        echo -e "\n${YELLOW}-- Programming Languages --${NC}"
+        local i=1
         for info in "${LANGUAGES_LIST[@]}"; do
-            if [ "$idx" -eq $((lang_choice - 1)) ]; then
-                local call="${info#*|}"
-                call="${call%%|*}"
-                $call
-                break
-            fi
-            ((idx++))
+            local name="${info%%|*}"
+            echo "$i) Install $name"
+            ((i++))
         done
-    else
-        log_message "WARN" "Invalid option"
-        show_languages_menu
-        return
-    fi
-    show_main_menu
+        local all_idx=$i
+        echo "$all_idx) Install All Languages"
+        local back_idx=$((all_idx + 1))
+        echo "$back_idx) Back"
+        echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        echo -n "Select option: "
+        read -r lang_choice
+        if [[ "$lang_choice" =~ ^e([0-9]+)$ ]]; then
+            _explain_by_index LANGUAGES_LIST "${BASH_REMATCH[1]}"
+            continue
+        elif [ "$lang_choice" = "all" ] || [ "$lang_choice" = "$all_idx" ]; then
+            install_all_languages
+        elif [ "$lang_choice" = "$back_idx" ]; then
+            show_main_menu; return
+        elif [[ "$lang_choice" =~ ^[0-9]+$ ]] && [ "$lang_choice" -ge 1 ] && [ "$lang_choice" -lt "$all_idx" ]; then
+            local idx=0
+            for info in "${LANGUAGES_LIST[@]}"; do
+                if [ "$idx" -eq $((lang_choice - 1)) ]; then
+                    local call="${info#*|}"
+                    call="${call%%|*}"
+                    $call
+                    break
+                fi
+                ((idx++))
+            done
+        else
+            log_message "WARN" "Invalid option"
+        fi
+    done
 }
 
 install_all_languages() { _install_list "Languages" LANGUAGES_LIST; }
