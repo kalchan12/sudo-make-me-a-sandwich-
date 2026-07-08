@@ -10,45 +10,41 @@ SHELLS_LIST=(
 )
 
 show_shells_menu() {
-    echo -e "\n${YELLOW}-- Shells --${NC}"
+    while true; do
+        echo -e "\n${YELLOW}-- Shells --${NC}"
 
-    local i=1
-    for info in "${SHELLS_LIST[@]}"; do
-        local name="${info%%|*}"
-        echo "$i) Install $name"
-        ((i++))
+        local i=1
+        for info in "${SHELLS_LIST[@]}"; do
+            local name="${info%%|*}"
+            echo "$i) Install $name"
+            ((i++))
+        done
+
+        local all_idx=$i
+        echo "$all_idx) Install All Shells"
+
+        local back_idx=$((i+1))
+        echo "$back_idx) Back"
+        echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+
+        echo -n "Select option: "
+        read -r s_choice
+
+        if [[ "$s_choice" =~ ^e([0-9]+)$ ]]; then
+            _explain_by_index SHELLS_LIST "${BASH_REMATCH[1]}"
+            continue
+        elif [[ "$s_choice" -eq "$all_idx" ]]; then
+            install_shells
+        elif [[ "$s_choice" -eq "$back_idx" ]]; then
+            show_main_menu; return
+        elif [[ "$s_choice" -ge 1 && "$s_choice" -lt "$all_idx" ]]; then
+            local selected_info="${SHELLS_LIST[$((s_choice-1))]}"
+            local func_name="${selected_info##*|}"
+            $func_name
+        else
+            log_message "WARN" "Invalid option"
+        fi
     done
-
-    local all_idx=$i
-    echo "$all_idx) Install All Shells"
-
-    local back_idx=$((i+1))
-    echo "$back_idx) Back"
-    echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-
-    echo -n "Select option: "
-    read -r s_choice
-
-    if [[ "$s_choice" =~ ^e([0-9]+)$ ]]; then
-        _explain_by_index SHELLS_LIST "${BASH_REMATCH[1]}"
-        show_shells_menu
-        return
-    elif [[ "$s_choice" -eq "$all_idx" ]]; then
-        install_shells
-    elif [[ "$s_choice" -eq "$back_idx" ]]; then
-        show_main_menu
-        return
-    elif [[ "$s_choice" -ge 1 && "$s_choice" -lt "$all_idx" ]]; then
-        local selected_info="${SHELLS_LIST[$((s_choice-1))]}"
-        local func_name="${selected_info##*|}"
-        $func_name
-    else
-        log_message "WARN" "Invalid option"
-        show_shells_menu
-        return
-    fi
-
-    show_main_menu
 }
 
 install_zsh() {
