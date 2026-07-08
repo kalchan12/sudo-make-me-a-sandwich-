@@ -278,46 +278,43 @@ install_syncthing() {
 # --- Dev Tools Menu ---
 
 show_dev_tools_menu() {
-    echo -e "\n${YELLOW}-- Dev Tools --${NC}"
-    local i=1
-    for info in "${DEV_TOOLS_LIST[@]}"; do
-        local name="${info%%|*}"
-        echo "$i) Install $name"
-        ((i++))
-    done
-    local all_idx=$i
-    echo "$all_idx) Install All Dev Tools"
-    local back_idx=$((all_idx + 1))
-    echo "$back_idx) Back"
-    echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-    echo -n "Select option: "
-    read -r dt_choice
-    if [[ "$dt_choice" =~ ^e([0-9]+)$ ]]; then
-        _explain_by_index DEV_TOOLS_LIST "${BASH_REMATCH[1]}"
-        show_dev_tools_menu
-        return
-    elif [ "$dt_choice" = "all" ] || [ "$dt_choice" = "$all_idx" ]; then
-        install_dev_tools
-    elif [ "$dt_choice" = "$back_idx" ]; then
-        show_main_menu
-        return
-    elif [[ "$dt_choice" =~ ^[0-9]+$ ]] && [ "$dt_choice" -ge 1 ] && [ "$dt_choice" -lt "$all_idx" ]; then
-        local idx=0
+    while true; do
+        echo -e "\n${YELLOW}-- Dev Tools --${NC}"
+        local i=1
         for info in "${DEV_TOOLS_LIST[@]}"; do
-            if [ "$idx" -eq $((dt_choice - 1)) ]; then
-                local call="${info#*|}"
-                call="${call%%|*}"
-                $call
-                break
-            fi
-            ((idx++))
+            local name="${info%%|*}"
+            echo "$i) Install $name"
+            ((i++))
         done
-    else
-        log_message "WARN" "Invalid option"
-        show_dev_tools_menu
-        return
-    fi
-    show_main_menu
+        local all_idx=$i
+        echo "$all_idx) Install All Dev Tools"
+        local back_idx=$((all_idx + 1))
+        echo "$back_idx) Back"
+        echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        echo -n "Select option: "
+        read -r dt_choice
+        if [[ "$dt_choice" =~ ^e([0-9]+)$ ]]; then
+            _explain_by_index DEV_TOOLS_LIST "${BASH_REMATCH[1]}"
+            continue
+        elif [ "$dt_choice" = "all" ] || [ "$dt_choice" = "$all_idx" ]; then
+            install_dev_tools
+        elif [ "$dt_choice" = "$back_idx" ]; then
+            show_main_menu; return
+        elif [[ "$dt_choice" =~ ^[0-9]+$ ]] && [ "$dt_choice" -ge 1 ] && [ "$dt_choice" -lt "$all_idx" ]; then
+            local idx=0
+            for info in "${DEV_TOOLS_LIST[@]}"; do
+                if [ "$idx" -eq $((dt_choice - 1)) ]; then
+                    local call="${info#*|}"
+                    call="${call%%|*}"
+                    $call
+                    break
+                fi
+                ((idx++))
+            done
+        else
+            log_message "WARN" "Invalid option"
+        fi
+    done
 }
 
 install_dev_tools() { _install_list "Dev Tools" DEV_TOOLS_LIST; }
