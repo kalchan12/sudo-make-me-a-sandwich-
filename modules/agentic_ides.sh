@@ -6,45 +6,41 @@ AGENTIC_IDES_LIST=(
 )
 
 show_agentic_ides_menu() {
-    echo -e "\n${YELLOW}-- Agentic IDEs --${NC}"
+    while true; do
+        echo -e "\n${YELLOW}-- Agentic IDEs --${NC}"
 
-    local i=1
-    for ide_info in "${AGENTIC_IDES_LIST[@]}"; do
-        local name="${ide_info%%|*}"
-        echo "$i) Install $name"
-        ((i++))
+        local i=1
+        for ide_info in "${AGENTIC_IDES_LIST[@]}"; do
+            local name="${ide_info%%|*}"
+            echo "$i) Install $name"
+            ((i++))
+        done
+
+        local all_idx=$i
+        echo "$all_idx) Install All Agentic IDEs"
+
+        local back_idx=$((i+1))
+        echo "$back_idx) Back"
+        echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+
+        echo -n "Select option: "
+        read -r a_choice
+
+        if [[ "$a_choice" =~ ^e([0-9]+)$ ]]; then
+            _explain_by_index AGENTIC_IDES_LIST "${BASH_REMATCH[1]}"
+            continue
+        elif [[ "$a_choice" -eq "$all_idx" ]]; then
+            install_all_agentic_ides
+        elif [[ "$a_choice" -eq "$back_idx" ]]; then
+            show_main_menu; return
+        elif [[ "$a_choice" -ge 1 && "$a_choice" -lt "$all_idx" ]]; then
+            local selected_info="${AGENTIC_IDES_LIST[$((a_choice-1))]}"
+            local func_name="${selected_info##*|}"
+            $func_name
+        else
+            log_message "WARN" "Invalid option"
+        fi
     done
-
-    local all_idx=$i
-    echo "$all_idx) Install All Agentic IDEs"
-
-    local back_idx=$((i+1))
-    echo "$back_idx) Back"
-    echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-
-    echo -n "Select option: "
-    read -r a_choice
-
-    if [[ "$a_choice" =~ ^e([0-9]+)$ ]]; then
-        _explain_by_index AGENTIC_IDES_LIST "${BASH_REMATCH[1]}"
-        show_agentic_ides_menu
-        return
-    elif [[ "$a_choice" -eq "$all_idx" ]]; then
-        install_all_agentic_ides
-    elif [[ "$a_choice" -eq "$back_idx" ]]; then
-        show_main_menu
-        return
-    elif [[ "$a_choice" -ge 1 && "$a_choice" -lt "$all_idx" ]]; then
-        local selected_info="${AGENTIC_IDES_LIST[$((a_choice-1))]}"
-        local func_name="${selected_info##*|}"
-        $func_name
-    else
-        log_message "WARN" "Invalid option"
-        show_agentic_ides_menu
-        return
-    fi
-
-    show_main_menu
 }
 
 install_opencode() {
