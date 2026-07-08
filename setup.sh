@@ -19,6 +19,7 @@ MINIMAL_MODE=false
 FULL_MODE=false
 DRY_RUN=false
 YES_MODE=false
+START_TIME=0
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -89,6 +90,47 @@ log_version() {
         echo -e "${CYAN}  └─ $display: ${NC}$version"
         log_message "INFO" "$display version: $version"
     fi
+}
+
+_print_summary() {
+    local elapsed=$(($(date +%s) - START_TIME))
+    local mins=$((elapsed / 60))
+    local secs=$((elapsed % 60))
+
+    echo ""
+    echo -e "${GREEN}═══════════════════════════════════════${NC}"
+    echo -e "${GREEN}      Installation Complete${NC}"
+    echo -e "${GREEN}═══════════════════════════════════════${NC}"
+    echo -e "  Elapsed time: ${CYAN}${mins}m ${secs}s${NC}"
+    echo -e "  Log file: ${CYAN}${LOG_FILE}${NC}"
+    echo ""
+}
+
+list_tools() {
+    echo -e "${YELLOW}Available Tools by Category${NC}"
+    echo ""
+
+    _print_category "Browsers" BROWSERS_LIST
+    _print_category "Utilities" UTILITIES_LIST
+    _print_category "IDEs" IDES_LIST
+    _print_category "Terminals" TERMINALS_LIST
+    _print_category "Shells" SHELLS_LIST
+    _print_category "Agentic IDEs" AGENTIC_IDES_LIST
+    _print_category "Dev Tools" DEV_TOOLS_LIST
+    _print_category "Languages" LANGUAGES_LIST
+
+    exit 0
+}
+
+_print_category() {
+    local title="$1"
+    local -n list="$2"
+    echo -e "${CYAN}── $title ──${NC}"
+    for info in "${list[@]}"; do
+        local name="${info%%|*}"
+        echo "  • $name"
+    done
+    echo ""
 }
 
 add_keyring() {
@@ -531,6 +573,7 @@ install_terminals() { _install_list "Terminals" TERMINALS_LIST; }
 # --- Execution Logic ---
 
 run_installation() {
+    START_TIME=$(date +%s)
     log_message "INFO" "Starting installation..."
 
     if [ "$YES_MODE" = true ]; then
@@ -555,10 +598,12 @@ run_installation() {
             truefalse) show_selection_and_install "full" ;;
             falsetrue) show_selection_and_install "minimal" ;;
         esac
+        _print_summary
         return
     fi
 
     log_message "SUCCESS" "Installation tasks complete! Check $LOG_FILE for details."
+    _print_summary
 }
 
 usage() {
@@ -569,6 +614,7 @@ usage() {
     echo "  -y, --yes    Auto-confirm all installations (skip prompts)"
     echo "  --dry-run    Print what would be installed without actually installing"
     echo "  --explain    Show info about a tool (e.g., --explain tmux)"
+    echo "  --list       List all available tools by category and exit"
     echo "  --help       Show this help message"
     echo ""
     echo "Run without options for interactive menu."
@@ -582,6 +628,9 @@ main() {
         case $1 in
             --help)
                 usage
+                ;;
+            --list)
+                list_tools
                 ;;
             --explain)
                 if [ -n "$2" ]; then
@@ -608,7 +657,7 @@ main() {
             --full)    FULL_MODE=true; shift ;;
             -y|--yes)  YES_MODE=true; shift ;;
             --dry-run) DRY_RUN=true; shift ;;
-            --help|--explain) shift ;;
+            --help|--explain|--list) shift ;;
                 *)         log_message "ERROR" "Unknown option: $1"; usage ;;
             esac
         done
