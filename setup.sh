@@ -191,67 +191,69 @@ show_main_menu() {
 }
 
 show_utilities_menu() {
-    echo -e "\n${YELLOW}-- Utilities --${NC}"
-    echo "1) Install Obsidian"
-    echo "2) Install WPS Office"
-    echo "3) Install OBS Studio"
-    echo "4) Install ffmpeg"
-    echo "5) Install yt-dlp"
-    echo "6) Install All Utilities"
-    echo "7) Back"
-    echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-    echo -n "Select option: "
-    read -r u_choice
-    if [[ "$u_choice" =~ ^e([0-9]+)$ ]]; then
-        case "${BASH_REMATCH[1]}" in
-            1) _explain_tool "Obsidian" ;;
-            2) _explain_tool "WPS Office" ;;
-            3) _explain_tool "OBS Studio" ;;
-            4) _explain_tool "ffmpeg" ;;
-            5) _explain_tool "yt-dlp" ;;
+    while true; do
+        echo -e "\n${YELLOW}-- Utilities --${NC}"
+        echo "1) Install Obsidian"
+        echo "2) Install WPS Office"
+        echo "3) Install OBS Studio"
+        echo "4) Install ffmpeg"
+        echo "5) Install yt-dlp"
+        echo "6) Install All Utilities"
+        echo "7) Back"
+        echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        echo -n "Select option: "
+        read -r u_choice
+        if [[ "$u_choice" =~ ^e([0-9]+)$ ]]; then
+            case "${BASH_REMATCH[1]}" in
+                1) _explain_tool "Obsidian" ;;
+                2) _explain_tool "WPS Office" ;;
+                3) _explain_tool "OBS Studio" ;;
+                4) _explain_tool "ffmpeg" ;;
+                5) _explain_tool "yt-dlp" ;;
+            esac
+            continue
+        fi
+        case $u_choice in
+            1) install_obsidian ;;
+            2) install_wps ;;
+            3) install_obs_studio ;;
+            4) install_ffmpeg ;;
+            5) install_yt_dlp ;;
+            6) install_utilities ;;
+            7) show_main_menu; return ;;
+            *) log_message "WARN" "Invalid option"; continue ;;
         esac
-        show_utilities_menu; return
-    fi
-    case $u_choice in
-        1) install_obsidian ;;
-        2) install_wps ;;
-        3) install_obs_studio ;;
-        4) install_ffmpeg ;;
-        5) install_yt_dlp ;;
-        6) install_utilities ;;
-        7) show_main_menu ;;
-        *) log_message "WARN" "Invalid option"; show_utilities_menu ;;
-    esac
-    show_main_menu
+    done
 }
 
 show_ides_menu() {
-    echo -e "\n${YELLOW}-- IDEs --${NC}"
-    echo "1) Install VS Code"
-    echo "2) Install Sublime Text"
-    echo "3) Install JetBrains Toolbox"
-    echo "4) Install All IDEs"
-    echo "5) Back"
-    echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-    echo -n "Select option: "
-    read -r i_choice
-    if [[ "$i_choice" =~ ^e([0-9]+)$ ]]; then
-        case "${BASH_REMATCH[1]}" in
-            1) _explain_tool "VS Code" ;;
-            2) _explain_tool "Sublime Text" ;;
-            3) _explain_tool "JetBrains Toolbox" ;;
+    while true; do
+        echo -e "\n${YELLOW}-- IDEs --${NC}"
+        echo "1) Install VS Code"
+        echo "2) Install Sublime Text"
+        echo "3) Install JetBrains Toolbox"
+        echo "4) Install All IDEs"
+        echo "5) Back"
+        echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        echo -n "Select option: "
+        read -r i_choice
+        if [[ "$i_choice" =~ ^e([0-9]+)$ ]]; then
+            case "${BASH_REMATCH[1]}" in
+                1) _explain_tool "VS Code" ;;
+                2) _explain_tool "Sublime Text" ;;
+                3) _explain_tool "JetBrains Toolbox" ;;
+            esac
+            continue
+        fi
+        case $i_choice in
+            1) install_vscode ;;
+            2) install_sublime ;;
+            3) install_jetbrains_toolbox ;;
+            4) install_ides ;;
+            5) show_main_menu; return ;;
+            *) log_message "WARN" "Invalid option"; continue ;;
         esac
-        show_ides_menu; return
-    fi
-    case $i_choice in
-        1) install_vscode ;;
-        2) install_sublime ;;
-        3) install_jetbrains_toolbox ;;
-        4) install_ides ;;
-        5) show_main_menu ;;
-        *) log_message "WARN" "Invalid option"; show_ides_menu ;;
-    esac
-    show_main_menu
+    done
 }
 
 install_single_terminal() {
@@ -268,35 +270,36 @@ install_single_terminal() {
 }
 
 show_terminals_menu() {
-    echo -e "\n${YELLOW}-- Terminals --${NC}"
-    echo "1) Install Kitty"
-    echo "2) Install Alacritty"
-    echo "3) Install Tilix"
-    echo "4) Install GNOME Terminal"
-    echo "5) Install All Terminals"
-    echo "6) Back"
-    echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-    echo -n "Select option: "
-    read -r t_choice
-    if [[ "$t_choice" =~ ^e([0-9]+)$ ]]; then
-        case "${BASH_REMATCH[1]}" in
-            1) _explain_tool "Kitty" ;;
-            2) _explain_tool "Alacritty" ;;
-            3) _explain_tool "Tilix" ;;
-            4) _explain_tool "GNOME Terminal" ;;
+    while true; do
+        echo -e "\n${YELLOW}-- Terminals --${NC}"
+        echo "1) Install Kitty"
+        echo "2) Install Alacritty"
+        echo "3) Install Tilix"
+        echo "4) Install GNOME Terminal"
+        echo "5) Install All Terminals"
+        echo "6) Back"
+        echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        echo -n "Select option: "
+        read -r t_choice
+        if [[ "$t_choice" =~ ^e([0-9]+)$ ]]; then
+            case "${BASH_REMATCH[1]}" in
+                1) _explain_tool "Kitty" ;;
+                2) _explain_tool "Alacritty" ;;
+                3) _explain_tool "Tilix" ;;
+                4) _explain_tool "GNOME Terminal" ;;
+            esac
+            continue
+        fi
+        case $t_choice in
+            1) install_single_terminal kitty ;;
+            2) install_single_terminal alacritty ;;
+            3) install_single_terminal tilix ;;
+            4) install_single_terminal gnome-terminal ;;
+            5) install_terminals ;;
+            6) show_main_menu; return ;;
+            *) log_message "WARN" "Invalid option"; continue ;;
         esac
-        show_terminals_menu; return
-    fi
-    case $t_choice in
-        1) install_single_terminal kitty ;;
-        2) install_single_terminal alacritty ;;
-        3) install_single_terminal tilix ;;
-        4) install_single_terminal gnome-terminal ;;
-        5) install_terminals ;;
-        6) show_main_menu ;;
-        *) log_message "WARN" "Invalid option"; show_terminals_menu ;;
-    esac
-    show_main_menu
+    done
 }
 
 # --- Installation Modules (Expanded) ---
