@@ -17,50 +17,46 @@ BROWSERS_LIST=(
 )
 
 show_browsers_menu() {
-    echo -e "\n${YELLOW}-- Browsers --${NC}"
-    
-    local i=1
-    for browser_info in "${BROWSERS_LIST[@]}"; do
-        local name="${browser_info%%|*}"
-        echo "$i) Install $name"
-        ((i++))
+    while true; do
+        echo -e "\n${YELLOW}-- Browsers --${NC}"
+        
+        local i=1
+        for browser_info in "${BROWSERS_LIST[@]}"; do
+            local name="${browser_info%%|*}"
+            echo "$i) Install $name"
+            ((i++))
+        done
+        
+        local all_idx=$i
+        echo "$all_idx) Install All Browsers"
+        
+        local check_idx=$((i+1))
+        echo "$check_idx) Check Browser Installations"
+        
+        local back_idx=$((i+2))
+        echo "$back_idx) Back"
+        echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        
+        echo -n "Select option: "
+        read -r b_choice
+        
+        if [[ "$b_choice" =~ ^e([0-9]+)$ ]]; then
+            _explain_by_index BROWSERS_LIST "${BASH_REMATCH[1]}"
+            continue
+        elif [[ "$b_choice" -eq "$all_idx" ]]; then
+            install_browsers
+        elif [[ "$b_choice" -eq "$check_idx" ]]; then
+            check_browsers_installations
+        elif [[ "$b_choice" -eq "$back_idx" ]]; then
+            show_main_menu; return
+        elif [[ "$b_choice" -ge 1 && "$b_choice" -lt "$all_idx" ]]; then
+            local selected_info="${BROWSERS_LIST[$((b_choice-1))]}"
+            local func_name="${selected_info##*|}"
+            $func_name
+        else
+            log_message "WARN" "Invalid option"
+        fi
     done
-    
-    local all_idx=$i
-    echo "$all_idx) Install All Browsers"
-    
-    local check_idx=$((i+1))
-    echo "$check_idx) Check Browser Installations"
-    
-    local back_idx=$((i+2))
-    echo "$back_idx) Back"
-    echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-    
-    echo -n "Select option: "
-    read -r b_choice
-    
-    if [[ "$b_choice" =~ ^e([0-9]+)$ ]]; then
-        _explain_by_index BROWSERS_LIST "${BASH_REMATCH[1]}"
-        show_browsers_menu
-        return
-    elif [[ "$b_choice" -eq "$all_idx" ]]; then
-        install_browsers
-    elif [[ "$b_choice" -eq "$check_idx" ]]; then
-        check_browsers_installations
-    elif [[ "$b_choice" -eq "$back_idx" ]]; then
-        show_main_menu
-        return
-    elif [[ "$b_choice" -ge 1 && "$b_choice" -lt "$all_idx" ]]; then
-        local selected_info="${BROWSERS_LIST[$((b_choice-1))]}"
-        local func_name="${selected_info##*|}"
-        $func_name
-    else
-        log_message "WARN" "Invalid option"
-        show_browsers_menu
-        return
-    fi
-    
-    show_main_menu
 }
 
 install_brave() {
