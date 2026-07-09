@@ -230,12 +230,12 @@ _show_selection_menu() {
             has_unknown=true
         fi
 
-        echo -e "  $((display_num + 1))) $name  ${CYAN}(${size_str})${NC}"
+        echo -e "  ${GREEN}$((display_num + 1))) $name${NC}  ${CYAN}(${size_str})${NC}"
         ((display_num++))
     done
 
     if [ "$display_num" -eq 0 ]; then
-        echo "  (all items already installed)"
+        gecho "  (all items already installed)"
         echo -e "${PURPLE}═══════════════════════════════════════${NC}"
         _items_ref=()
         return 1
@@ -247,7 +247,7 @@ _show_selection_menu() {
     if [ "$has_unknown" = true ]; then
         total_size_str="${total_size_str}+ (some sizes unknown)"
     fi
-    echo -e "Total download size: ${CYAN}${total_size_str}${NC}"
+    echo -e "${GREEN}Total download size: ${CYAN}${total_size_str}${NC}"
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
 
     if [ "$YES_MODE" = true ]; then
@@ -256,8 +256,8 @@ _show_selection_menu() {
     fi
 
     echo ""
-    echo "Enter numbers to install (space-separated, ranges like 1-5, or 'all'): "
-    echo -n "Selection: "
+    gecho "Enter numbers to install (space-separated, ranges like 1-5, or 'all'): "
+    echo -n -e "${GREEN}Selection: ${NC}"
     read -r raw_input
 
     if [ "$raw_input" = "all" ]; then

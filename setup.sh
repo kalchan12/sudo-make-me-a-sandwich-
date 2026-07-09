@@ -30,6 +30,8 @@ PURPLE='\033[1;35m'
 CYAN='\033[1;36m'
 NC='\033[0m'
 
+gecho() { echo -e "${GREEN}$*${NC}"; }
+
 # --- Helper Functions ---
 
 show_banner() {
@@ -229,7 +231,7 @@ show_main_menu() {
     echo -e "${CYAN} 9)${NC} Full Installation"
     echo -e "${CYAN}10)${NC} Minimal Installation"
     echo -e "${CYAN}11)${NC} Exit"
-    echo -n "Select an option: "
+    echo -n -e "${GREEN}Select an option: ${NC}"
     read -r choice
     case $choice in
         1) show_browsers_menu ;;
@@ -261,7 +263,7 @@ show_productivity_menu() {
         local back_idx=$((all_idx + 1))
         echo -e "${CYAN}$back_idx)${NC} Back"
         echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n "Select option: "
+        echo -n -e "${GREEN}Select option: ${NC}"
         read -r p_choice
         if [[ "$p_choice" =~ ^e([0-9]+)$ ]]; then
             _explain_by_index PRODUCTIVITY_LIST "${BASH_REMATCH[1]}"
@@ -301,7 +303,7 @@ show_ides_menu() {
         local back_idx=$((all_idx + 1))
         echo -e "${CYAN}$back_idx)${NC} Back"
         echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n "Select option: "
+        echo -n -e "${GREEN}Select option: ${NC}"
         read -r i_choice
         if [[ "$i_choice" =~ ^e([0-9]+)$ ]]; then
             _explain_by_index IDES_LIST "${BASH_REMATCH[1]}"
@@ -350,7 +352,7 @@ show_terminals_menu() {
         echo -e "${CYAN}5)${NC} Install All Terminals"
         echo -e "${CYAN}6)${NC} Back"
         echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n "Select option: "
+        echo -n -e "${GREEN}Select option: ${NC}"
         read -r t_choice
         if [[ "$t_choice" =~ ^e([0-9]+)$ ]]; then
             case "${BASH_REMATCH[1]}" in
@@ -676,19 +678,19 @@ install_multiple() {
 }
 
 usage() {
-    echo "Usage: $0 [OPTIONS]"
-    echo "Options:"
-    echo "  --minimal    Install only Browsers and Terminals"
-    echo "  --full       Install everything (Browsers, Productivity, IDEs, Shells, Dev Tools, Languages, Terminals, Pentesting)"
-    echo "  -y, --yes    Auto-confirm all installations (skip prompts)"
-    echo "  --dry-run    Print what would be installed without actually installing"
-    echo "  --explain    Show info about a tool (e.g., --explain tmux)"
-    echo "  --install    Install specific tools by name (comma-separated, e.g. --install nmap,burpsuite)"
-    echo "  --list       List all available tools by category and exit"
-    echo "  --help       Show this help message"
-    echo ""
-    echo "Run without options for interactive menu."
-    echo "Inside menus, enter a number to install, or e<N> for details (e.g., e1)."
+    gecho "Usage: $0 [OPTIONS]"
+    gecho "Options:"
+    gecho "  --minimal    Install only Browsers and Terminals"
+    gecho "  --full       Install everything (Browsers, Productivity, IDEs, Shells, Dev Tools, Languages, Terminals, Pentesting)"
+    gecho "  -y, --yes    Auto-confirm all installations (skip prompts)"
+    gecho "  --dry-run    Print what would be installed without actually installing"
+    gecho "  --explain    Show info about a tool (e.g., --explain tmux)"
+    gecho "  --install    Install specific tools by name (comma-separated, e.g. --install nmap,burpsuite)"
+    gecho "  --list       List all available tools by category and exit"
+    gecho "  --help       Show this help message"
+    gecho ""
+    gecho "Run without options for interactive menu."
+    gecho "Inside menus, enter a number to install, or e<N> for details (e.g., e1)."
     exit 0
 }
 

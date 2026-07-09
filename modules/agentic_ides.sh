@@ -12,18 +12,18 @@ show_agentic_ides_menu() {
         local i=1
         for ide_info in "${AGENTIC_IDES_LIST[@]}"; do
             local name="${ide_info%%|*}"
-            echo "$i) Install $name"
+            gecho "$i) Install $name"
             ((i++))
         done
 
         local all_idx=$i
-        echo "$all_idx) Install All Agentic IDEs"
+        gecho "$all_idx) Install All Agentic IDEs"
 
         local back_idx=$((i+1))
-        echo "$back_idx) Back"
+        gecho "$back_idx) Back"
         echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
 
-        echo -n "Select option: "
+        echo -n -e "${GREEN}Select option: ${NC}"
         read -r a_choice
 
         if [[ "$a_choice" =~ ^e([0-9]+)$ ]]; then

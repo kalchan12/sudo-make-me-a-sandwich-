@@ -103,7 +103,7 @@ confirm_install() {
         return 0
     fi
 
-    echo -ne "Install ${display_name}? [y/N] "
+    echo -ne "${GREEN}Install ${display_name}? [y/N] ${NC}"
     read -r confirm
     if [[ ! "$confirm" =~ ^[yY]([eE][sS])?$ ]]; then
         log_message "INFO" "Skipped: $display_name"

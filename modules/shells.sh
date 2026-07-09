@@ -27,7 +27,7 @@ show_shells_menu() {
         echo -e "${CYAN}$back_idx)${NC} Back"
         echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
 
-        echo -n "Select option: "
+        echo -n -e "${GREEN}Select option: ${NC}"
         read -r s_choice
 
         if [[ "$s_choice" =~ ^e([0-9]+)$ ]]; then

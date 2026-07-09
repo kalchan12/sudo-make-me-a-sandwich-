@@ -291,7 +291,7 @@ show_dev_tools_menu() {
         local back_idx=$((all_idx + 1))
         echo -e "${CYAN}$back_idx)${NC} Back"
         echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n "Select option: "
+        echo -n -e "${GREEN}Select option: ${NC}"
         read -r dt_choice
         if [[ "$dt_choice" =~ ^e([0-9]+)$ ]]; then
             _explain_by_index DEV_TOOLS_LIST "${BASH_REMATCH[1]}"

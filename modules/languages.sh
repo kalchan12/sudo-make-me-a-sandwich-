@@ -247,7 +247,7 @@ show_languages_menu() {
         local back_idx=$((all_idx + 1))
         echo -e "${CYAN}$back_idx)${NC} Back"
         echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n "Select option: "
+        echo -n -e "${GREEN}Select option: ${NC}"
         read -r lang_choice
         if [[ "$lang_choice" =~ ^e([0-9]+)$ ]]; then
             _explain_by_index LANGUAGES_LIST "${BASH_REMATCH[1]}"
