@@ -279,17 +279,17 @@ install_syncthing() {
 
 show_dev_tools_menu() {
     while true; do
-        echo -e "\n${YELLOW}-- Dev Tools --${NC}"
+        echo -e "\n${PURPLE}── Dev Tools ──${NC}"
         local i=1
         for info in "${DEV_TOOLS_LIST[@]}"; do
             local name="${info%%|*}"
-            echo "$i) Install $name"
+            echo -e "${CYAN}$i)${NC} Install $name"
             ((i++))
         done
         local all_idx=$i
-        echo "$all_idx) Install All Dev Tools"
+        echo -e "${CYAN}$all_idx)${NC} Install All"
         local back_idx=$((all_idx + 1))
-        echo "$back_idx) Back"
+        echo -e "${CYAN}$back_idx)${NC} Back"
         echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
         echo -n "Select option: "
         read -r dt_choice

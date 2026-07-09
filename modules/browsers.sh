@@ -18,23 +18,23 @@ BROWSERS_LIST=(
 
 show_browsers_menu() {
     while true; do
-        echo -e "\n${YELLOW}-- Browsers --${NC}"
+        echo -e "\n${PURPLE}── Browsers ──${NC}"
         
         local i=1
         for browser_info in "${BROWSERS_LIST[@]}"; do
             local name="${browser_info%%|*}"
-            echo "$i) Install $name"
+            echo -e "${CYAN}$i)${NC} Install $name"
             ((i++))
         done
         
         local all_idx=$i
-        echo "$all_idx) Install All Browsers"
+        echo -e "${CYAN}$all_idx)${NC} Install All"
         
         local check_idx=$((i+1))
-        echo "$check_idx) Check Browser Installations"
+        echo -e "${CYAN}$check_idx)${NC} Check Installations"
         
         local back_idx=$((i+2))
-        echo "$back_idx) Back"
+        echo -e "${CYAN}$back_idx)${NC} Back"
         echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
         
         echo -n "Select option: "

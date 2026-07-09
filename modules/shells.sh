@@ -11,20 +11,20 @@ SHELLS_LIST=(
 
 show_shells_menu() {
     while true; do
-        echo -e "\n${YELLOW}-- Shells --${NC}"
+        echo -e "\n${PURPLE}── Shells ──${NC}"
 
         local i=1
         for info in "${SHELLS_LIST[@]}"; do
             local name="${info%%|*}"
-            echo "$i) Install $name"
+            echo -e "${CYAN}$i)${NC} Install $name"
             ((i++))
         done
 
         local all_idx=$i
-        echo "$all_idx) Install All Shells"
+        echo -e "${CYAN}$all_idx)${NC} Install All"
 
         local back_idx=$((i+1))
-        echo "$back_idx) Back"
+        echo -e "${CYAN}$back_idx)${NC} Back"
         echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
 
         echo -n "Select option: "
