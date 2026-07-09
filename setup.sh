@@ -20,6 +20,7 @@ FULL_MODE=false
 DRY_RUN=false
 YES_MODE=false
 START_TIME=0
+INSTALL_LIST=""
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -90,6 +91,14 @@ log_version() {
         echo -e "${CYAN}  └─ $display: ${NC}$version"
         log_message "INFO" "$display version: $version"
     fi
+}
+
+_dry_run_cmd() {
+    if [ "$DRY_RUN" = true ]; then
+        echo -e "${YELLOW}[DRY-RUN]${NC} $*"
+        return 0
+    fi
+    "$@"
 }
 
 _print_summary() {
@@ -610,6 +619,46 @@ run_installation() {
     _print_summary
 }
 
+install_by_name() {
+    local target="$1"
+    local target_lower
+    target_lower=$(echo "$target" | tr '[:upper:]' '[:lower:]')
+
+    local all_lists=(
+        "BROWSERS_LIST" "TERMINALS_LIST" "UTILITIES_LIST" "IDES_LIST"
+        "SHELLS_LIST" "AGENTIC_IDES_LIST" "DEV_TOOLS_LIST" "LANGUAGES_LIST"
+        "PENTEST_LIST"
+    )
+
+    local list_name
+    for list_name in "${all_lists[@]}"; do
+        local -n list="$list_name"
+        for info in "${list[@]}"; do
+            local name="${info%%|*}"
+            local name_lower
+            name_lower=$(echo "$name" | tr '[:upper:]' '[:lower:]')
+            if [ "$name_lower" = "$target_lower" ]; then
+                local rest="${info#*|}"
+                local call="${rest%%|*}"
+                log_message "INFO" "Installing $name..."
+                $call
+                return $?
+            fi
+        done
+    done
+
+    log_message "ERROR" "Unknown tool: '$target'. Use --list to see all available tools."
+    return 1
+}
+
+install_multiple() {
+    local IFS=','
+    for tool in $1; do
+        tool=$(echo "$tool" | xargs)
+        install_by_name "$tool" || true
+    done
+}
+
 usage() {
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
@@ -618,6 +667,7 @@ usage() {
     echo "  -y, --yes    Auto-confirm all installations (skip prompts)"
     echo "  --dry-run    Print what would be installed without actually installing"
     echo "  --explain    Show info about a tool (e.g., --explain tmux)"
+    echo "  --install    Install specific tools by name (comma-separated, e.g. --install nmap,burpsuite)"
     echo "  --list       List all available tools by category and exit"
     echo "  --help       Show this help message"
     echo ""
@@ -661,11 +711,16 @@ main() {
             --full)    FULL_MODE=true; shift ;;
             -y|--yes)  YES_MODE=true; shift ;;
             --dry-run) DRY_RUN=true; shift ;;
+            --install) INSTALL_LIST="$2"; shift 2 ;;
             --help|--explain|--list) shift ;;
                 *)         log_message "ERROR" "Unknown option: $1"; usage ;;
             esac
         done
-        run_installation
+        if [ -n "$INSTALL_LIST" ]; then
+            install_multiple "$INSTALL_LIST"
+        else
+            run_installation
+        fi
     else
         # No flags, enter interactive mode
         show_main_menu

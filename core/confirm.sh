@@ -99,7 +99,7 @@ confirm_install() {
 
     echo -e "${YELLOW}═══════════════════════════════════════${NC}"
 
-    if [ "$YES_MODE" = true ] || [ "$SELECTION_MODE" = true ]; then
+    if [ "$YES_MODE" = true ] || [ "$SELECTION_MODE" = true ] || [ "$DRY_RUN" = true ]; then
         return 0
     fi
 

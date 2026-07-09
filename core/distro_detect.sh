@@ -43,6 +43,14 @@ pkg_is_installed() {
 }
 
 pkg_install_native() {
+    if [ "$DRY_RUN" = true ]; then
+        case $DISTRO in
+            debian) echo -e "${YELLOW}[DRY-RUN]${NC} apt install -y -V $*" ;;
+            arch)   echo -e "${YELLOW}[DRY-RUN]${NC} pacman -S --noconfirm $*" ;;
+            fedora) echo -e "${YELLOW}[DRY-RUN]${NC} dnf install -y $*" ;;
+        esac
+        return
+    fi
     case $DISTRO in
         debian) apt install -y -V "$@" ;;
         arch) pacman -S --noconfirm "$@" ;;
@@ -60,6 +68,10 @@ pkg_is_available() {
 }
 
 aur_install() {
+    if [ "$DRY_RUN" = true ]; then
+        echo -e "${YELLOW}[DRY-RUN]${NC} AUR install: $1 (via yay/paru)"
+        return 0
+    fi
     if command -v yay &> /dev/null; then
         yay -S --noconfirm "$1"
     elif command -v paru &> /dev/null; then
@@ -67,6 +79,19 @@ aur_install() {
     else
         return 1
     fi
+}
+
+_flatpak_install() {
+    local display_name="$1"
+    local flatpak_id="$2"
+    local bin_check="$3"
+    if [ "$DRY_RUN" = true ]; then
+        echo -e "${YELLOW}[DRY-RUN]${NC} flatpak install -y flathub $flatpak_id"
+        return 0
+    fi
+    flatpak install -y flathub "$flatpak_id"
+    log_message "SUCCESS" "$display_name installed via Flatpak."
+    log_version "$display_name" "" "$bin_check"
 }
 
 install_with_fallback() {
@@ -97,19 +122,17 @@ install_with_fallback() {
 
     if [ -n "$flatpak_id" ] && command -v flatpak &> /dev/null; then
         log_message "INFO" "Installing $display_name via Flatpak..."
-        flatpak install -y flathub "$flatpak_id"
-        log_message "SUCCESS" "$display_name installed via Flatpak."
-        log_version "$display_name" "" "$bin_check"
+        _flatpak_install "$display_name" "$flatpak_id" "$bin_check"
         return 0
     fi
 
     if [ -n "$flatpak_id" ]; then
         log_message "INFO" "Installing Flatpak for $display_name..."
         pkg_install_native flatpak
-        flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-        flatpak install -y flathub "$flatpak_id"
-        log_message "SUCCESS" "$display_name installed via Flatpak."
-        log_version "$display_name" "" "$bin_check"
+        if [ "$DRY_RUN" = false ]; then
+            flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+        fi
+        _flatpak_install "$display_name" "$flatpak_id" "$bin_check"
         return 0
     fi
 
@@ -118,6 +141,14 @@ install_with_fallback() {
 }
 
 pkg_update_system() {
+    if [ "$DRY_RUN" = true ]; then
+        case $DISTRO in
+            debian) echo -e "${YELLOW}[DRY-RUN]${NC} apt update && apt upgrade -y -V" ;;
+            arch)   echo -e "${YELLOW}[DRY-RUN]${NC} pacman -Syu --noconfirm" ;;
+            fedora) echo -e "${YELLOW}[DRY-RUN]${NC} dnf upgrade -y" ;;
+        esac
+        return
+    fi
     log_message "INFO" "Updating package lists and upgrading system..."
     case $DISTRO in
         debian) apt update && apt upgrade -y -V ;;
@@ -167,6 +198,10 @@ _check_deps() {
         fi
     done
     if [ ${#missing[@]} -gt 0 ]; then
+        if [ "$DRY_RUN" = true ]; then
+            echo -e "${YELLOW}[DRY-RUN]${NC} Would install dependencies: ${missing[*]}"
+            return 0
+        fi
         log_message "INFO" "$tool requires: ${missing[*]}"
         confirm_install "dependencies (${missing[*]})" "" || return 1
         pkg_install_native "${missing[@]}"
