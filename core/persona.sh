@@ -196,8 +196,7 @@ _pad_lines() {
 }
 
 _dot() {
-    local n=$(( BOX_W - 2 ))
-    echo -e "${PURPLE}║${NC}  $(printf '%*s' "$n" '' | tr ' ' '·')  ${PURPLE}║${NC}"
+    echo -e "${PURPLE}║${NC}  ${PURPLE}┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄┅┄${NC}  ${PURPLE}║${NC}"
 }
 
 show_persona() {
@@ -253,7 +252,9 @@ show_persona() {
 
     echo ""
     echo -e "${PURPLE}╔${sep}╗${NC}"
-    _pad "${PURPLE}System Profile${NC}"
+    _pad "${PURPLE}╔═══════════════════════════════════════════════════════════╗${NC}"
+    _pad "${PURPLE}║${NC}                       ${PURPLE}System Profile${NC}                       ${PURPLE}║${NC}"
+    _pad "${PURPLE}╚═══════════════════════════════════════════════════════════╝${NC}"
     echo -e "${PURPLE}╠${sep}╣${NC}"
 
     _pad "${PURPLE}* Distro${NC}"
@@ -273,6 +274,12 @@ show_persona() {
     _pad "${PURPLE}* RAM${NC}"
     _pad "${GREEN}$ram_detail${NC}"
     [ -n "$ram_output" ] && _pad_lines "$ram_output"
+
+    _pad ""
+    _pad "${PURPLE}┌──────────────────────────────────────────────────────────┐${NC}"
+    _pad "${PURPLE}│${NC}            ${PURPLE}╔══╗╔══╗╔══╗╔══╗╔══╗╔══╗╔══╗╔══╗${NC}            ${PURPLE}│${NC}"
+    _pad "${PURPLE}│${NC}            ${PURPLE}╚══╝╚══╝╚══╝╚══╝╚══╝╚══╝╚══╝╚══╝${NC}            ${PURPLE}│${NC}"
+    _pad "${PURPLE}└──────────────────────────────────────────────────────────┘${NC}"
 
     echo -e "${PURPLE}╚${sep}╝${NC}"
     echo ""
