@@ -23,22 +23,23 @@ show_browsers_menu() {
         local i=1
         for browser_info in "${BROWSERS_LIST[@]}"; do
             local name="${browser_info%%|*}"
-            gecho "$i) Install $name"
+            echo -e "${YELLOW}$i)${GREEN} Install $name${NC}"
             ((i++))
         done
         
         local all_idx=$i
-        gecho "$all_idx) Install All"
+        echo -e "${YELLOW}$all_idx)${GREEN} Install All${NC}"
         
         local check_idx=$((i+1))
-        gecho "$check_idx) Check Installations"
+        echo -e "${YELLOW}$check_idx)${GREEN} Check Installations${NC}"
         
         local back_idx=$((i+2))
-        gecho "$back_idx) Back"
+        echo -e "${YELLOW}$back_idx)${GREEN} Back${NC}"
         echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
         
-        echo -n -e "${PURPLE}Select option: ${NC}"
+        echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
         read -r b_choice
+        echo -e -n "${NC}"
         
         if [[ "$b_choice" =~ ^e([0-9]+)$ ]]; then
             _explain_by_index BROWSERS_LIST "${BASH_REMATCH[1]}"

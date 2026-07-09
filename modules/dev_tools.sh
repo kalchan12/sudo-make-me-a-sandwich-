@@ -283,21 +283,26 @@ show_dev_tools_menu() {
         local i=1
         for info in "${DEV_TOOLS_LIST[@]}"; do
             local name="${info%%|*}"
-            gecho "$i) Install $name"
+            echo -e "${YELLOW}$i)${GREEN} Install $name${NC}"
             ((i++))
         done
         local all_idx=$i
-        gecho "$all_idx) Install All"
-        local back_idx=$((all_idx + 1))
-        gecho "$back_idx) Back"
+        echo -e "${YELLOW}$all_idx)${GREEN} Install All${NC}"
+        local check_idx=$((all_idx + 1))
+        echo -e "${YELLOW}$check_idx)${GREEN} Check Installations${NC}"
+        local back_idx=$((all_idx + 2))
+        echo -e "${YELLOW}$back_idx)${GREEN} Back${NC}"
         echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n -e "${PURPLE}Select option: ${NC}"
+        echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
         read -r dt_choice
+        echo -e -n "${NC}"
         if [[ "$dt_choice" =~ ^e([0-9]+)$ ]]; then
             _explain_by_index DEV_TOOLS_LIST "${BASH_REMATCH[1]}"
             continue
         elif [ "$dt_choice" = "all" ] || [ "$dt_choice" = "$all_idx" ]; then
             install_dev_tools
+        elif [ "$dt_choice" = "$check_idx" ]; then
+            check_dev_tools_installations
         elif [ "$dt_choice" = "$back_idx" ]; then
             show_main_menu; return
         elif [[ "$dt_choice" =~ ^[0-9]+$ ]] && [ "$dt_choice" -ge 1 ] && [ "$dt_choice" -lt "$all_idx" ]; then
@@ -318,3 +323,24 @@ show_dev_tools_menu() {
 }
 
 install_dev_tools() { _install_list "Dev Tools" DEV_TOOLS_LIST; }
+
+check_dev_tools_installations() {
+    log_message "INFO" "--- Checking Dev Tools Installations ---"
+    for info in "${DEV_TOOLS_LIST[@]}"; do
+        local name="${info%%|*}"
+        local installed=false
+        case $name in
+            tmux) command -v tmux &> /dev/null && installed=true ;;
+            ripgrep) command -v rg &> /dev/null && installed=true ;;
+            bat) command -v bat &> /dev/null || command -v batcat &> /dev/null && installed=true ;;
+            fd) command -v fd &> /dev/null || command -v fdfind &> /dev/null && installed=true ;;
+            httpie) command -v http &> /dev/null && installed=true ;;
+            *) command -v "$(echo "$name" | tr '[:upper:]' '[:lower:]')" &> /dev/null && installed=true ;;
+        esac
+        if [ "$installed" = true ]; then
+            echo -e "${GREEN}[✔] $name is installed.${NC}"
+        else
+            echo -e "${RED}[✘] $name is NOT installed.${NC}"
+        fi
+    done
+}

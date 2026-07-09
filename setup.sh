@@ -220,19 +220,20 @@ show_main_menu() {
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
     echo -e "${PURPLE}           Main Menu${NC}"
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
-    gecho " 1) Browsers"
-    gecho " 2) Productivity"
-    gecho " 3) IDEs & Editors"
-    gecho " 4) Terminals"
-    gecho " 5) Shells"
-    gecho " 6) Dev Tools"
-    gecho " 7) Programming Languages"
-    gecho " 8) Pentesting Tools"
-    gecho " 9) Full Installation"
-    gecho "10) Minimal Installation"
-    gecho "11) Exit"
-    echo -n -e "${PURPLE}Select an option: ${NC}"
+    echo -e " ${YELLOW}1)${GREEN} Browsers${NC}${NC}"
+    echo -e " ${YELLOW}2)${GREEN} Productivity${NC}${NC}"
+    echo -e " ${YELLOW}3)${GREEN} IDEs & Editors${NC}${NC}"
+    echo -e " ${YELLOW}4)${GREEN} Terminals${NC}${NC}"
+    echo -e " ${YELLOW}5)${GREEN} Shells${NC}${NC}"
+    echo -e " ${YELLOW}6)${GREEN} Dev Tools${NC}${NC}"
+    echo -e " ${YELLOW}7)${GREEN} Programming Languages${NC}${NC}"
+    echo -e " ${YELLOW}8)${GREEN} Pentesting Tools${NC}${NC}"
+    echo -e " ${YELLOW}9)${GREEN} Full Installation${NC}${NC}"
+    echo -e " ${YELLOW}10)${GREEN} Minimal Installation${NC}${NC}"
+    echo -e " ${YELLOW}11)${GREEN} Exit${NC}${NC}"
+    echo -n -e "${PURPLE}Select an option: ${NC}${YELLOW}"
     read -r choice
+    echo -e -n "${NC}"
     case $choice in
         1) show_browsers_menu ;;
         2) show_productivity_menu ;;
@@ -255,21 +256,26 @@ show_productivity_menu() {
         local i=1
         for info in "${PRODUCTIVITY_LIST[@]}"; do
             local name="${info%%|*}"
-            gecho "$i) Install $name"
+            echo -e "${YELLOW}$i)${GREEN} Install $name${NC}"
             ((i++))
         done
         local all_idx=$i
-        gecho "$all_idx) Install All"
-        local back_idx=$((all_idx + 1))
-        gecho "$back_idx) Back"
+        echo -e "${YELLOW}$all_idx)${GREEN} Install All${NC}"
+        local check_idx=$((all_idx + 1))
+        echo -e "${YELLOW}$check_idx)${GREEN} Check Installations${NC}"
+        local back_idx=$((all_idx + 2))
+        echo -e "${YELLOW}$back_idx)${GREEN} Back${NC}"
         echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n -e "${PURPLE}Select option: ${NC}"
+        echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
         read -r p_choice
+        echo -e -n "${NC}"
         if [[ "$p_choice" =~ ^e([0-9]+)$ ]]; then
             _explain_by_index PRODUCTIVITY_LIST "${BASH_REMATCH[1]}"
             continue
         elif [ "$p_choice" = "all" ] || [ "$p_choice" = "$all_idx" ]; then
             install_productivity
+        elif [ "$p_choice" = "$check_idx" ]; then
+            check_productivity_installations
         elif [ "$p_choice" = "$back_idx" ]; then
             show_main_menu; return
         elif [[ "$p_choice" =~ ^[0-9]+$ ]] && [ "$p_choice" -ge 1 ] && [ "$p_choice" -lt "$all_idx" ]; then
@@ -295,21 +301,26 @@ show_ides_menu() {
         local i=1
         for info in "${IDES_LIST[@]}"; do
             local name="${info%%|*}"
-            gecho "$i) Install $name"
+            echo -e "${YELLOW}$i)${GREEN} Install $name${NC}"
             ((i++))
         done
         local all_idx=$i
-        gecho "$all_idx) Install All"
-        local back_idx=$((all_idx + 1))
-        gecho "$back_idx) Back"
+        echo -e "${YELLOW}$all_idx)${GREEN} Install All${NC}"
+        local check_idx=$((all_idx + 1))
+        echo -e "${YELLOW}$check_idx)${GREEN} Check Installations${NC}"
+        local back_idx=$((all_idx + 2))
+        echo -e "${YELLOW}$back_idx)${GREEN} Back${NC}"
         echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n -e "${PURPLE}Select option: ${NC}"
+        echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
         read -r i_choice
+        echo -e -n "${NC}"
         if [[ "$i_choice" =~ ^e([0-9]+)$ ]]; then
             _explain_by_index IDES_LIST "${BASH_REMATCH[1]}"
             continue
         elif [ "$i_choice" = "all" ] || [ "$i_choice" = "$all_idx" ]; then
             install_ides
+        elif [ "$i_choice" = "$check_idx" ]; then
+            check_ides_installations
         elif [ "$i_choice" = "$back_idx" ]; then
             show_main_menu; return
         elif [[ "$i_choice" =~ ^[0-9]+$ ]] && [ "$i_choice" -ge 1 ] && [ "$i_choice" -lt "$all_idx" ]; then
@@ -345,15 +356,17 @@ install_single_terminal() {
 show_terminals_menu() {
     while true; do
         echo -e "\n${PURPLE}── Terminals ──${NC}"
-        gecho "1) Install Kitty"
-        gecho "2) Install Alacritty"
-        gecho "3) Install Tilix"
-        gecho "4) Install GNOME Terminal"
-        gecho "5) Install All Terminals"
-        gecho "6) Back"
+        echo -e "${YELLOW}1)${GREEN} Install Kitty${NC}${NC}"
+        echo -e "${YELLOW}2)${GREEN} Install Alacritty${NC}${NC}"
+        echo -e "${YELLOW}3)${GREEN} Install Tilix${NC}${NC}"
+        echo -e "${YELLOW}4)${GREEN} Install GNOME Terminal${NC}${NC}"
+        echo -e "${YELLOW}5)${GREEN} Install All Terminals${NC}${NC}"
+        echo -e "${YELLOW}6)${GREEN} Check Installations${NC}${NC}"
+        echo -e "${YELLOW}7)${GREEN} Back${NC}${NC}"
         echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n -e "${PURPLE}Select option: ${NC}"
+        echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
         read -r t_choice
+        echo -e -n "${NC}"
         if [[ "$t_choice" =~ ^e([0-9]+)$ ]]; then
             case "${BASH_REMATCH[1]}" in
                 1) _explain_tool "Kitty" ;;
@@ -369,7 +382,8 @@ show_terminals_menu() {
             3) install_single_terminal tilix ;;
             4) install_single_terminal gnome-terminal ;;
             5) install_terminals ;;
-            6) show_main_menu; return ;;
+            6) check_terminals_installations ;;
+            7) show_main_menu; return ;;
             *) log_message "WARN" "Invalid option"; continue ;;
         esac
     done
@@ -501,6 +515,26 @@ install_yt_dlp() {
 
 install_productivity() { _install_list "Productivity" PRODUCTIVITY_LIST; }
 
+check_productivity_installations() {
+    log_message "INFO" "--- Checking Productivity Installations ---"
+    for info in "${PRODUCTIVITY_LIST[@]}"; do
+        local name="${info%%|*}"
+        local installed=false
+        case $name in
+            Obsidian) command -v obsidian &> /dev/null && installed=true ;;
+            "WPS Office") command -v wps &> /dev/null && installed=true ;;
+            "OBS Studio") command -v obs &> /dev/null && installed=true ;;
+            ffmpeg) command -v ffmpeg &> /dev/null && installed=true ;;
+            yt-dlp) command -v yt-dlp &> /dev/null && installed=true ;;
+        esac
+        if [ "$installed" = true ]; then
+            echo -e "${GREEN}[✔] $name is installed.${NC}"
+        else
+            echo -e "${RED}[✘] $name is NOT installed.${NC}"
+        fi
+    done
+}
+
 install_vscode() {
     if command -v code &> /dev/null; then
         log_message "WARN" "VS Code is already installed."
@@ -599,7 +633,48 @@ install_jetbrains_toolbox() {
 
 install_ides() { _install_list "IDEs & Editors" IDES_LIST; }
 
+check_ides_installations() {
+    log_message "INFO" "--- Checking IDE Installations ---"
+    for info in "${IDES_LIST[@]}"; do
+        local name="${info%%|*}"
+        local installed=false
+        case $name in
+            "VS Code") command -v code &> /dev/null && installed=true ;;
+            "Sublime Text") command -v subl &> /dev/null && installed=true ;;
+            "JetBrains Toolbox") command -v jetbrains-toolbox &> /dev/null && installed=true ;;
+            OpenCode) command -v opencode &> /dev/null && installed=true ;;
+            ZCode) command -v zcode &> /dev/null && installed=true ;;
+            Antigravity) command -v antigravity &> /dev/null && installed=true ;;
+            Kiro) command -v kiro &> /dev/null && installed=true ;;
+        esac
+        if [ "$installed" = true ]; then
+            echo -e "${GREEN}[✔] $name is installed.${NC}"
+        else
+            echo -e "${RED}[✘] $name is NOT installed.${NC}"
+        fi
+    done
+}
+
 install_terminals() { _install_list "Terminals" TERMINALS_LIST; }
+
+check_terminals_installations() {
+    log_message "INFO" "--- Checking Terminal Installations ---"
+    for info in "${TERMINALS_LIST[@]}"; do
+        local name="${info%%|*}"
+        local installed=false
+        case $name in
+            Kitty) command -v kitty &> /dev/null && installed=true ;;
+            Alacritty) command -v alacritty &> /dev/null && installed=true ;;
+            Tilix) command -v tilix &> /dev/null && installed=true ;;
+            "GNOME Terminal") command -v gnome-terminal &> /dev/null && installed=true ;;
+        esac
+        if [ "$installed" = true ]; then
+            echo -e "${GREEN}[✔] $name is installed.${NC}"
+        else
+            echo -e "${RED}[✘] $name is NOT installed.${NC}"
+        fi
+    done
+}
 
 # --- Execution Logic ---
 
