@@ -46,8 +46,8 @@ _show_selection_menu() {
     local has_unknown=false
 
     echo ""
-    echo -e "${YELLOW}═══════════════════════════════════════${NC}"
-    echo -e "${YELLOW}      Select Items to Install${NC}"
+    echo -e "${PURPLE}═══════════════════════════════════════${NC}"
+    echo -e "${PURPLE}      Select Items to Install${NC}"
     echo ""
 
     if [ "$mode" = "full" ] || [ "$mode" = "minimal" ]; then
@@ -236,7 +236,7 @@ _show_selection_menu() {
 
     if [ "$display_num" -eq 0 ]; then
         echo "  (all items already installed)"
-        echo -e "${YELLOW}═══════════════════════════════════════${NC}"
+        echo -e "${PURPLE}═══════════════════════════════════════${NC}"
         _items_ref=()
         return 1
     fi
@@ -248,7 +248,7 @@ _show_selection_menu() {
         total_size_str="${total_size_str}+ (some sizes unknown)"
     fi
     echo -e "Total download size: ${CYAN}${total_size_str}${NC}"
-    echo -e "${YELLOW}═══════════════════════════════════════${NC}"
+    echo -e "${PURPLE}═══════════════════════════════════════${NC}"
 
     if [ "$YES_MODE" = true ]; then
         _items_ref=("${available[@]}")

@@ -164,7 +164,7 @@ _sep() {
         line="${line}═"
         i=$(( i + 1 ))
     done
-    echo "$line"
+    echo -e "${CYAN}$line${NC}"
 }
 
 _pad() {
@@ -173,7 +173,7 @@ _pad() {
     len=$(echo -e "$content" | sed 's/\x1b\[[0-9;]*m//g' | wc -m)
     local pad=$(( BOX_W - len ))
     [ "$pad" -lt 2 ] && pad=2
-    echo -e "${YELLOW}║${NC} $content$(printf '%*s' "$pad" '') ${YELLOW}║${NC}"
+    echo -e "${CYAN}║${NC} $content$(printf '%*s' "$pad" '') ${CYAN}║${NC}"
 }
 
 _pad_lines() {
@@ -196,7 +196,7 @@ _pad_lines() {
 
 _dot() {
     local n=$(( BOX_W - 2 ))
-    echo -e "${YELLOW}║${NC}  $(printf '%*s' "$n" '' | tr ' ' '·')  ${YELLOW}║${NC}"
+    echo -e "${CYAN}║${NC}  $(printf '%*s' "$n" '' | tr ' ' '·')  ${CYAN}║${NC}"
 }
 
 show_persona() {
@@ -251,9 +251,9 @@ show_persona() {
     sep=$(_sep)
 
     echo ""
-    echo -e "${YELLOW}╔${sep}╗${NC}"
+    echo -e "${CYAN}╔${sep}╗${NC}"
     _pad "${PURPLE}System Profile${NC}"
-    echo -e "${YELLOW}╠${sep}╣${NC}"
+    echo -e "${CYAN}╠${sep}╣${NC}"
 
     _pad "${CYAN}* Distro${NC}"
     _pad "$pretty_name"
@@ -273,6 +273,6 @@ show_persona() {
     _pad "$ram_detail"
     [ -n "$ram_output" ] && _pad_lines "$ram_output"
 
-    echo -e "${YELLOW}╚${sep}╝${NC}"
+    echo -e "${CYAN}╚${sep}╝${NC}"
     echo ""
 }

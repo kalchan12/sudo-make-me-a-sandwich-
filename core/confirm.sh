@@ -25,8 +25,8 @@ confirm_install() {
     local extra_info="${3:-}"
 
     echo ""
-    echo -e "${YELLOW}═══════════════════════════════════════${NC}"
-    echo -e "${CYAN} Package:${NC}       $display_name"
+    echo -e "${CYAN}═══════════════════════════════════════${NC}"
+    echo -e "${PURPLE} Package:${NC}       $display_name"
 
     if [ -n "$pkg_name" ]; then
         local info_file
@@ -97,7 +97,7 @@ confirm_install() {
         echo -e "${CYAN} Info:${NC}         $extra_info"
     fi
 
-    echo -e "${YELLOW}═══════════════════════════════════════${NC}"
+    echo -e "${CYAN}═══════════════════════════════════════${NC}"
 
     if [ "$YES_MODE" = true ] || [ "$SELECTION_MODE" = true ] || [ "$DRY_RUN" = true ]; then
         return 0

@@ -23,27 +23,32 @@ START_TIME=0
 INSTALL_LIST=""
 
 RED='\033[0;31m'
-GREEN='\033[0;32m'
+GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+PURPLE='\033[1;35m'
+CYAN='\033[1;36m'
+NC='\033[0m'
 
 # --- Helper Functions ---
 
 show_banner() {
     clear
-    echo -e "${CYAN}"
+    echo -e "${PURPLE}"
     echo " ███████╗██╗   ██╗██████╗  ██████╗  ██████╗     ███╗   ███╗ █████╗ ██╗  ██╗███████╗"
+    echo -e "${CYAN}"
     echo " ██╔════╝██║   ██║██╔══██╗██╔═══██╗██╔═══██╗    ████╗ ████║██╔══██╗██║ ██╔╝██╔════╝"
+    echo -e "${GREEN}"
     echo " ███████╗██║   ██║██████╔╝██║   ██║██║   ██║    ██╔████╔██║███████║█████╔╝ ███████╗"
+    echo -e "${PURPLE}"
     echo " ╚════██║██║   ██║██╔══██╗██║   ██║██║   ██║    ██║╚██╔╝██║██╔══██║██╔═██╗ ╚════██║"
+    echo -e "${CYAN}"
     echo " ███████║╚██████╔╝██████╔╝╚██████╔╝╚██████╔╝    ██║ ╚═╝ ██║██║  ██║██║  ██╗███████║"
+    echo -e "${GREEN}"
     echo " ╚══════╝ ╚═════╝ ╚═════╝  ╚═════╝  ╚═════╝     ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝"
     echo -e "${NC}"
-    echo -e "${PURPLE}  Modular Linux Bootstrapper | Author: psycho${NC}"
-    echo " =============================================================================="
+    echo -e "${PURPLE}  ⚡ CYBERPUNK SYSTEM BOOTSTRAP ⚡  |  author: psycho${NC}"
+    echo -e "${CYAN}  ─────────────────────────────────────────────────────────────────────────────${NC}"
     echo ""
 }
 
@@ -107,16 +112,16 @@ _print_summary() {
     local secs=$((elapsed % 60))
 
     echo ""
-    echo -e "${GREEN}═══════════════════════════════════════${NC}"
-    echo -e "${GREEN}      Installation Complete${NC}"
-    echo -e "${GREEN}═══════════════════════════════════════${NC}"
+    echo -e "${PURPLE}═══════════════════════════════════════${NC}"
+    echo -e "${PURPLE}      Installation Complete${NC}"
+    echo -e "${PURPLE}═══════════════════════════════════════${NC}"
     echo -e "  Elapsed time: ${CYAN}${mins}m ${secs}s${NC}"
     echo -e "  Log file: ${CYAN}${LOG_FILE}${NC}"
     echo ""
 }
 
 list_tools() {
-    echo -e "${YELLOW}Available Tools by Category${NC}"
+    echo -e "${PURPLE}Available Tools by Category${NC}"
     echo ""
 
     _print_category "Browsers" BROWSERS_LIST
