@@ -87,10 +87,6 @@ _show_selection_menu() {
         for info in "${SHELLS_LIST[@]}"; do
             all_items+=("$info")
         done
-        echo -e "  ${CYAN}── Agentic IDEs ──${NC}"
-        for info in "${AGENTIC_IDES_LIST[@]}"; do
-            all_items+=("$info")
-        done
         echo -e "  ${CYAN}── Dev Tools ──${NC}"
         for info in "${DEV_TOOLS_LIST[@]}"; do
             all_items+=("$info")

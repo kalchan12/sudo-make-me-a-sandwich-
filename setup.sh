@@ -124,7 +124,6 @@ list_tools() {
     _print_category "IDEs" IDES_LIST
     _print_category "Terminals" TERMINALS_LIST
     _print_category "Shells" SHELLS_LIST
-    _print_category "Agentic IDEs" AGENTIC_IDES_LIST
     _print_category "Dev Tools" DEV_TOOLS_LIST
     _print_category "Languages" LANGUAGES_LIST
     _print_category "Pentesting Tools" PENTEST_LIST
@@ -207,6 +206,10 @@ IDES_LIST=(
     "VS Code|install_vscode|code"
     "Sublime Text|install_sublime|sublime-text"
     "JetBrains Toolbox|install_jetbrains_toolbox|"
+    "OpenCode|install_opencode|"
+    "ZCode|install_zcode|"
+    "Antigravity|install_antigravity|"
+    "Kiro|install_kiro|"
 )
 
 # --- Interactive Menu Functions ---
@@ -218,13 +221,12 @@ show_main_menu() {
     echo "3) IDEs"
     echo "4) Terminals"
     echo "5) Shells"
-    echo "6) Agentic IDEs"
-    echo "7) Dev Tools"
-    echo "8) Programming Languages"
-    echo "9) Pentesting Tools"
-    echo "10) Full Installation (All Categories)"
-    echo "11) Minimal Installation (Browsers + Terminals)"
-    echo "12) Exit"
+    echo "6) Dev Tools"
+    echo "7) Programming Languages"
+    echo "8) Pentesting Tools"
+    echo "9) Full Installation (All Categories)"
+    echo "10) Minimal Installation (Browsers + Terminals)"
+    echo "11) Exit"
     echo -n "Select an option: "
     read -r choice
     case $choice in
@@ -233,13 +235,12 @@ show_main_menu() {
         3) show_ides_menu ;;
         4) show_terminals_menu ;;
         5) show_shells_menu ;;
-        6) show_agentic_ides_menu ;;
-        7) show_dev_tools_menu ;;
-        8) show_languages_menu ;;
-        9) show_pentest_menu ;;
-        10) FULL_MODE=true; run_installation ;;
-        11) MINIMAL_MODE=true; run_installation ;;
-        12) log_message "INFO" "Exiting..."; exit 0 ;;
+        6) show_dev_tools_menu ;;
+        7) show_languages_menu ;;
+        8) show_pentest_menu ;;
+        9) FULL_MODE=true; run_installation ;;
+        10) MINIMAL_MODE=true; run_installation ;;
+        11) log_message "INFO" "Exiting..."; exit 0 ;;
         *) log_message "WARN" "Invalid option: $choice"; show_main_menu ;;
     esac
 }
@@ -283,30 +284,40 @@ show_utilities_menu() {
 show_ides_menu() {
     while true; do
         echo -e "\n${YELLOW}-- IDEs --${NC}"
-        echo "1) Install VS Code"
-        echo "2) Install Sublime Text"
-        echo "3) Install JetBrains Toolbox"
-        echo "4) Install All IDEs"
-        echo "5) Back"
+        local i=1
+        for info in "${IDES_LIST[@]}"; do
+            local name="${info%%|*}"
+            echo "$i) Install $name"
+            ((i++))
+        done
+        local all_idx=$i
+        echo "$all_idx) Install All IDEs"
+        local back_idx=$((all_idx + 1))
+        echo "$back_idx) Back"
         echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
         echo -n "Select option: "
         read -r i_choice
         if [[ "$i_choice" =~ ^e([0-9]+)$ ]]; then
-            case "${BASH_REMATCH[1]}" in
-                1) _explain_tool "VS Code" ;;
-                2) _explain_tool "Sublime Text" ;;
-                3) _explain_tool "JetBrains Toolbox" ;;
-            esac
+            _explain_by_index IDES_LIST "${BASH_REMATCH[1]}"
             continue
+        elif [ "$i_choice" = "all" ] || [ "$i_choice" = "$all_idx" ]; then
+            install_ides
+        elif [ "$i_choice" = "$back_idx" ]; then
+            show_main_menu; return
+        elif [[ "$i_choice" =~ ^[0-9]+$ ]] && [ "$i_choice" -ge 1 ] && [ "$i_choice" -lt "$all_idx" ]; then
+            local idx=0
+            for info in "${IDES_LIST[@]}"; do
+                if [ "$idx" -eq $((i_choice - 1)) ]; then
+                    local call="${info#*|}"
+                    call="${call%%|*}"
+                    $call
+                    break
+                fi
+                ((idx++))
+            done
+        else
+            log_message "WARN" "Invalid option"
         fi
-        case $i_choice in
-            1) install_vscode ;;
-            2) install_sublime ;;
-            3) install_jetbrains_toolbox ;;
-            4) install_ides ;;
-            5) show_main_menu; return ;;
-            *) log_message "WARN" "Invalid option"; continue ;;
-        esac
     done
 }
 
@@ -601,7 +612,6 @@ run_installation() {
             install_utilities
             install_ides
             install_shells
-            install_all_agentic_ides
             install_dev_tools
             install_all_languages
             install_pentest
@@ -626,7 +636,7 @@ install_by_name() {
 
     local all_lists=(
         "BROWSERS_LIST" "TERMINALS_LIST" "UTILITIES_LIST" "IDES_LIST"
-        "SHELLS_LIST" "AGENTIC_IDES_LIST" "DEV_TOOLS_LIST" "LANGUAGES_LIST"
+        "SHELLS_LIST" "DEV_TOOLS_LIST" "LANGUAGES_LIST"
         "PENTEST_LIST"
     )
 
@@ -663,7 +673,7 @@ usage() {
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
     echo "  --minimal    Install only Browsers and Terminals"
-    echo "  --full       Install everything (Browsers, Utilities, IDEs, Shells, Agentic IDEs, Dev Tools, Languages, Terminals)"
+    echo "  --full       Install everything (Browsers, Utilities, IDEs, Shells, Dev Tools, Languages, Terminals, Pentesting)"
     echo "  -y, --yes    Auto-confirm all installations (skip prompts)"
     echo "  --dry-run    Print what would be installed without actually installing"
     echo "  --explain    Show info about a tool (e.g., --explain tmux)"
