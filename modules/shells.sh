@@ -16,16 +16,16 @@ show_shells_menu() {
         local i=1
         for info in "${SHELLS_LIST[@]}"; do
             local name="${info%%|*}"
-            echo -e "${CYAN}$i)${NC} Install $name"
+            gecho "$i) Install $name"
             ((i++))
         done
 
         local all_idx=$i
-        echo -e "${CYAN}$all_idx)${NC} Install All"
+        gecho "$all_idx) Install All"
 
         local back_idx=$((i+1))
-        echo -e "${CYAN}$back_idx)${NC} Back"
-        echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        gecho "$back_idx) Back"
+        gecho "Enter a number to install, or e<N> for details (e.g., e1)"
 
         echo -n -e "${GREEN}Select option: ${NC}"
         read -r s_choice

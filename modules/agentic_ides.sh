@@ -21,7 +21,7 @@ show_agentic_ides_menu() {
 
         local back_idx=$((i+1))
         gecho "$back_idx) Back"
-        echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        gecho "Enter a number to install, or e<N> for details (e.g., e1)"
 
         echo -n -e "${GREEN}Select option: ${NC}"
         read -r a_choice

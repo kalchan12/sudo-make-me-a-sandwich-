@@ -51,7 +51,7 @@ _show_selection_menu() {
     echo ""
 
     if [ "$mode" = "full" ] || [ "$mode" = "minimal" ]; then
-        echo -e "  ${CYAN}── Browsers ──${NC}"
+        echo -e "  ${GREEN}── Browsers ──${NC}"
         for info in "${BROWSERS_LIST[@]}"; do
             local name="${info%%|*}"
             local func="${info##*|}"
@@ -68,34 +68,34 @@ _show_selection_menu() {
             esac
             all_items+=("$name|$func|$pkg")
         done
-        echo -e "  ${CYAN}── Terminals ──${NC}"
+        echo -e "  ${GREEN}── Terminals ──${NC}"
         for info in "${TERMINALS_LIST[@]}"; do
             all_items+=("$info")
         done
     fi
 
     if [ "$mode" = "full" ]; then
-        echo -e "  ${CYAN}── Utilities ──${NC}"
+        echo -e "  ${GREEN}── Utilities ──${NC}"
         for info in "${PRODUCTIVITY_LIST[@]}"; do
             all_items+=("$info")
         done
-        echo -e "  ${CYAN}── IDEs & Editors ──${NC}"
+        echo -e "  ${GREEN}── IDEs & Editors ──${NC}"
         for info in "${IDES_LIST[@]}"; do
             all_items+=("$info")
         done
-        echo -e "  ${CYAN}── Shells ──${NC}"
+        echo -e "  ${GREEN}── Shells ──${NC}"
         for info in "${SHELLS_LIST[@]}"; do
             all_items+=("$info")
         done
-        echo -e "  ${CYAN}── Dev Tools ──${NC}"
+        echo -e "  ${GREEN}── Dev Tools ──${NC}"
         for info in "${DEV_TOOLS_LIST[@]}"; do
             all_items+=("$info")
         done
-        echo -e "  ${CYAN}── Languages ──${NC}"
+        echo -e "  ${GREEN}── Languages ──${NC}"
         for info in "${LANGUAGES_LIST[@]}"; do
             all_items+=("$info")
         done
-        echo -e "  ${CYAN}── Pentesting Tools ──${NC}"
+        echo -e "  ${GREEN}── Pentesting Tools ──${NC}"
         for info in "${PENTEST_LIST[@]}"; do
             all_items+=("$info")
         done
@@ -230,7 +230,7 @@ _show_selection_menu() {
             has_unknown=true
         fi
 
-        echo -e "  ${GREEN}$((display_num + 1))) $name${NC}  ${CYAN}(${size_str})${NC}"
+        echo -e "  ${GREEN}$((display_num + 1))) $name${NC}  ${GREEN}(${size_str})${NC}"
         ((display_num++))
     done
 
@@ -247,7 +247,7 @@ _show_selection_menu() {
     if [ "$has_unknown" = true ]; then
         total_size_str="${total_size_str}+ (some sizes unknown)"
     fi
-    echo -e "${GREEN}Total download size: ${CYAN}${total_size_str}${NC}"
+    echo -e "${GREEN}Total download size: ${GREEN}${total_size_str}${NC}"
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
 
     if [ "$YES_MODE" = true ]; then

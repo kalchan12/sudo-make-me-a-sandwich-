@@ -25,7 +25,7 @@ confirm_install() {
     local extra_info="${3:-}"
 
     echo ""
-    echo -e "${CYAN}═══════════════════════════════════════${NC}"
+    echo -e "${GREEN}═══════════════════════════════════════${NC}"
     echo -e "${PURPLE} Package:${NC}       $display_name"
 
     if [ -n "$pkg_name" ]; then
@@ -45,13 +45,13 @@ confirm_install() {
                             "Installed-Size: "*) inst_size="${line#Installed-Size: }" ;;
                         esac
                     done < "$info_file"
-                    [ -n "$ver" ] && echo -e "${CYAN} Version:${NC}       $ver"
-                    [ -n "$desc" ] && echo -e "${CYAN} Description:${NC}  $(echo "$desc" | head -c 100)"
-                    [ -n "$dl_size" ] && echo -e "${CYAN} Download size:${NC} $(show_size "$dl_size")"
+                    [ -n "$ver" ] && echo -e "${GREEN} Version:${NC}       $ver"
+                    [ -n "$desc" ] && echo -e "${GREEN} Description:${NC}  $(echo "$desc" | head -c 100)"
+                    [ -n "$dl_size" ] && echo -e "${GREEN} Download size:${NC} $(show_size "$dl_size")"
                     [ -n "$inst_size" ] && {
                         local inst_human
                         inst_human="$(show_size "$((inst_size * 1024))")"
-                        echo -e "${CYAN} Install size:${NC}  $inst_human"
+                        echo -e "${GREEN} Install size:${NC}  $inst_human"
                     }
                 fi
                 ;;
@@ -67,10 +67,10 @@ confirm_install() {
                             "Installed Size"*:*" ") inst_size="${line#*: }" ;;
                         esac
                     done < "$info_file"
-                    [ -n "$ver" ] && echo -e "${CYAN} Version:${NC}       $ver"
-                    [ -n "$desc" ] && echo -e "${CYAN} Description:${NC}  $(echo "$desc" | head -c 100)"
-                    [ -n "$dl_size" ] && echo -e "${CYAN} Download size:${NC} $(echo "$dl_size" | sed 's/ //g')"
-                    [ -n "$inst_size" ] && echo -e "${CYAN} Install size:${NC}  $(echo "$inst_size" | sed 's/ //g')"
+                    [ -n "$ver" ] && echo -e "${GREEN} Version:${NC}       $ver"
+                    [ -n "$desc" ] && echo -e "${GREEN} Description:${NC}  $(echo "$desc" | head -c 100)"
+                    [ -n "$dl_size" ] && echo -e "${GREEN} Download size:${NC} $(echo "$dl_size" | sed 's/ //g')"
+                    [ -n "$inst_size" ] && echo -e "${GREEN} Install size:${NC}  $(echo "$inst_size" | sed 's/ //g')"
                 fi
                 ;;
             fedora)
@@ -84,9 +84,9 @@ confirm_install() {
                             "Download Size"*":"*) dl_size="${line#*: }" ;;
                         esac
                     done < "$info_file"
-                    [ -n "$ver" ] && echo -e "${CYAN} Version:${NC}       $ver"
-                    [ -n "$desc" ] && echo -e "${CYAN} Description:${NC}  $(echo "$desc" | head -c 100)"
-                    [ -n "$dl_size" ] && echo -e "${CYAN} Download size:${NC} $dl_size"
+                    [ -n "$ver" ] && echo -e "${GREEN} Version:${NC}       $ver"
+                    [ -n "$desc" ] && echo -e "${GREEN} Description:${NC}  $(echo "$desc" | head -c 100)"
+                    [ -n "$dl_size" ] && echo -e "${GREEN} Download size:${NC} $dl_size"
                 fi
                 ;;
         esac
@@ -94,10 +94,10 @@ confirm_install() {
     fi
 
     if [ -n "$extra_info" ]; then
-        echo -e "${CYAN} Info:${NC}         $extra_info"
+        echo -e "${GREEN} Info:${NC}         $extra_info"
     fi
 
-    echo -e "${CYAN}═══════════════════════════════════════${NC}"
+    echo -e "${GREEN}═══════════════════════════════════════${NC}"
 
     if [ "$YES_MODE" = true ] || [ "$SELECTION_MODE" = true ] || [ "$DRY_RUN" = true ]; then
         return 0

@@ -45,7 +45,7 @@ show_banner() {
     echo "╚══════╝ ╚═════╝ ╚═════╝  ╚═════╝ "
     echo -e "${NC}"
     echo -e "${PURPLE}  ⚡ MAKE ME A SANDWICH ⚡  |  author: psycho${NC}"
-    echo -e "${CYAN}  ─────────────────────────────────────────────────────────────────────────────${NC}"
+    gecho "  ─────────────────────────────────────────────────────────────────────────────"
     echo ""
 }
 
@@ -90,7 +90,7 @@ log_version() {
     fi
 
     if [ -n "$version" ]; then
-        echo -e "${CYAN}  └─ $display: ${NC}$version"
+        gecho "  └─ $display:  $version"
         log_message "INFO" "$display version: $version"
     fi
 }
@@ -112,8 +112,8 @@ _print_summary() {
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
     echo -e "${PURPLE}      Installation Complete${NC}"
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
-    echo -e "  Elapsed time: ${CYAN}${mins}m ${secs}s${NC}"
-    echo -e "  Log file: ${CYAN}${LOG_FILE}${NC}"
+    gecho "  Elapsed time: ${mins}m ${secs}s"
+    gecho "  Log file: ${LOG_FILE}"
     echo ""
 }
 
@@ -139,7 +139,7 @@ _print_category() {
     echo -e "${PURPLE}── $title ──${NC}"
     for info in "${list[@]}"; do
         local name="${info%%|*}"
-        echo -e "  ${CYAN}•${NC} $name"
+        gecho "  • $name"
     done
     echo ""
 }
@@ -220,17 +220,17 @@ show_main_menu() {
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
     echo -e "${PURPLE}           Main Menu${NC}"
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
-    echo -e "${CYAN} 1)${NC} Browsers"
-    echo -e "${CYAN} 2)${NC} Productivity"
-    echo -e "${CYAN} 3)${NC} IDEs & Editors"
-    echo -e "${CYAN} 4)${NC} Terminals"
-    echo -e "${CYAN} 5)${NC} Shells"
-    echo -e "${CYAN} 6)${NC} Dev Tools"
-    echo -e "${CYAN} 7)${NC} Programming Languages"
-    echo -e "${CYAN} 8)${NC} Pentesting Tools"
-    echo -e "${CYAN} 9)${NC} Full Installation"
-    echo -e "${CYAN}10)${NC} Minimal Installation"
-    echo -e "${CYAN}11)${NC} Exit"
+    gecho " 1) Browsers"
+    gecho " 2) Productivity"
+    gecho " 3) IDEs & Editors"
+    gecho " 4) Terminals"
+    gecho " 5) Shells"
+    gecho " 6) Dev Tools"
+    gecho " 7) Programming Languages"
+    gecho " 8) Pentesting Tools"
+    gecho " 9) Full Installation"
+    gecho "10) Minimal Installation"
+    gecho "11) Exit"
     echo -n -e "${GREEN}Select an option: ${NC}"
     read -r choice
     case $choice in
@@ -255,14 +255,14 @@ show_productivity_menu() {
         local i=1
         for info in "${PRODUCTIVITY_LIST[@]}"; do
             local name="${info%%|*}"
-            echo -e "${CYAN}$i)${NC} Install $name"
+            gecho "$i) Install $name"
             ((i++))
         done
         local all_idx=$i
-        echo -e "${CYAN}$all_idx)${NC} Install All"
+        gecho "$all_idx) Install All"
         local back_idx=$((all_idx + 1))
-        echo -e "${CYAN}$back_idx)${NC} Back"
-        echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        gecho "$back_idx) Back"
+        gecho "Enter a number to install, or e<N> for details (e.g., e1)"
         echo -n -e "${GREEN}Select option: ${NC}"
         read -r p_choice
         if [[ "$p_choice" =~ ^e([0-9]+)$ ]]; then
@@ -295,14 +295,14 @@ show_ides_menu() {
         local i=1
         for info in "${IDES_LIST[@]}"; do
             local name="${info%%|*}"
-            echo -e "${CYAN}$i)${NC} Install $name"
+            gecho "$i) Install $name"
             ((i++))
         done
         local all_idx=$i
-        echo -e "${CYAN}$all_idx)${NC} Install All"
+        gecho "$all_idx) Install All"
         local back_idx=$((all_idx + 1))
-        echo -e "${CYAN}$back_idx)${NC} Back"
-        echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        gecho "$back_idx) Back"
+        gecho "Enter a number to install, or e<N> for details (e.g., e1)"
         echo -n -e "${GREEN}Select option: ${NC}"
         read -r i_choice
         if [[ "$i_choice" =~ ^e([0-9]+)$ ]]; then
@@ -345,13 +345,13 @@ install_single_terminal() {
 show_terminals_menu() {
     while true; do
         echo -e "\n${PURPLE}── Terminals ──${NC}"
-        echo -e "${CYAN}1)${NC} Install Kitty"
-        echo -e "${CYAN}2)${NC} Install Alacritty"
-        echo -e "${CYAN}3)${NC} Install Tilix"
-        echo -e "${CYAN}4)${NC} Install GNOME Terminal"
-        echo -e "${CYAN}5)${NC} Install All Terminals"
-        echo -e "${CYAN}6)${NC} Back"
-        echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        gecho "1) Install Kitty"
+        gecho "2) Install Alacritty"
+        gecho "3) Install Tilix"
+        gecho "4) Install GNOME Terminal"
+        gecho "5) Install All Terminals"
+        gecho "6) Back"
+        gecho "Enter a number to install, or e<N> for details (e.g., e1)"
         echo -n -e "${GREEN}Select option: ${NC}"
         read -r t_choice
         if [[ "$t_choice" =~ ^e([0-9]+)$ ]]; then
