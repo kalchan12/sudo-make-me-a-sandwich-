@@ -99,6 +99,10 @@ _show_selection_menu() {
         for info in "${LANGUAGES_LIST[@]}"; do
             all_items+=("$info")
         done
+        echo -e "  ${CYAN}── Pentesting Tools ──${NC}"
+        for info in "${PENTEST_LIST[@]}"; do
+            all_items+=("$info")
+        done
     fi
 
     local total_bytes=0
@@ -179,6 +183,35 @@ _show_selection_menu() {
             install_zig) command -v zig &>/dev/null && already=true ;;
             install_dart) command -v dart &>/dev/null && already=true ;;
             install_kotlin) command -v kotlin &>/dev/null && already=true ;;
+            install_nmap) command -v nmap &>/dev/null && already=true ;;
+            install_masscan) command -v masscan &>/dev/null && already=true ;;
+            install_netcat) command -v nc &>/dev/null && already=true ;;
+            install_rustscan) command -v rustscan &>/dev/null && already=true ;;
+            install_gobuster) command -v gobuster &>/dev/null && already=true ;;
+            install_ffuf) command -v ffuf &>/dev/null && already=true ;;
+            install_nikto) command -v nikto &>/dev/null && already=true ;;
+            install_sqlmap) command -v sqlmap &>/dev/null && already=true ;;
+            install_whatweb) command -v whatweb &>/dev/null && already=true ;;
+            install_wfuzz) command -v wfuzz &>/dev/null && already=true ;;
+            install_dirsearch) command -v dirsearch &>/dev/null && already=true ;;
+            install_burpsuite) command -v burpsuite &>/dev/null && already=true ;;
+            install_hydra) command -v hydra &>/dev/null && already=true ;;
+            install_john) command -v john &>/dev/null && already=true ;;
+            install_hashcat) command -v hashcat &>/dev/null && already=true ;;
+            install_searchsploit) command -v searchsploit &>/dev/null && already=true ;;
+            install_theharvester) command -v theHarvester &>/dev/null && already=true ;;
+            install_reconng) command -v recon-ng &>/dev/null && already=true ;;
+            install_sherlock) command -v sherlock &>/dev/null && already=true ;;
+            install_exiftool) command -v exiftool &>/dev/null && already=true ;;
+            install_steghide) command -v steghide &>/dev/null && already=true ;;
+            install_binwalk) command -v binwalk &>/dev/null && already=true ;;
+            install_aircrack) command -v aircrack-ng &>/dev/null && already=true ;;
+            install_bettercap) command -v bettercap &>/dev/null && already=true ;;
+            install_reaver) command -v reaver &>/dev/null && already=true ;;
+            install_proxychains) command -v proxychains4 &>/dev/null && already=true ;;
+            install_tor) command -v tor &>/dev/null && already=true ;;
+            install_wireshark) command -v tshark &>/dev/null && already=true ;;
+            install_tcpdump) command -v tcpdump &>/dev/null && already=true ;;
         esac
 
         if [ "$already" = true ]; then

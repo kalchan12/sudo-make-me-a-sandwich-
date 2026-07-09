@@ -118,6 +118,7 @@ list_tools() {
     _print_category "Agentic IDEs" AGENTIC_IDES_LIST
     _print_category "Dev Tools" DEV_TOOLS_LIST
     _print_category "Languages" LANGUAGES_LIST
+    _print_category "Pentesting Tools" PENTEST_LIST
 
     exit 0
 }
@@ -211,9 +212,10 @@ show_main_menu() {
     echo "6) Agentic IDEs"
     echo "7) Dev Tools"
     echo "8) Programming Languages"
-    echo "9) Full Installation (All Categories)"
-    echo "10) Minimal Installation (Browsers + Terminals)"
-    echo "11) Exit"
+    echo "9) Pentesting Tools"
+    echo "10) Full Installation (All Categories)"
+    echo "11) Minimal Installation (Browsers + Terminals)"
+    echo "12) Exit"
     echo -n "Select an option: "
     read -r choice
     case $choice in
@@ -225,9 +227,10 @@ show_main_menu() {
         6) show_agentic_ides_menu ;;
         7) show_dev_tools_menu ;;
         8) show_languages_menu ;;
-        9) FULL_MODE=true; run_installation ;;
-        10) MINIMAL_MODE=true; run_installation ;;
-        11) log_message "INFO" "Exiting..."; exit 0 ;;
+        9) show_pentest_menu ;;
+        10) FULL_MODE=true; run_installation ;;
+        11) MINIMAL_MODE=true; run_installation ;;
+        12) log_message "INFO" "Exiting..."; exit 0 ;;
         *) log_message "WARN" "Invalid option: $choice"; show_main_menu ;;
     esac
 }
@@ -592,6 +595,7 @@ run_installation() {
             install_all_agentic_ides
             install_dev_tools
             install_all_languages
+            install_pentest
         fi
     else
         case $FULL_MODE$MINIMAL_MODE in
