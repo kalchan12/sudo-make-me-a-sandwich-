@@ -21,9 +21,9 @@ show_agentic_ides_menu() {
 
         local back_idx=$((i+1))
         gecho "$back_idx) Back"
-        gecho "Enter a number to install, or e<N> for details (e.g., e1)"
+        echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
 
-        echo -n -e "${GREEN}Select option: ${NC}"
+        echo -n -e "${PURPLE}Select option: ${NC}"
         read -r a_choice
 
         if [[ "$a_choice" =~ ^e([0-9]+)$ ]]; then

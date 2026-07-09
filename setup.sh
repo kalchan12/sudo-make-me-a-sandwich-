@@ -231,7 +231,7 @@ show_main_menu() {
     gecho " 9) Full Installation"
     gecho "10) Minimal Installation"
     gecho "11) Exit"
-    echo -n -e "${GREEN}Select an option: ${NC}"
+    echo -n -e "${PURPLE}Select an option: ${NC}"
     read -r choice
     case $choice in
         1) show_browsers_menu ;;
@@ -262,8 +262,8 @@ show_productivity_menu() {
         gecho "$all_idx) Install All"
         local back_idx=$((all_idx + 1))
         gecho "$back_idx) Back"
-        gecho "Enter a number to install, or e<N> for details (e.g., e1)"
-        echo -n -e "${GREEN}Select option: ${NC}"
+        echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        echo -n -e "${PURPLE}Select option: ${NC}"
         read -r p_choice
         if [[ "$p_choice" =~ ^e([0-9]+)$ ]]; then
             _explain_by_index PRODUCTIVITY_LIST "${BASH_REMATCH[1]}"
@@ -302,8 +302,8 @@ show_ides_menu() {
         gecho "$all_idx) Install All"
         local back_idx=$((all_idx + 1))
         gecho "$back_idx) Back"
-        gecho "Enter a number to install, or e<N> for details (e.g., e1)"
-        echo -n -e "${GREEN}Select option: ${NC}"
+        echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        echo -n -e "${PURPLE}Select option: ${NC}"
         read -r i_choice
         if [[ "$i_choice" =~ ^e([0-9]+)$ ]]; then
             _explain_by_index IDES_LIST "${BASH_REMATCH[1]}"
@@ -351,8 +351,8 @@ show_terminals_menu() {
         gecho "4) Install GNOME Terminal"
         gecho "5) Install All Terminals"
         gecho "6) Back"
-        gecho "Enter a number to install, or e<N> for details (e.g., e1)"
-        echo -n -e "${GREEN}Select option: ${NC}"
+        echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        echo -n -e "${PURPLE}Select option: ${NC}"
         read -r t_choice
         if [[ "$t_choice" =~ ^e([0-9]+)$ ]]; then
             case "${BASH_REMATCH[1]}" in

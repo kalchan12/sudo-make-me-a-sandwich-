@@ -13,20 +13,25 @@ detect_distro() {
 
     if [ -f /etc/debian_version ]; then
         DISTRO="debian"
-        log_message "INFO" "Detected distro: Debian-based ($pretty_name, kernel $kernel_version)"
+        gecho "Detected distro: Debian-based ($pretty_name, kernel $kernel_version)"
+        echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Debian-based ($pretty_name, kernel $kernel_version)" >> "$LOG_FILE"
     elif [ -f /etc/arch-release ]; then
         DISTRO="arch"
         if [ "$distro_id" = "arch" ]; then
-            log_message "INFO" "Detected distro: Arch Linux ($pretty_name, kernel $kernel_version)"
+            gecho "Detected distro: Arch Linux ($pretty_name, kernel $kernel_version)"
+            echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Arch Linux ($pretty_name, kernel $kernel_version)" >> "$LOG_FILE"
         else
-            log_message "INFO" "Detected distro: Arch-based ($pretty_name, kernel $kernel_version)"
+            gecho "Detected distro: Arch-based ($pretty_name, kernel $kernel_version)"
+            echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Arch-based ($pretty_name, kernel $kernel_version)" >> "$LOG_FILE"
         fi
     elif [ "$distro_id" = "fedora" ] || echo "$distro_like" | grep -qi "fedora"; then
         DISTRO="fedora"
-        log_message "INFO" "Detected distro: Fedora-based ($pretty_name, kernel $kernel_version)"
+        gecho "Detected distro: Fedora-based ($pretty_name, kernel $kernel_version)"
+        echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Fedora-based ($pretty_name, kernel $kernel_version)" >> "$LOG_FILE"
     elif [ -f /etc/fedora-release ]; then
         DISTRO="fedora"
-        log_message "INFO" "Detected distro: Fedora-based ($pretty_name, kernel $kernel_version)"
+        gecho "Detected distro: Fedora-based ($pretty_name, kernel $kernel_version)"
+        echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Fedora-based ($pretty_name, kernel $kernel_version)" >> "$LOG_FILE"
     else
         log_message "ERROR" "Unsupported distro (only Debian-based, Arch and Fedora-based are supported)"
         exit 1
