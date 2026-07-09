@@ -76,10 +76,10 @@ _show_selection_menu() {
 
     if [ "$mode" = "full" ]; then
         echo -e "  ${CYAN}── Utilities ──${NC}"
-        for info in "${UTILITIES_LIST[@]}"; do
+        for info in "${PRODUCTIVITY_LIST[@]}"; do
             all_items+=("$info")
         done
-        echo -e "  ${CYAN}── IDEs ──${NC}"
+        echo -e "  ${CYAN}── IDEs & Editors ──${NC}"
         for info in "${IDES_LIST[@]}"; do
             all_items+=("$info")
         done

@@ -120,8 +120,8 @@ list_tools() {
     echo ""
 
     _print_category "Browsers" BROWSERS_LIST
-    _print_category "Utilities" UTILITIES_LIST
-    _print_category "IDEs" IDES_LIST
+    _print_category "Productivity" PRODUCTIVITY_LIST
+    _print_category "IDEs & Editors" IDES_LIST
     _print_category "Terminals" TERMINALS_LIST
     _print_category "Shells" SHELLS_LIST
     _print_category "Dev Tools" DEV_TOOLS_LIST
@@ -194,7 +194,7 @@ TERMINALS_LIST=(
     "GNOME Terminal|install_single_terminal gnome-terminal|gnome-terminal"
 )
 
-UTILITIES_LIST=(
+PRODUCTIVITY_LIST=(
     "Obsidian|install_obsidian|obsidian"
     "WPS Office|install_wps|"
     "OBS Studio|install_obs_studio|obs-studio"
@@ -217,8 +217,8 @@ IDES_LIST=(
 show_main_menu() {
     echo -e "${YELLOW}Main Menu:${NC}"
     echo "1) Browsers"
-    echo "2) Utilities"
-    echo "3) IDEs"
+    echo "2) Productivity"
+    echo "3) IDEs & Editors"
     echo "4) Terminals"
     echo "5) Shells"
     echo "6) Dev Tools"
@@ -231,7 +231,7 @@ show_main_menu() {
     read -r choice
     case $choice in
         1) show_browsers_menu ;;
-        2) show_utilities_menu ;;
+        2) show_productivity_menu ;;
         3) show_ides_menu ;;
         4) show_terminals_menu ;;
         5) show_shells_menu ;;
@@ -245,45 +245,49 @@ show_main_menu() {
     esac
 }
 
-show_utilities_menu() {
+show_productivity_menu() {
     while true; do
-        echo -e "\n${YELLOW}-- Utilities --${NC}"
-        echo "1) Install Obsidian"
-        echo "2) Install WPS Office"
-        echo "3) Install OBS Studio"
-        echo "4) Install ffmpeg"
-        echo "5) Install yt-dlp"
-        echo "6) Install All Utilities"
-        echo "7) Back"
+        echo -e "\n${YELLOW}-- Productivity --${NC}"
+        local i=1
+        for info in "${PRODUCTIVITY_LIST[@]}"; do
+            local name="${info%%|*}"
+            echo "$i) Install $name"
+            ((i++))
+        done
+        local all_idx=$i
+        echo "$all_idx) Install All Productivity Tools"
+        local back_idx=$((all_idx + 1))
+        echo "$back_idx) Back"
         echo -e "${CYAN}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
         echo -n "Select option: "
-        read -r u_choice
-        if [[ "$u_choice" =~ ^e([0-9]+)$ ]]; then
-            case "${BASH_REMATCH[1]}" in
-                1) _explain_tool "Obsidian" ;;
-                2) _explain_tool "WPS Office" ;;
-                3) _explain_tool "OBS Studio" ;;
-                4) _explain_tool "ffmpeg" ;;
-                5) _explain_tool "yt-dlp" ;;
-            esac
+        read -r p_choice
+        if [[ "$p_choice" =~ ^e([0-9]+)$ ]]; then
+            _explain_by_index PRODUCTIVITY_LIST "${BASH_REMATCH[1]}"
             continue
+        elif [ "$p_choice" = "all" ] || [ "$p_choice" = "$all_idx" ]; then
+            install_productivity
+        elif [ "$p_choice" = "$back_idx" ]; then
+            show_main_menu; return
+        elif [[ "$p_choice" =~ ^[0-9]+$ ]] && [ "$p_choice" -ge 1 ] && [ "$p_choice" -lt "$all_idx" ]; then
+            local idx=0
+            for info in "${PRODUCTIVITY_LIST[@]}"; do
+                if [ "$idx" -eq $((p_choice - 1)) ]; then
+                    local call="${info#*|}"
+                    call="${call%%|*}"
+                    $call
+                    break
+                fi
+                ((idx++))
+            done
+        else
+            log_message "WARN" "Invalid option"
         fi
-        case $u_choice in
-            1) install_obsidian ;;
-            2) install_wps ;;
-            3) install_obs_studio ;;
-            4) install_ffmpeg ;;
-            5) install_yt_dlp ;;
-            6) install_utilities ;;
-            7) show_main_menu; return ;;
-            *) log_message "WARN" "Invalid option"; continue ;;
-        esac
     done
 }
 
 show_ides_menu() {
     while true; do
-        echo -e "\n${YELLOW}-- IDEs --${NC}"
+        echo -e "\n${YELLOW}-- IDEs & Editors --${NC}"
         local i=1
         for info in "${IDES_LIST[@]}"; do
             local name="${info%%|*}"
@@ -491,7 +495,7 @@ install_yt_dlp() {
     install_with_fallback "yt-dlp" "yt-dlp" "yt-dlp" "" "yt-dlp"
 }
 
-install_utilities() { _install_list "Utilities" UTILITIES_LIST; }
+install_productivity() { _install_list "Productivity" PRODUCTIVITY_LIST; }
 
 install_vscode() {
     if command -v code &> /dev/null; then
@@ -589,7 +593,7 @@ install_jetbrains_toolbox() {
     fi
 }
 
-install_ides() { _install_list "IDEs" IDES_LIST; }
+install_ides() { _install_list "IDEs & Editors" IDES_LIST; }
 
 install_terminals() { _install_list "Terminals" TERMINALS_LIST; }
 
@@ -609,7 +613,7 @@ run_installation() {
         fi
 
         if [ "$FULL_MODE" = true ]; then
-            install_utilities
+            install_productivity
             install_ides
             install_shells
             install_dev_tools
@@ -635,7 +639,7 @@ install_by_name() {
     target_lower=$(echo "$target" | tr '[:upper:]' '[:lower:]')
 
     local all_lists=(
-        "BROWSERS_LIST" "TERMINALS_LIST" "UTILITIES_LIST" "IDES_LIST"
+        "BROWSERS_LIST" "TERMINALS_LIST" "PRODUCTIVITY_LIST" "IDES_LIST"
         "SHELLS_LIST" "DEV_TOOLS_LIST" "LANGUAGES_LIST"
         "PENTEST_LIST"
     )
@@ -673,7 +677,7 @@ usage() {
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
     echo "  --minimal    Install only Browsers and Terminals"
-    echo "  --full       Install everything (Browsers, Utilities, IDEs, Shells, Dev Tools, Languages, Terminals, Pentesting)"
+    echo "  --full       Install everything (Browsers, Productivity, IDEs, Shells, Dev Tools, Languages, Terminals, Pentesting)"
     echo "  -y, --yes    Auto-confirm all installations (skip prompts)"
     echo "  --dry-run    Print what would be installed without actually installing"
     echo "  --explain    Show info about a tool (e.g., --explain tmux)"
