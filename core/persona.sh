@@ -164,7 +164,7 @@ _sep() {
         line="${line}═"
         i=$(( i + 1 ))
     done
-    echo -e "${CYAN}$line${NC}"
+    echo -e "${PURPLE}$line${NC}"
 }
 
 _pad() {
@@ -173,7 +173,7 @@ _pad() {
     len=$(echo -e "$content" | sed 's/\x1b\[[0-9;]*m//g' | wc -m)
     local pad=$(( BOX_W - len ))
     [ "$pad" -lt 2 ] && pad=2
-    echo -e "${CYAN}║${NC} $content$(printf '%*s' "$pad" '') ${CYAN}║${NC}"
+    echo -e "${PURPLE}║${NC} $content$(printf '%*s' "$pad" '') ${PURPLE}║${NC}"
 }
 
 _pad_lines() {
@@ -181,14 +181,15 @@ _pad_lines() {
     local maxw=$(( BOX_W - 4 ))
     while IFS= read -r line; do
         local len
+        local colored_line="${GREEN}${line}${NC}"
         len=$(echo -e "$line" | sed 's/\x1b\[[0-9;]*m//g' | wc -m)
         if [ "$len" -le "$maxw" ]; then
-            _pad "$line"
+            _pad "$colored_line"
         else
             local wrapped
             wrapped=$(echo "$line" | fold -s -w "$maxw")
             while IFS= read -r sub; do
-                _pad "$sub"
+                _pad "${GREEN}${sub}${NC}"
             done <<< "$wrapped"
         fi
     done <<< "$text"
@@ -196,7 +197,7 @@ _pad_lines() {
 
 _dot() {
     local n=$(( BOX_W - 2 ))
-    echo -e "${CYAN}║${NC}  $(printf '%*s' "$n" '' | tr ' ' '·')  ${CYAN}║${NC}"
+    echo -e "${PURPLE}║${NC}  $(printf '%*s' "$n" '' | tr ' ' '·')  ${PURPLE}║${NC}"
 }
 
 show_persona() {
@@ -251,28 +252,28 @@ show_persona() {
     sep=$(_sep)
 
     echo ""
-    echo -e "${CYAN}╔${sep}╗${NC}"
+    echo -e "${PURPLE}╔${sep}╗${NC}"
     _pad "${PURPLE}System Profile${NC}"
-    echo -e "${CYAN}╠${sep}╣${NC}"
+    echo -e "${PURPLE}╠${sep}╣${NC}"
 
-    _pad "${CYAN}* Distro${NC}"
-    _pad "$pretty_name"
+    _pad "${PURPLE}* Distro${NC}"
+    _pad "${GREEN}$pretty_name${NC}"
     [ -n "$distro_persona" ] && _pad_lines "$distro_persona"
     _dot
 
-    _pad "${CYAN}* Desktop${NC}"
-    _pad "$desktop"
+    _pad "${PURPLE}* Desktop${NC}"
+    _pad "${GREEN}$desktop${NC}"
     [ -n "$de_persona" ] && _pad_lines "$de_persona"
     _dot
 
-    _pad "${CYAN}* CPU${NC}"
+    _pad "${PURPLE}* CPU${NC}"
     _pad_lines "$cpu_output"
     _dot
 
-    _pad "${CYAN}* RAM${NC}"
-    _pad "$ram_detail"
+    _pad "${PURPLE}* RAM${NC}"
+    _pad "${GREEN}$ram_detail${NC}"
     [ -n "$ram_output" ] && _pad_lines "$ram_output"
 
-    echo -e "${CYAN}╚${sep}╝${NC}"
+    echo -e "${PURPLE}╚${sep}╝${NC}"
     echo ""
 }
