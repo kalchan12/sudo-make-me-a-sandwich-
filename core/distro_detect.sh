@@ -7,31 +7,34 @@ detect_distro() {
         pretty_name=$(grep -oP '(?<=^PRETTY_NAME=")[^"]*' /etc/os-release)
         distro_id=$(grep -oP '(?<=^ID=)[a-z]+' /etc/os-release)
         distro_like=$(grep -oP '(?<=^ID_LIKE=")[^"]*' /etc/os-release)
+        OS_PRETTY_NAME="$pretty_name"
+        OS_ID="$distro_id"
+        OS_ID_LIKE="$distro_like"
     fi
     local kernel_version
     kernel_version=$(uname -r)
 
     if [ -f /etc/debian_version ]; then
         DISTRO="debian"
-        gecho "Detected distro: Debian-based ($pretty_name, kernel $kernel_version)"
-        echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Debian-based ($pretty_name, kernel $kernel_version)" >> "$LOG_FILE"
+        gecho "Detected distro: Debian-based ($OS_PRETTY_NAME, kernel $kernel_version)"
+        echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Debian-based ($OS_PRETTY_NAME, kernel $kernel_version)" >> "$LOG_FILE"
     elif [ -f /etc/arch-release ]; then
         DISTRO="arch"
         if [ "$distro_id" = "arch" ]; then
-            gecho "Detected distro: Arch Linux ($pretty_name, kernel $kernel_version)"
-            echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Arch Linux ($pretty_name, kernel $kernel_version)" >> "$LOG_FILE"
+            gecho "Detected distro: Arch Linux ($OS_PRETTY_NAME, kernel $kernel_version)"
+            echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Arch Linux ($OS_PRETTY_NAME, kernel $kernel_version)" >> "$LOG_FILE"
         else
-            gecho "Detected distro: Arch-based ($pretty_name, kernel $kernel_version)"
-            echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Arch-based ($pretty_name, kernel $kernel_version)" >> "$LOG_FILE"
+            gecho "Detected distro: Arch-based ($OS_PRETTY_NAME, kernel $kernel_version)"
+            echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Arch-based ($OS_PRETTY_NAME, kernel $kernel_version)" >> "$LOG_FILE"
         fi
     elif [ "$distro_id" = "fedora" ] || echo "$distro_like" | grep -qi "fedora"; then
         DISTRO="fedora"
-        gecho "Detected distro: Fedora-based ($pretty_name, kernel $kernel_version)"
-        echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Fedora-based ($pretty_name, kernel $kernel_version)" >> "$LOG_FILE"
+        gecho "Detected distro: Fedora-based ($OS_PRETTY_NAME, kernel $kernel_version)"
+        echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Fedora-based ($OS_PRETTY_NAME, kernel $kernel_version)" >> "$LOG_FILE"
     elif [ -f /etc/fedora-release ]; then
         DISTRO="fedora"
-        gecho "Detected distro: Fedora-based ($pretty_name, kernel $kernel_version)"
-        echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Fedora-based ($pretty_name, kernel $kernel_version)" >> "$LOG_FILE"
+        gecho "Detected distro: Fedora-based ($OS_PRETTY_NAME, kernel $kernel_version)"
+        echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Fedora-based ($OS_PRETTY_NAME, kernel $kernel_version)" >> "$LOG_FILE"
     else
         log_message "ERROR" "Unsupported distro (only Debian-based, Arch and Fedora-based are supported)"
         exit 1
@@ -43,6 +46,21 @@ detect_distro() {
         fedora) PKG_MANAGER="dnf" ;;
     esac
     readonly PKG_MANAGER
+
+# Memoized command -v cache
+declare -g -A BIN_CACHE=()
+
+bin_check() {
+    local bin="$1"
+    local cached="${BIN_CACHE[$bin]:-}"
+    if [ -n "$cached" ]; then
+        return "$cached"
+    fi
+    command -v "$bin" &> /dev/null
+    local ec=$?
+    BIN_CACHE["$bin"]=$ec
+    return $ec
+}
 }
 
 pkg_is_installed() {

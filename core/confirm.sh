@@ -29,68 +29,38 @@ confirm_install() {
     echo -e "${PURPLE} Package:${NC}       $display_name"
 
     if [ -n "$pkg_name" ]; then
-        local info_file
-        info_file="$(mktemp)"
         case $DISTRO in
             debian)
-                apt-cache show "$pkg_name" 2>/dev/null > "$info_file"
-                if [ -s "$info_file" ]; then
-                    local ver desc dl_size inst_size
-                    while IFS= read -r line; do
-                        case "$line" in
-                            "Version: "*) ver="${line#Version: }" ;;
-                            "Description-en: "*) desc="${line#Description-en: }" ;;
-                            "Description: "*) desc="${line#Description: }" ;;
-                            "Size: "*) dl_size="${line#Size: }" ;;
-                            "Installed-Size: "*) inst_size="${line#Installed-Size: }" ;;
-                        esac
-                    done < "$info_file"
-                    [ -n "$ver" ] && echo -e "${GREEN} Version:${NC}       $ver"
-                    [ -n "$desc" ] && echo -e "${GREEN} Description:${NC}  $(echo "$desc" | head -c 100)"
-                    [ -n "$dl_size" ] && echo -e "${GREEN} Download size:${NC} $(show_size "$dl_size")"
-                    [ -n "$inst_size" ] && {
-                        local inst_human
-                        inst_human="$(show_size "$((inst_size * 1024))")"
-                        echo -e "${GREEN} Install size:${NC}  $inst_human"
-                    }
-                fi
+                while IFS= read -r line; do
+                    case "$line" in
+                        "Version: "*) echo -e "${GREEN} Version:${NC}       ${line#Version: }" ;;
+                        "Description-en: "*) echo -e "${GREEN} Description:${NC}  $(echo "${line#Description-en: }" | head -c 100)" ;;
+                        "Description: "*) echo -e "${GREEN} Description:${NC}  $(echo "${line#Description: }" | head -c 100)" ;;
+                        "Size: "*) echo -e "${GREEN} Download size:${NC} $(show_size "${line#Size: }")" ;;
+                        "Installed-Size: "*) echo -e "${GREEN} Install size:${NC}  $(show_size "$(( ${line#Installed-Size: } * 1024 ))")" ;;
+                    esac
+                done < <(apt-cache show "$pkg_name" 2>/dev/null)
                 ;;
             arch)
-                pacman -Si "$pkg_name" 2>/dev/null > "$info_file"
-                if [ -s "$info_file" ]; then
-                    local ver desc dl_size inst_size
-                    while IFS= read -r line; do
-                        case "$line" in
-                            "Version"*:*" ") ver="${line#*: }" ;;
-                            "Description"*:*" ") desc="${line#*: }" ;;
-                            "Download Size"*:*" ") dl_size="${line#*: }" ;;
-                            "Installed Size"*:*" ") inst_size="${line#*: }" ;;
-                        esac
-                    done < "$info_file"
-                    [ -n "$ver" ] && echo -e "${GREEN} Version:${NC}       $ver"
-                    [ -n "$desc" ] && echo -e "${GREEN} Description:${NC}  $(echo "$desc" | head -c 100)"
-                    [ -n "$dl_size" ] && echo -e "${GREEN} Download size:${NC} $(echo "$dl_size" | sed 's/ //g')"
-                    [ -n "$inst_size" ] && echo -e "${GREEN} Install size:${NC}  $(echo "$inst_size" | sed 's/ //g')"
-                fi
+                while IFS= read -r line; do
+                    case "$line" in
+                        "Version"*:*" ") echo -e "${GREEN} Version:${NC}       ${line#*: }" ;;
+                        "Description"*:*" ") echo -e "${GREEN} Description:${NC}  $(echo "${line#*: }" | head -c 100)" ;;
+                        "Download Size"*:*" ") echo -e "${GREEN} Download size:${NC} $(echo "${line#*: }" | sed 's/ //g')" ;;
+                        "Installed Size"*:*" ") echo -e "${GREEN} Install size:${NC}  $(echo "${line#*: }" | sed 's/ //g')" ;;
+                    esac
+                done < <(pacman -Si "$pkg_name" 2>/dev/null)
                 ;;
             fedora)
-                dnf info "$pkg_name" 2>/dev/null > "$info_file"
-                if [ -s "$info_file" ]; then
-                    local ver desc dl_size
-                    while IFS= read -r line; do
-                        case "$line" in
-                            "Version"*":"*) ver="${line#*: }" ;;
-                            "Summary"*":"*) desc="${line#*: }" ;;
-                            "Download Size"*":"*) dl_size="${line#*: }" ;;
-                        esac
-                    done < "$info_file"
-                    [ -n "$ver" ] && echo -e "${GREEN} Version:${NC}       $ver"
-                    [ -n "$desc" ] && echo -e "${GREEN} Description:${NC}  $(echo "$desc" | head -c 100)"
-                    [ -n "$dl_size" ] && echo -e "${GREEN} Download size:${NC} $dl_size"
-                fi
+                while IFS= read -r line; do
+                    case "$line" in
+                        "Version"*":"*) echo -e "${GREEN} Version:${NC}       ${line#*: }" ;;
+                        "Summary"*":"*) echo -e "${GREEN} Description:${NC}  $(echo "${line#*: }" | head -c 100)" ;;
+                        "Download Size"*":"*) echo -e "${GREEN} Download size:${NC} ${line#*: }" ;;
+                    esac
+                done < <(dnf info "$pkg_name" 2>/dev/null)
                 ;;
         esac
-        rm -f "$info_file"
     fi
 
     if [ -n "$extra_info" ]; then

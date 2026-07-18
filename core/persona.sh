@@ -157,14 +157,8 @@ _ram_persona() {
 BOX_W=58
 
 _sep() {
-    local n=$(( BOX_W + 2 ))
-    local line=""
-    local i=0
-    while [ "$i" -lt "$n" ]; do
-        line="${line}═"
-        i=$(( i + 1 ))
-    done
-    echo -e "${PURPLE}$line${NC}"
+    printf -v line '%*s' $((BOX_W + 2)) ''
+    echo -e "${PURPLE}${line// /═}${NC}"
 }
 
 _pad() {
@@ -200,9 +194,9 @@ _dot() {
 }
 
 show_persona() {
-    local distro_id=""
-    local pretty_name=""
-    if [ -f /etc/os-release ]; then
+    local distro_id="${OS_ID:-}"
+    local pretty_name="${OS_PRETTY_NAME:-}"
+    if [ -z "$distro_id" ] && [ -f /etc/os-release ]; then
         distro_id=$(grep -oP '(?<=^ID=)[a-z]+' /etc/os-release)
         pretty_name=$(grep -oP '(?<=^PRETTY_NAME=")[^"]*' /etc/os-release)
     fi

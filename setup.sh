@@ -15,6 +15,8 @@
 
 # --- Configuration & Colors ---
 LOG_FILE="$(cd "$(dirname "$0")" && pwd)/install.log"
+exec 3>>"$LOG_FILE"
+
 MINIMAL_MODE=false
 FULL_MODE=false
 DRY_RUN=false
@@ -62,7 +64,7 @@ log_message() {
         "ERROR")   echo -e "${RED}[ERROR]${NC} $MSG" ;;
     esac
     
-    echo "[$TIMESTAMP] [$TYPE] $MSG" >> "$LOG_FILE"
+    echo "[$TIMESTAMP] [$TYPE] $MSG" >&3
 }
 
 check_sudo() {
@@ -545,11 +547,11 @@ check_productivity_installations() {
         local name="${info%%|*}"
         local installed=false
         case $name in
-            Obsidian) command -v obsidian &> /dev/null && installed=true ;;
-            "WPS Office") command -v wps &> /dev/null && installed=true ;;
-            "OBS Studio") command -v obs &> /dev/null && installed=true ;;
-            ffmpeg) command -v ffmpeg &> /dev/null && installed=true ;;
-            yt-dlp) command -v yt-dlp &> /dev/null && installed=true ;;
+            Obsidian) bin_check obsidian && installed=true ;;
+            "WPS Office") bin_check wps && installed=true ;;
+            "OBS Studio") bin_check obs && installed=true ;;
+            ffmpeg) bin_check ffmpeg && installed=true ;;
+            yt-dlp) bin_check yt-dlp && installed=true ;;
         esac
         if [ "$installed" = true ]; then
             echo -e "${GREEN}[✔] $name is installed.${NC}"
@@ -663,13 +665,13 @@ check_ides_installations() {
         local name="${info%%|*}"
         local installed=false
         case $name in
-            "VS Code") command -v code &> /dev/null && installed=true ;;
-            "Sublime Text") command -v subl &> /dev/null && installed=true ;;
-            "JetBrains Toolbox") command -v jetbrains-toolbox &> /dev/null && installed=true ;;
-            OpenCode) command -v opencode &> /dev/null && installed=true ;;
-            ZCode) command -v zcode &> /dev/null && installed=true ;;
-            Antigravity) command -v antigravity &> /dev/null && installed=true ;;
-            Kiro) command -v kiro &> /dev/null && installed=true ;;
+            "VS Code") bin_check code && installed=true ;;
+            "Sublime Text") bin_check subl && installed=true ;;
+            "JetBrains Toolbox") bin_check jetbrains-toolbox && installed=true ;;
+            OpenCode) bin_check opencode && installed=true ;;
+            ZCode) bin_check zcode && installed=true ;;
+            Antigravity) bin_check antigravity && installed=true ;;
+            Kiro) bin_check kiro && installed=true ;;
         esac
         if [ "$installed" = true ]; then
             echo -e "${GREEN}[✔] $name is installed.${NC}"
@@ -687,10 +689,10 @@ check_terminals_installations() {
         local name="${info%%|*}"
         local installed=false
         case $name in
-            Kitty) command -v kitty &> /dev/null && installed=true ;;
-            Alacritty) command -v alacritty &> /dev/null && installed=true ;;
-            Tilix) command -v tilix &> /dev/null && installed=true ;;
-            "GNOME Terminal") command -v gnome-terminal &> /dev/null && installed=true ;;
+            Kitty) bin_check kitty && installed=true ;;
+            Alacritty) bin_check alacritty && installed=true ;;
+            Tilix) bin_check tilix && installed=true ;;
+            "GNOME Terminal") bin_check gnome-terminal && installed=true ;;
         esac
         if [ "$installed" = true ]; then
             echo -e "${GREEN}[✔] $name is installed.${NC}"
