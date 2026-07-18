@@ -231,9 +231,10 @@ show_main_menu() {
     echo -e " ${YELLOW}6)${GREEN} Dev Tools${NC}${NC}"
     echo -e " ${YELLOW}7)${GREEN} Programming Languages${NC}${NC}"
     echo -e " ${YELLOW}8)${GREEN} Pentesting Tools${NC}${NC}"
-    echo -e " ${YELLOW}9)${GREEN} Full Installation${NC}${NC}"
-    echo -e " ${YELLOW}10)${GREEN} Minimal Installation${NC}${NC}"
-    echo -e " ${YELLOW}11)${GREEN} Exit${NC}${NC}"
+    echo -e " ${YELLOW}9)${GREEN} Frameworks${NC}${NC}"
+    echo -e " ${YELLOW}10)${GREEN} Full Installation${NC}${NC}"
+    echo -e " ${YELLOW}11)${GREEN} Minimal Installation${NC}${NC}"
+    echo -e " ${YELLOW}12)${GREEN} Exit${NC}${NC}"
     echo -n -e "${PURPLE}Select an option: ${NC}${YELLOW}"
     read -r choice
     echo -e -n "${NC}"
@@ -246,9 +247,10 @@ show_main_menu() {
         6) show_dev_tools_menu ;;
         7) show_languages_menu ;;
         8) show_pentest_menu ;;
-        9) FULL_MODE=true; run_installation ;;
-        10) MINIMAL_MODE=true; run_installation ;;
-        11) log_message "INFO" "Exiting..."; exit 0 ;;
+        9) show_frameworks_menu ;;
+        10) FULL_MODE=true; run_installation ;;
+        11) MINIMAL_MODE=true; run_installation ;;
+        12) log_message "INFO" "Exiting..."; exit 0 ;;
         *) log_message "WARN" "Invalid option: $choice"; show_main_menu ;;
     esac
 }
