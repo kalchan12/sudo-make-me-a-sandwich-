@@ -183,6 +183,11 @@ for c in "$CORE_DIR"/*.sh; do
     fi
 done
 
+# --- Python Bridge (if available) ---
+if command -v python3 &> /dev/null && python3 -c "import rich" 2>/dev/null; then
+    source "$CORE_DIR/python_bridge.sh"
+fi
+
 # --- External Modules ---
 MODULES_DIR="$(dirname "$0")/modules"
 for m in "$MODULES_DIR"/*.sh; do
