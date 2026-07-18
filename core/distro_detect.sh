@@ -1,4 +1,11 @@
 # Distro detection
+
+_verbose_cmd() {
+    if [ "${VERBOSE_MODE:-false}" = true ]; then
+        echo -e "\033[1;35m[CMD]\033[0m $*" >&2
+    fi
+}
+
 detect_distro() {
     local pretty_name=""
     local distro_id=""
@@ -82,9 +89,9 @@ pkg_install_native() {
         return 0
     fi
     case $DISTRO in
-        debian) apt install -y -V "$@" ;;
-        arch) pacman -S --noconfirm "$@" ;;
-        fedora) dnf install -y "$@" ;;
+        debian) _verbose_cmd "apt install -y -V $*"; apt install -y -V "$@" ;;
+        arch)   _verbose_cmd "pacman -S --noconfirm $*";   pacman -S --noconfirm "$@" ;;
+        fedora) _verbose_cmd "dnf install -y $*";         dnf install -y "$@" ;;
     esac
     local ec=$?
     if [ "$ec" -ne 0 ]; then
@@ -103,9 +110,9 @@ pkg_remove() {
         return 0
     fi
     case $DISTRO in
-        debian) apt remove -y "$@" ;;
-        arch) pacman -R --noconfirm "$@" ;;
-        fedora) dnf remove -y "$@" ;;
+        debian) _verbose_cmd "apt remove -y $*"; apt remove -y "$@" ;;
+        arch)   _verbose_cmd "pacman -R --noconfirm $*";   pacman -R --noconfirm "$@" ;;
+        fedora) _verbose_cmd "dnf remove -y $*";         dnf remove -y "$@" ;;
     esac
     local ec=$?
     if [ "$ec" -eq 0 ]; then
@@ -132,9 +139,11 @@ aur_install() {
     fi
     local ec=1
     if command -v yay &> /dev/null; then
+        _verbose_cmd "yay -S --noconfirm $1"
         yay -S --noconfirm "$1"
         ec=$?
     elif command -v paru &> /dev/null; then
+        _verbose_cmd "paru -S --noconfirm $1"
         paru -S --noconfirm "$1"
         ec=$?
     fi
@@ -149,6 +158,7 @@ _flatpak_install() {
         echo -e "${YELLOW}[DRY-RUN]${NC} flatpak install -y flathub $flatpak_id"
         return 0
     fi
+    _verbose_cmd "flatpak install -y flathub $flatpak_id"
     flatpak install -y flathub "$flatpak_id"
     local ec=$?
     if [ "$ec" -eq 0 ]; then
@@ -215,6 +225,7 @@ install_with_fallback() {
         log_message "INFO" "Installing Flatpak for $display_name..."
         pkg_install_native flatpak
         if [ "$DRY_RUN" = false ]; then
+            _verbose_cmd "flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
             flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
         fi
         _flatpak_install "$display_name" "$flatpak_id" "$bin_check"
@@ -237,9 +248,9 @@ pkg_update_system() {
     log_message "INFO" "Updating package lists and upgrading system..."
     local ec=0
     case $DISTRO in
-        debian) apt update && apt upgrade -y -V; ec=$? ;;
-        arch) pacman -Syu --noconfirm; ec=$? ;;
-        fedora) dnf upgrade -y; ec=$? ;;
+        debian) _verbose_cmd "apt update && apt upgrade -y -V"; apt update && apt upgrade -y -V; ec=$? ;;
+        arch)   _verbose_cmd "pacman -Syu --noconfirm";   pacman -Syu --noconfirm; ec=$? ;;
+        fedora) _verbose_cmd "dnf upgrade -y";            dnf upgrade -y; ec=$? ;;
     esac
     if [ "$ec" -eq 0 ]; then
         log_message "SUCCESS" "System is up to date."

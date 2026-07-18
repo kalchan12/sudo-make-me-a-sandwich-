@@ -45,7 +45,9 @@ install_nodejs() {
     confirm_install "Node.js" "nodejs" || return
     case $DISTRO in
         debian)
+            _verbose_cmd "curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -"
             curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+            _verbose_cmd "apt install -y -V nodejs"
             apt install -y -V nodejs
             ;;
         arch) pkg_install_native nodejs npm ;;
@@ -63,6 +65,7 @@ install_typescript() {
     confirm_install "TypeScript" "" || return
     _check_deps "TypeScript" node npm || return
     if command -v npm &> /dev/null; then
+        _verbose_cmd "npm install -g typescript"
         npm install -g typescript
         log_message "SUCCESS" "TypeScript installed."
         log_version "TypeScript" typescript tsc
@@ -90,6 +93,7 @@ install_rust() {
     if command -v rustup &> /dev/null; then
         rustup install stable
     else
+        _verbose_cmd "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
         # shellcheck source=dev/null
         . "$HOME/.cargo/env"
@@ -131,8 +135,11 @@ install_dotnet() {
     confirm_install "C# (.NET)" "dotnet-sdk" || return
     case $DISTRO in
         debian)
+            _verbose_cmd "wget -q https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb"
             wget -q https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb
+            _verbose_cmd "dpkg -i /tmp/packages-microsoft-prod.deb"
             dpkg -i /tmp/packages-microsoft-prod.deb && rm -f /tmp/packages-microsoft-prod.deb
+            _verbose_cmd "apt update && apt install -y -V dotnet-sdk-8.0"
             apt update && apt install -y -V dotnet-sdk-8.0
             ;;
         arch) pkg_install_native dotnet-sdk ;;
@@ -201,7 +208,9 @@ install_dart() {
     if pkg_is_available dart; then
         pkg_install_native dart
     else
+        _verbose_cmd "wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list"
         wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+        _verbose_cmd "apt update && apt install -y -V dart"
         apt update && apt install -y -V dart
     fi
     log_message "SUCCESS" "Dart installed."

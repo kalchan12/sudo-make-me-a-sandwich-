@@ -35,6 +35,7 @@ install_brave() {
                         "/usr/share/keyrings/brave-browser-archive-keyring.gpg" \
                         "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" \
                         "brave-browser-release"
+            _verbose_cmd "apt update && apt install -y -V brave-browser"
             apt update && apt install -y -V brave-browser
             ;;
         arch)
@@ -44,6 +45,7 @@ install_brave() {
         fedora)
             dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
             add_rpm_keyring "https://brave-browser-rpm-release.s3.brave.com/brave-browser-archive-keyring.gpg"
+            _verbose_cmd "dnf install -y brave-browser"
             dnf install -y brave-browser
             ;;
     esac
@@ -61,12 +63,13 @@ install_chrome() {
 
     case $DISTRO in
         debian)
-            log_message "INFO" "Installing Google Chrome..."
+            _verbose_cmd "wget -O /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
             if ! wget --progress=bar:force -O /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb; then
                 log_message "ERROR" "Failed to download Google Chrome"
                 rm -f /tmp/google-chrome.deb
                 return
             fi
+            _verbose_cmd "apt install -y -V /tmp/google-chrome.deb"
             apt install -y -V /tmp/google-chrome.deb
             rm -f /tmp/google-chrome.deb
             ;;
@@ -75,12 +78,13 @@ install_chrome() {
             return $?
             ;;
         fedora)
-            log_message "INFO" "Installing Google Chrome..."
+            _verbose_cmd "wget -O /tmp/google-chrome.rpm https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm"
             if ! wget --progress=bar:force -O /tmp/google-chrome.rpm https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm; then
                 log_message "ERROR" "Failed to download Google Chrome"
                 rm -f /tmp/google-chrome.rpm
                 return
             fi
+            _verbose_cmd "dnf install -y /tmp/google-chrome.rpm"
             dnf install -y /tmp/google-chrome.rpm
             rm -f /tmp/google-chrome.rpm
             ;;
@@ -114,6 +118,7 @@ install_vivaldi() {
                         "/usr/share/keyrings/vivaldi-browser.gpg" \
                         "deb [signed-by=/usr/share/keyrings/vivaldi-browser.gpg arch=amd64] https://repo.vivaldi.com/archive/deb/ stable main" \
                         "vivaldi"
+            _verbose_cmd "apt update && apt install -y -V vivaldi-stable"
             apt update && apt install -y -V vivaldi-stable
             ;;
         arch)
@@ -122,6 +127,7 @@ install_vivaldi() {
             ;;
         fedora)
             dnf config-manager --add-repo https://repo.vivaldi.com/archive/vivaldi-fedora.repo
+            _verbose_cmd "dnf install -y vivaldi-stable"
             dnf install -y vivaldi-stable
             ;;
     esac
@@ -139,6 +145,7 @@ install_chromium() {
 
     case $DISTRO in
         debian)
+            _verbose_cmd "apt install -y -V chromium"
             apt install -y -V chromium || apt install -y -V chromium-browser
             ;;
         arch)
@@ -170,6 +177,7 @@ install_firefox_dev() {
         debian|fedora)
             rm -rf /opt/firefox-developer
             log_message "INFO" "Installing Firefox Developer Edition..."
+            _verbose_cmd "wget -O /tmp/firefox-dev.tar.bz2 https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US"
             if ! wget --progress=bar:force -O /tmp/firefox-dev.tar.bz2 "https://download.mozilla.org/?product=firefox-devedition-latest-ssl&os=linux64&lang=en-US"; then
                 log_message "ERROR" "Failed to download Firefox Developer Edition"
                 rm -f /tmp/firefox-dev.tar.bz2
@@ -216,6 +224,7 @@ install_ungoogled_chromium() {
         debian)
             if apt-cache show ungoogled-chromium &> /dev/null; then
                 log_message "INFO" "Installing Ungoogled Chromium via apt..."
+                _verbose_cmd "apt install -y -V ungoogled-chromium"
                 apt install -y -V ungoogled-chromium
                 log_message "SUCCESS" "Ungoogled Chromium installed via apt."
             else
@@ -225,6 +234,7 @@ install_ungoogled_chromium() {
                     pkg_install_native flatpak
                     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
                 fi
+                _verbose_cmd "flatpak install -y flathub com.github.Eloston.UngoogledChromium"
                 flatpak install -y flathub com.github.Eloston.UngoogledChromium
                 ln -sf /var/lib/flatpak/exports/bin/com.github.Eloston.UngoogledChromium /usr/local/bin/ungoogled-chromium
                 log_message "SUCCESS" "Ungoogled Chromium installed via Flatpak."
@@ -258,6 +268,7 @@ install_librewolf() {
             local keyring_path="/usr/share/keyrings/librewolf.gpg"
             curl -fsSL "$keyring_url" | gpg --dearmor -o "$keyring_path"
             echo "deb [arch=amd64 signed-by=$keyring_path] https://deb.librewolf.net $(lsb_release -sc) main" > /etc/apt/sources.list.d/librewolf.list
+            _verbose_cmd "apt update && apt install -y -V librewolf"
             apt update && apt install -y -V librewolf
             ;;
         arch)
@@ -266,6 +277,7 @@ install_librewolf() {
             ;;
         fedora)
             dnf copr enable -y kunzusan/librewolf
+            _verbose_cmd "dnf install -y librewolf"
             dnf install -y librewolf
             ;;
     esac

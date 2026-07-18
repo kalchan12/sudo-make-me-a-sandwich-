@@ -35,14 +35,18 @@ install_flutter() {
             _check_deps "Flutter" curl git unzip xz-utils zip libglu1-mesa || return
             if ! command -v snap &> /dev/null; then
                 log_message "INFO" "Installing snapd for Flutter..."
+                _verbose_cmd "apt update && apt install -y snapd"
                 apt update && apt install -y snapd
             fi
+            _verbose_cmd "snap install flutter --classic"
             snap install flutter --classic
             ;;
         arch)
             if command -v yay &> /dev/null; then
+                _verbose_cmd "yay -S --noconfirm flutter"
                 yay -S --noconfirm flutter
             elif command -v paru &> /dev/null; then
+                _verbose_cmd "paru -S --noconfirm flutter"
                 paru -S --noconfirm flutter
             else
                 log_message "ERROR" "No AUR helper found. Install yay or paru first."
@@ -53,10 +57,12 @@ install_flutter() {
             _check_deps "Flutter" curl git unzip xz zip mesa-libGLU || return
             if ! command -v snap &> /dev/null; then
                 log_message "INFO" "Installing snapd for Flutter..."
+                _verbose_cmd "dnf install -y snapd"
                 dnf install -y snapd
                 systemctl enable --now snapd.socket
                 ln -sf /var/lib/snapd/snap /snap
             fi
+            _verbose_cmd "snap install flutter --classic"
             snap install flutter --classic
             ;;
     esac
@@ -84,6 +90,7 @@ install_react_native() {
     fi
 
     log_message "INFO" "Installing React Native CLI globally..."
+    _verbose_cmd "npm install -g @react-native-community/cli"
     if npm install -g @react-native-community/cli; then
         log_message "SUCCESS" "React Native CLI installed."
         log_version "React Native" "" "react-native"
@@ -125,14 +132,18 @@ install_nodejs_latest() {
 
     case $DISTRO in
         debian)
+            _verbose_cmd "curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -"
             curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
+            _verbose_cmd "apt install -y -V nodejs"
             apt install -y -V nodejs
             ;;
         arch)
             pkg_install_native nodejs npm
             ;;
         fedora)
+            _verbose_cmd "curl -fsSL https://rpm.nodesource.com/setup_lts.x | bash -"
             curl -fsSL https://rpm.nodesource.com/setup_lts.x | bash -
+            _verbose_cmd "dnf install -y nodejs"
             dnf install -y nodejs
             ;;
     esac
@@ -156,6 +167,7 @@ install_electron() {
     fi
 
     log_message "INFO" "Installing Electron globally..."
+    _verbose_cmd "npm install -g electron"
     if npm install -g electron; then
         log_message "SUCCESS" "Electron installed."
         log_version "Electron" "" electron
@@ -180,6 +192,7 @@ install_tauri() {
     fi
 
     log_message "INFO" "Installing Tauri CLI..."
+    _verbose_cmd "cargo install tauri-cli"
     if cargo install tauri-cli; then
         log_message "SUCCESS" "Tauri CLI installed."
         log_version "Tauri" "" tauri
@@ -200,6 +213,7 @@ install_deno() {
 
     case $DISTRO in
         debian|fedora)
+            _verbose_cmd "curl -fsSL https://deno.land/install.sh | sh"
             curl -fsSL https://deno.land/install.sh | sh
             export PATH="$HOME/.deno/bin:$PATH"
             ;;
@@ -225,6 +239,7 @@ install_bun() {
 
     confirm_install "Bun" "bun" || return
 
+    _verbose_cmd "curl -fsSL https://bun.sh/install | bash"
     curl -fsSL https://bun.sh/install | bash
     export PATH="$HOME/.bun/bin:$PATH"
 

@@ -22,6 +22,7 @@ FULL_MODE=false
 DRY_RUN="${DRY_RUN:-false}"
 YES_MODE=false
 UNINSTALL_MODE=false
+VERBOSE_MODE=false
 START_TIME=0
 INSTALL_LIST=""
 
@@ -792,6 +793,7 @@ usage() {
     gecho "  --install    Install specific tools by name (comma-separated, e.g. --install nmap,burpsuite)"
     gecho "  --list       List all available tools by category and exit"
     gecho "  --uninstall  Uninstall selected tools instead of installing"
+    gecho "  -v, --verbose  Show actual commands being executed"
     gecho "  --help       Show this help message"
     gecho ""
     gecho "Run without options for interactive menu."
@@ -821,15 +823,17 @@ main() {
         esac
     fi
 
-    # Parse --dry-run early so check_sudo can see it
+    # Parse --dry-run and --verbose early so check_sudo can see them
     for arg in "$@"; do
         if [ "$arg" = "--dry-run" ]; then
             DRY_RUN=true
-            break
+        elif [ "$arg" = "--verbose" ] || [ "$arg" = "-v" ]; then
+            VERBOSE_MODE=true
         fi
     done
-    # Also check env var (for DRY_RUN=true source setup.sh)
+    # Also check env vars (for DRY_RUN=true source setup.sh)
     [ "${DRY_RUN:-}" = "true" ] && DRY_RUN=true
+    [ "${VERBOSE_MODE:-}" = "true" ] && VERBOSE_MODE=true
 
     check_sudo
     show_banner
@@ -847,6 +851,7 @@ main() {
             --minimal) MINIMAL_MODE=true; shift ;;
             --full)    FULL_MODE=true; shift ;;
             -y|--yes)  YES_MODE=true; shift ;;
+            -v|--verbose) VERBOSE_MODE=true; shift ;;
             --dry-run) DRY_RUN=true; shift ;;
             --uninstall) UNINSTALL_MODE=true; shift ;;
             --install) INSTALL_LIST="$2"; shift 2 ;;

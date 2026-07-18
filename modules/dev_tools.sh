@@ -152,8 +152,10 @@ install_thefuck() {
     if pkg_is_available thefuck; then
         pkg_install_native thefuck
     elif command -v pip3 &> /dev/null; then
+        _verbose_cmd "pip3 install thefuck"
         pip3 install thefuck
     elif command -v pip &> /dev/null; then
+        _verbose_cmd "pip install thefuck"
         pip install thefuck
     else
         log_message "ERROR" "thefuck is not available in repos. Install python3-pip and try again."

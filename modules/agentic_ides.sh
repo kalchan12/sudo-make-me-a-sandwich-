@@ -25,6 +25,7 @@ install_opencode() {
             ;;
         debian|fedora)
             log_message "INFO" "Installing OpenCode via official install script..."
+            _verbose_cmd "curl -fsSL https://opencode.ai/install | bash"
             if ! curl -fsSL https://opencode.ai/install | bash; then
                 log_message "ERROR" "Failed to install OpenCode"
                 return 1
@@ -59,22 +60,26 @@ install_zcode() {
         debian)
             log_message "INFO" "Downloading ZCode..."
             local deb_url="https://cdn-zcode.z.ai/zcode/electron/releases/3.2.1/ZCode-3.2.1-linux-x64.deb"
+            _verbose_cmd "wget -O /tmp/zcode.deb $deb_url"
             if ! wget --progress=bar:force -O /tmp/zcode.deb "$deb_url"; then
                 log_message "ERROR" "Failed to download ZCode"
                 rm -f /tmp/zcode.deb
                 return 1
             fi
+            _verbose_cmd "dpkg -i /tmp/zcode.deb"
             dpkg -i /tmp/zcode.deb || apt install -f -y
             rm -f /tmp/zcode.deb
             ;;
         fedora)
             log_message "INFO" "Downloading ZCode..."
             local rpm_url="https://cdn-zcode.z.ai/zcode/electron/releases/3.2.1/ZCode-3.2.1-linux-x64.rpm"
+            _verbose_cmd "wget -O /tmp/zcode.rpm $rpm_url"
             if ! wget --progress=bar:force -O /tmp/zcode.rpm "$rpm_url"; then
                 log_message "ERROR" "Failed to download ZCode"
                 rm -f /tmp/zcode.rpm
                 return 1
             fi
+            _verbose_cmd "dnf install -y /tmp/zcode.rpm"
             dnf install -y /tmp/zcode.rpm
             rm -f /tmp/zcode.rpm
             ;;
@@ -98,11 +103,13 @@ install_antigravity() {
                 | gpg --dearmor --yes -o /etc/apt/keyrings/antigravity-repo-key.gpg
             echo "deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main" \
                 > /etc/apt/sources.list.d/antigravity.list
+            _verbose_cmd "apt update && apt install -y -V antigravity"
             apt update && apt install -y -V antigravity
             ;;
         arch|fedora)
             log_message "INFO" "Downloading Antigravity..."
             local tarball_url="https://storage.googleapis.com/antigravity-public/antigravity-hub/2.2.1-5287492581195776/linux-x64/Antigravity.tar.gz"
+            _verbose_cmd "wget -O /tmp/antigravity.tar.gz $tarball_url"
             if ! wget --progress=bar:force -O /tmp/antigravity.tar.gz "$tarball_url"; then
                 log_message "ERROR" "Failed to download Antigravity"
                 rm -f /tmp/antigravity.tar.gz
@@ -134,22 +141,26 @@ install_kiro() {
         debian)
             log_message "INFO" "Downloading Kiro..."
             local deb_url="https://prod.download.desktop.kiro.dev/releases/stable/linux-x64/signed/1.0.89/deb/kiro-ide-1.0.89-stable-linux-x64.deb"
+            _verbose_cmd "wget -O /tmp/kiro.deb $deb_url"
             if ! wget --progress=bar:force -O /tmp/kiro.deb "$deb_url"; then
                 log_message "ERROR" "Failed to download Kiro"
                 rm -f /tmp/kiro.deb
                 return 1
             fi
+            _verbose_cmd "dpkg -i /tmp/kiro.deb || apt install -f -y"
             dpkg -i /tmp/kiro.deb || apt install -f -y
             rm -f /tmp/kiro.deb
             ;;
         fedora)
             log_message "INFO" "Downloading Kiro..."
             local rpm_url="https://prod.download.desktop.kiro.dev/releases/stable/linux-x64/signed/1.0.89/rpm/kiro-ide-1.0.89-stable-linux-x64.rpm"
+            _verbose_cmd "wget -O /tmp/kiro.rpm $rpm_url"
             if ! wget --progress=bar:force -O /tmp/kiro.rpm "$rpm_url"; then
                 log_message "ERROR" "Failed to download Kiro"
                 rm -f /tmp/kiro.rpm
                 return 1
             fi
+            _verbose_cmd "dnf install -y /tmp/kiro.rpm"
             dnf install -y /tmp/kiro.rpm
             rm -f /tmp/kiro.rpm
             ;;
