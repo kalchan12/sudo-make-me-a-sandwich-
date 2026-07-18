@@ -7,6 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 # Source core modules
 source "$SCRIPT_DIR/core/distro_detect.sh"
 source "$SCRIPT_DIR/core/confirm.sh"
+source "$SCRIPT_DIR/core/explanations.sh"
 
 # Source config from setup.sh
 LOG_FILE="$SCRIPT_DIR/install.log"
@@ -14,7 +15,12 @@ exec 3>>"$LOG_FILE"
 
 # Minimal gecho/log_message for the API
 GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+PURPLE='\033[1;35m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
 NC='\033[0m'
+gecho() { echo -e "${GREEN}$*${NC}"; }
 log_message() {
     local TYPE=$1 MSG=$2
     local TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")

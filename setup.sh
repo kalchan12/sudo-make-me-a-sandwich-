@@ -810,15 +810,27 @@ main() {
     # Handle non-sudo flags early
     if [[ $# -gt 0 ]]; then
         case $1 in
+            --skip-python)
+                shift
+                ;;
             --help)
                 usage
                 ;;
             --list)
-                list_tools
+                if command -v python3 &> /dev/null && python3 -c "import rich" 2>/dev/null; then
+                    python3 "$(dirname "$0")/src/main.py" list
+                else
+                    list_tools
+                fi
+                exit 0
                 ;;
             --explain)
                 if [ -n "$2" ]; then
-                    _explain_tool "$2"
+                    if command -v python3 &> /dev/null && python3 -c "import rich" 2>/dev/null; then
+                        python3 "$(dirname "$0")/src/main.py" explain "$2"
+                    else
+                        _explain_tool "$2"
+                    fi
                     exit 0
                 else
                     log_message "ERROR" "--explain requires a tool name"
