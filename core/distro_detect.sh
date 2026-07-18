@@ -36,6 +36,13 @@ detect_distro() {
         log_message "ERROR" "Unsupported distro (only Debian-based, Arch and Fedora-based are supported)"
         exit 1
     fi
+
+    case $DISTRO in
+        debian) PKG_MANAGER="apt" ;;
+        arch)   PKG_MANAGER="pacman" ;;
+        fedora) PKG_MANAGER="dnf" ;;
+    esac
+    readonly PKG_MANAGER
 }
 
 pkg_is_installed() {
@@ -54,13 +61,41 @@ pkg_install_native() {
             arch)   echo -e "${YELLOW}[DRY-RUN]${NC} pacman -S --noconfirm $*" ;;
             fedora) echo -e "${YELLOW}[DRY-RUN]${NC} dnf install -y $*" ;;
         esac
-        return
+        return 0
     fi
     case $DISTRO in
         debian) apt install -y -V "$@" ;;
         arch) pacman -S --noconfirm "$@" ;;
         fedora) dnf install -y "$@" ;;
     esac
+    local ec=$?
+    if [ "$ec" -ne 0 ]; then
+        log_message "ERROR" "Package install failed (exit code $ec)."
+    fi
+    return "$ec"
+}
+
+pkg_remove() {
+    if [ "$DRY_RUN" = true ]; then
+        case $DISTRO in
+            debian) echo -e "${YELLOW}[DRY-RUN]${NC} apt remove -y $*" ;;
+            arch)   echo -e "${YELLOW}[DRY-RUN]${NC} pacman -R --noconfirm $*" ;;
+            fedora) echo -e "${YELLOW}[DRY-RUN]${NC} dnf remove -y $*" ;;
+        esac
+        return 0
+    fi
+    case $DISTRO in
+        debian) apt remove -y "$@" ;;
+        arch) pacman -R --noconfirm "$@" ;;
+        fedora) dnf remove -y "$@" ;;
+    esac
+    local ec=$?
+    if [ "$ec" -eq 0 ]; then
+        log_message "SUCCESS" "Package(s) removed: $*"
+    else
+        log_message "ERROR" "Package remove failed (exit code $ec)."
+    fi
+    return "$ec"
 }
 
 pkg_is_available() {
@@ -77,13 +112,15 @@ aur_install() {
         echo -e "${YELLOW}[DRY-RUN]${NC} AUR install: $1 (via yay/paru)"
         return 0
     fi
+    local ec=1
     if command -v yay &> /dev/null; then
         yay -S --noconfirm "$1"
+        ec=$?
     elif command -v paru &> /dev/null; then
         paru -S --noconfirm "$1"
-    else
-        return 1
+        ec=$?
     fi
+    return "$ec"
 }
 
 _flatpak_install() {
@@ -95,8 +132,14 @@ _flatpak_install() {
         return 0
     fi
     flatpak install -y flathub "$flatpak_id"
-    log_message "SUCCESS" "$display_name installed via Flatpak."
-    log_version "$display_name" "" "$bin_check"
+    local ec=$?
+    if [ "$ec" -eq 0 ]; then
+        log_message "SUCCESS" "$display_name installed via Flatpak."
+        log_version "$display_name" "" "$bin_check"
+    else
+        log_message "ERROR" "Flatpak install failed for $display_name (exit code $ec)."
+    fi
+    return "$ec"
 }
 
 install_with_fallback() {
@@ -106,6 +149,17 @@ install_with_fallback() {
     local flatpak_id="$4"
     local bin_check="${5:-$pkg_native}"
 
+    if [ "$UNINSTALL_MODE" = true ]; then
+        if command -v "$bin_check" &> /dev/null; then
+            log_message "INFO" "Removing $display_name..."
+            pkg_remove "$pkg_native"
+            return $?
+        else
+            log_message "WARN" "$display_name is not installed."
+            return 0
+        fi
+    fi
+
     if command -v "$bin_check" &> /dev/null; then
         log_message "WARN" "$display_name is already installed."
         return 0
@@ -114,21 +168,29 @@ install_with_fallback() {
     if pkg_is_available "$pkg_native"; then
         log_message "INFO" "Installing $display_name via $DISTRO package manager..."
         pkg_install_native "$pkg_native"
+        local ec=$?
+        if [ "$ec" -ne 0 ]; then
+            log_message "ERROR" "Failed to install $display_name via package manager."
+            return "$ec"
+        fi
         log_message "SUCCESS" "$display_name installed."
         log_version "$display_name" "$pkg_native" "$bin_check"
         return 0
     fi
 
     if [ "$DISTRO" = "arch" ] && aur_install "$pkg_aur"; then
-        log_message "SUCCESS" "$display_name installed via AUR."
-        log_version "$display_name" "" "$bin_check"
-        return 0
+        local ec=$?
+        if [ "$ec" -eq 0 ]; then
+            log_message "SUCCESS" "$display_name installed via AUR."
+            log_version "$display_name" "" "$bin_check"
+        fi
+        return "$ec"
     fi
 
     if [ -n "$flatpak_id" ] && command -v flatpak &> /dev/null; then
         log_message "INFO" "Installing $display_name via Flatpak..."
         _flatpak_install "$display_name" "$flatpak_id" "$bin_check"
-        return 0
+        return $?
     fi
 
     if [ -n "$flatpak_id" ]; then
@@ -138,7 +200,7 @@ install_with_fallback() {
             flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
         fi
         _flatpak_install "$display_name" "$flatpak_id" "$bin_check"
-        return 0
+        return $?
     fi
 
     log_message "ERROR" "$display_name not available."
@@ -155,12 +217,18 @@ pkg_update_system() {
         return
     fi
     log_message "INFO" "Updating package lists and upgrading system..."
+    local ec=0
     case $DISTRO in
-        debian) apt update && apt upgrade -y -V ;;
-        arch) pacman -Syu --noconfirm ;;
-        fedora) dnf upgrade -y ;;
+        debian) apt update && apt upgrade -y -V; ec=$? ;;
+        arch) pacman -Syu --noconfirm; ec=$? ;;
+        fedora) dnf upgrade -y; ec=$? ;;
     esac
-    log_message "SUCCESS" "System is up to date."
+    if [ "$ec" -eq 0 ]; then
+        log_message "SUCCESS" "System is up to date."
+    else
+        log_message "ERROR" "System update failed (exit code $ec)."
+    fi
+    return "$ec"
 }
 
 pkg_ensure_prerequisites() {
@@ -210,5 +278,10 @@ _check_deps() {
         log_message "INFO" "$tool requires: ${missing[*]}"
         confirm_install "dependencies (${missing[*]})" "" || return 1
         pkg_install_native "${missing[@]}"
+        local ec=$?
+        if [ "$ec" -ne 0 ]; then
+            log_message "ERROR" "Failed to install dependencies: ${missing[*]}"
+            return "$ec"
+        fi
     fi
 }

@@ -19,6 +19,7 @@ MINIMAL_MODE=false
 FULL_MODE=false
 DRY_RUN=false
 YES_MODE=false
+UNINSTALL_MODE=false
 START_TIME=0
 INSTALL_LIST=""
 
@@ -342,12 +343,25 @@ show_ides_menu() {
 
 install_single_terminal() {
     local pkg="$1"
+    if [ "$UNINSTALL_MODE" = true ]; then
+        if command -v "$pkg" &> /dev/null; then
+            log_message "INFO" "Removing $pkg..."
+            pkg_remove "$pkg"
+        else
+            log_message "WARN" "$pkg is not installed."
+        fi
+        return
+    fi
     if ! pkg_is_installed "$pkg" && ! command -v "$pkg" &> /dev/null; then
         confirm_install "$pkg" "$pkg" || return
         log_message "INFO" "Installing $pkg..."
         pkg_install_native "$pkg"
-        log_message "SUCCESS" "$pkg installed."
-        log_version "$pkg" "$pkg"
+        local ec=$?
+        if [ "$ec" -eq 0 ]; then
+            log_message "SUCCESS" "$pkg installed."
+            log_version "$pkg" "$pkg"
+        fi
+        return "$ec"
     else
         log_message "WARN" "$pkg is already installed."
     fi
@@ -394,12 +408,22 @@ show_terminals_menu() {
 _install_list() {
     local name="$1"
     local -n list="$2"
-    log_message "INFO" "--- Installing All $name ---"
+    local prefix="Installing"
+    [ "$UNINSTALL_MODE" = true ] && prefix="Removing"
+    log_message "INFO" "--- $prefix All $name ---"
+    local overall_ec=0
     for info in "${list[@]}"; do
+        local item_name="${info%%|*}"
         local call="${info#*|}"
         call="${call%%|*}"
         $call
+        local ec=$?
+        if [ "$ec" -ne 0 ]; then
+            log_message "ERROR" "$call failed for $item_name (exit code $ec)."
+            overall_ec=$ec
+        fi
     done
+    return "$overall_ec"
 }
 
 install_obsidian() {
@@ -762,6 +786,7 @@ usage() {
     gecho "  --explain    Show info about a tool (e.g., --explain tmux)"
     gecho "  --install    Install specific tools by name (comma-separated, e.g. --install nmap,burpsuite)"
     gecho "  --list       List all available tools by category and exit"
+    gecho "  --uninstall  Uninstall selected tools instead of installing"
     gecho "  --help       Show this help message"
     gecho ""
     gecho "Run without options for interactive menu."
@@ -795,6 +820,10 @@ main() {
     show_banner
     detect_distro
     show_persona
+    if [ "$UNINSTALL_MODE" = true ]; then
+        echo -e "${YELLOW} ⚠ UNINSTALL MODE — tools will be REMOVED, not installed.${NC}"
+        echo ""
+    fi
 
     # Check for install flags
     if [[ $# -gt 0 ]]; then
@@ -804,6 +833,7 @@ main() {
             --full)    FULL_MODE=true; shift ;;
             -y|--yes)  YES_MODE=true; shift ;;
             --dry-run) DRY_RUN=true; shift ;;
+            --uninstall) UNINSTALL_MODE=true; shift ;;
             --install) INSTALL_LIST="$2"; shift 2 ;;
             --help|--explain|--list) shift ;;
                 *)         log_message "ERROR" "Unknown option: $1"; usage ;;
