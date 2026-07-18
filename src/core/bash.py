@@ -11,8 +11,10 @@ def setup(script_dir: str) -> None:
 
 
 def call(func: str, *args: str) -> tuple[int, str, str]:
+    env = os.environ.copy()
+    env["YES_MODE"] = "true"  # Python handles confirmation, bash just executes
     cmd = ["bash", API_SCRIPT, func] + list(args)
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=600, env=env)
     return result.returncode, result.stdout, result.stderr
 
 
