@@ -5,15 +5,17 @@ Instead of hunting down install commands every time you reinstall, this script a
 
 ## Features
 - **Modular design** – add/remove apps without touching the core logic.
-- **User choice** – run installs automatically or select apps manually.
-- **Future-ready** – framework allows adding Fedora/Arch support later.
-- **Python-ready** – can embed Python modules if needed in the future.
+- **Rich TUI** – interactive menu with system profile, tool categories, and install confirmation (auto-detects Python 3 + rich).
+- **Verbose mode** – `--verbose` / `-v` shows every command before it runs.
+- **Dry-run** – `DRY_RUN=true` previews commands without executing.
+- **One-liner install** – no manual cloning needed.
 
 ## Requirements
 - A Debian-based Linux distro (Ubuntu, Kali, Mint, Parrot, Debian, etc.).
 - `bash` shell (most distros have it by default).
 - Internet connection.
-- `curl` or `wget` installed (for downloading .deb packages or keys).
+- `curl` or `wget` (for downloading .deb packages or keys).
+- Python 3 + `rich` (optional — auto-detected; falls back to bash menus if not available).
 
 ## One-Liner Install
 ```bash
@@ -36,8 +38,8 @@ chmod +x setup.sh
 
 ## Roadmap
 
-* [ ] Core modular Bash installer
-* [ ] App selection menu
+* [x] Core modular Bash installer
+* [x] App selection menu (bash + rich TUI)
+* [x] Python integration (rich TUI menus, confirmation dialogs, explanations)
 * [ ] Add Fedora/Arch compatibility
 * [ ] Add package manager search mode
-* [ ] Python integration for advanced tasks
