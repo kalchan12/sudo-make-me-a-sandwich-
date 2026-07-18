@@ -9,6 +9,11 @@ source "$SCRIPT_DIR/core/distro_detect.sh"
 source "$SCRIPT_DIR/core/confirm.sh"
 source "$SCRIPT_DIR/core/explanations.sh"
 
+# Source module bash files (for Python modules that call bash install functions)
+for m in "$SCRIPT_DIR/modules"/*.sh; do
+    [ -f "$m" ] && source "$m"
+done
+
 # Source config from setup.sh
 LOG_FILE="$SCRIPT_DIR/install.log"
 exec 3>>"$LOG_FILE"

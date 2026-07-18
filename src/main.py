@@ -131,6 +131,108 @@ def cmd_menu(category: str = "main") -> None:
     print(choice)
 
 
+def cmd_interactive(show_splash: bool = True) -> None:
+    """Full interactive TUI: banner → persona → main menu → category menus → install"""
+    from src.core import bash as bash_module
+    from src.core.bash import call as bash_call
+    from src.tui.render import show_main_menu, render_menu
+    from src.core.logging import log_message
+    import importlib
+    import subprocess
+
+    bash_module.setup(SCRIPT_DIR)
+    from src.core import distro
+    distro.detect()
+
+    if show_splash:
+        subprocess.run(
+            ["bash", os.path.join(SCRIPT_DIR, "setup.sh"), "--skip-python", "--banner-only"],
+            capture_output=False,
+        )
+        cmd_persona()
+
+    ALL_MODULES = {
+        "1": ("browsers", "Browsers"),
+        "2": ("productivity", "Productivity"),
+        "3": ("ides", "IDEs & Editors"),
+        "4": ("terminals", "Terminals"),
+        "5": ("shells", "Shells"),
+        "6": ("dev_tools", "Dev Tools"),
+        "7": ("languages", "Languages"),
+        "8": ("pentest", "Pentesting"),
+        "9": ("frameworks", "Frameworks"),
+    }
+
+    while True:
+        choice = show_main_menu()
+
+        if choice in ("12", "exit", "q"):
+            break
+
+        if choice in ("10", "full", "all"):
+            log_message("INFO", "--- Full Install ---")
+            for key, (mod_name, _) in ALL_MODULES.items():
+                mod = importlib.import_module(f"src.modules.{mod_name}")
+                mod.install_all()
+            continue
+
+        if choice in ("11", "minimal"):
+            log_message("INFO", "--- Minimal Install ---")
+            mod = importlib.import_module("src.modules.browsers")
+            mod.install_all()
+            mod = importlib.import_module("src.modules.terminals")
+            mod.install_all()
+            continue
+
+        if choice.startswith("e"):
+            try:
+                idx = int(choice[1:])
+                name_list = ["Browsers", "Productivity", "IDEs & Editors", "Terminals",
+                             "Shells", "Dev Tools", "Languages", "Pentesting", "Frameworks"]
+                if 1 <= idx <= len(name_list):
+                    bash_call("_explain_tool", name_list[idx - 1])
+            except ValueError:
+                pass
+            continue
+
+        mod_name, mod_title = ALL_MODULES.get(choice, (None, None))
+        if mod_name is None:
+            continue
+
+        mod = importlib.import_module(f"src.modules.{mod_name}")
+        tools_list = [(t[0], t[1]) for t in mod.TOOLS]
+
+        while True:
+            sub_choice = render_menu(tools_list, mod_title)
+
+            if sub_choice == str(len(tools_list) + 3) or sub_choice.lower() in ("back", "b"):
+                break
+
+            if sub_choice == str(len(tools_list) + 2) or sub_choice.lower() in ("check", "c"):
+                mod.check()
+                continue
+
+            if sub_choice == str(len(tools_list) + 1) or sub_choice.lower() in ("all", "a"):
+                mod.install_all()
+                continue
+
+            if sub_choice.startswith("e"):
+                try:
+                    idx = int(sub_choice[1:])
+                    if 1 <= idx <= len(tools_list):
+                        cmd_explain(tools_list[idx - 1][0])
+                except ValueError:
+                    pass
+                continue
+
+            try:
+                idx = int(sub_choice) - 1
+                if 0 <= idx < len(tools_list):
+                    mod.install(tools_list[idx][0])
+            except ValueError:
+                pass
+
+
 def cmd_exec(args: list[str]) -> None:
     script = os.path.join(SCRIPT_DIR, "setup.sh")
     os.execvp("bash", ["bash", script] + args)
@@ -140,13 +242,15 @@ def main() -> None:
     logging.setup()
 
     if len(sys.argv) < 2:
-        cmd_persona()
-        cmd_exec([])
+        cmd_interactive(show_splash=True)
+        return
 
     subcommand = sys.argv[1]
     rest = sys.argv[2:]
 
-    if subcommand == "persona":
+    if subcommand == "interactive":
+        cmd_interactive(show_splash=False)
+    elif subcommand == "persona":
         cmd_persona()
     elif subcommand == "menu":
         cmd_menu(rest[0] if rest else "main")

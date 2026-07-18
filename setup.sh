@@ -178,9 +178,11 @@ add_rpm_keyring() {
 # --- Core Modules ---
 CORE_DIR="$(dirname "$0")/core"
 for c in "$CORE_DIR"/*.sh; do
-    if [ -f "$c" ]; then
-        source "$c"
-    fi
+    [ -f "$c" ] || continue
+    case "$(basename "$c")" in
+        python_*.sh) continue ;;  # Python API — sourced only by subprocess
+    esac
+    source "$c"
 done
 
 # --- Python Bridge (if available) ---
@@ -807,11 +809,15 @@ usage() {
 }
 
 main() {
-    # Handle non-sudo flags early
-    if [[ $# -gt 0 ]]; then
+    # Handle non-sudo flags early (process all args)
+    while [[ $# -gt 0 ]]; do
         case $1 in
             --skip-python)
                 shift
+                ;;
+            --banner-only)
+                show_banner
+                exit 0
                 ;;
             --help)
                 usage
@@ -837,8 +843,11 @@ main() {
                     usage
                 fi
                 ;;
+            *)
+                break
+                ;;
         esac
-    fi
+    done
 
     # Parse --dry-run and --verbose early so check_sudo can see them
     for arg in "$@"; do

@@ -8,26 +8,23 @@ show_persona() {
     python3 "$PYTHON_ENGINE" persona
 }
 
-# Replace main menu with rich version (Phase 2+)
-# Uncomment when module migration begins:
-# show_main_menu() {
-#     local choice
-#     choice=$(python3 "$PYTHON_ENGINE" menu main)
-#     case $choice in
-#         1) show_browsers_menu ;;
-#         2) show_productivity_menu ;;
-#         3) show_ides_menu ;;
-#         4) show_terminals_menu ;;
-#         5) show_shells_menu ;;
-#         6) show_dev_tools_menu ;;
-#         7) show_languages_menu ;;
-#         8) show_pentest_menu ;;
-#         9) show_frameworks_menu ;;
-#         10) FULL_MODE=true; run_installation ;;
-#         11) MINIMAL_MODE=true; run_installation ;;
-#         12) exit 0 ;;
-#     esac
-# }
+# Replace main menu with rich interactive TUI
+# show_splash=false because bash already showed banner + persona
+show_main_menu() {
+    python3 "$PYTHON_ENGINE" interactive
+}
+
+# Category menus all route to the Python interactive TUI
+show_browsers_menu() { python3 "$PYTHON_ENGINE" interactive; }
+show_productivity_menu() { python3 "$PYTHON_ENGINE" interactive; }
+show_ides_menu() { python3 "$PYTHON_ENGINE" interactive; }
+show_terminals_menu() { python3 "$PYTHON_ENGINE" interactive; }
+show_shells_menu() { python3 "$PYTHON_ENGINE" interactive; }
+show_dev_tools_menu() { python3 "$PYTHON_ENGINE" interactive; }
+show_languages_menu() { python3 "$PYTHON_ENGINE" interactive; }
+show_pentest_menu() { python3 "$PYTHON_ENGINE" interactive; }
+show_frameworks_menu() { python3 "$PYTHON_ENGINE" interactive; }
+show_agentic_ides_menu() { python3 "$PYTHON_ENGINE" interactive; }
 
 # gecho for backward-compat with remaining bash code
 gecho() { echo -e "${GREEN}$*${NC}"; }
