@@ -6,47 +6,8 @@ AGENTIC_IDES_LIST=(
 )
 
 show_agentic_ides_menu() {
-    while true; do
-        echo -e "\n${YELLOW}-- Agentic IDEs --${NC}"
-
-        local i=1
-        for ide_info in "${AGENTIC_IDES_LIST[@]}"; do
-            local name="${ide_info%%|*}"
-            echo -e "${YELLOW}$i)${GREEN} Install $name${NC}"
-            ((i++))
-        done
-
-        local all_idx=$i
-        echo -e "${YELLOW}$all_idx)${GREEN} Install All Agentic IDEs${NC}"
-
-        local check_idx=$((i+1))
-        echo -e "${YELLOW}$check_idx)${GREEN} Check Installations${NC}"
-
-        local back_idx=$((i+2))
-        echo -e "${YELLOW}$back_idx)${GREEN} Back${NC}"
-        echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-
-        echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
-        read -r a_choice
-        echo -e -n "${NC}"
-
-        if [[ "$a_choice" =~ ^e([0-9]+)$ ]]; then
-            _explain_by_index AGENTIC_IDES_LIST "${BASH_REMATCH[1]}"
-            continue
-        elif [[ "$a_choice" -eq "$all_idx" ]]; then
-            install_all_agentic_ides
-        elif [[ "$a_choice" -eq "$check_idx" ]]; then
-            check_agentic_ides_installations
-        elif [[ "$a_choice" -eq "$back_idx" ]]; then
-            show_main_menu; return
-        elif [[ "$a_choice" -ge 1 && "$a_choice" -lt "$all_idx" ]]; then
-            local selected_info="${AGENTIC_IDES_LIST[$((a_choice-1))]}"
-            local func_name="${selected_info##*|}"
-            $func_name
-        else
-            log_message "WARN" "Invalid option"
-        fi
-    done
+    _render_menu AGENTIC_IDES_LIST "Agentic IDEs" \
+        install_all_agentic_ides check_agentic_ides_installations show_main_menu
 }
 
 install_opencode() {
@@ -197,22 +158,8 @@ install_kiro() {
 }
 
 check_agentic_ides_installations() {
-    log_message "INFO" "--- Checking Agentic IDE Installations ---"
-    for info in "${AGENTIC_IDES_LIST[@]}"; do
-        local name="${info%%|*}"
-        local installed=false
-        case $name in
-            OpenCode) command -v opencode &> /dev/null && installed=true ;;
-            ZCode) command -v zcode &> /dev/null && installed=true ;;
-            Antigravity) command -v antigravity &> /dev/null && installed=true ;;
-            Kiro) command -v kiro &> /dev/null && installed=true ;;
-        esac
-        if [ "$installed" = true ]; then
-            echo -e "${GREEN}[✔] $name is installed.${NC}"
-        else
-            echo -e "${RED}[✘] $name is NOT installed.${NC}"
-        fi
-    done
+    _check_installations AGENTIC_IDES_LIST \
+        "OpenCode:opencode" "ZCode:zcode" "Antigravity:antigravity" "Kiro:kiro"
 }
 
 install_all_agentic_ides() { _install_list "Agentic IDEs" AGENTIC_IDES_LIST; }

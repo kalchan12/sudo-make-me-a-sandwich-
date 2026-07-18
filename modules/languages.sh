@@ -234,78 +234,15 @@ install_kotlin() {
 # --- Languages Menu ---
 
 show_languages_menu() {
-    while true; do
-        echo -e "\n${PURPLE}── Languages ──${NC}"
-        local i=1
-        for info in "${LANGUAGES_LIST[@]}"; do
-            local name="${info%%|*}"
-            echo -e "${YELLOW}$i)${GREEN} Install $name${NC}"
-            ((i++))
-        done
-        local all_idx=$i
-        echo -e "${YELLOW}$all_idx)${GREEN} Install All${NC}"
-        local check_idx=$((all_idx + 1))
-        echo -e "${YELLOW}$check_idx)${GREEN} Check Installations${NC}"
-        local back_idx=$((all_idx + 2))
-        echo -e "${YELLOW}$back_idx)${GREEN} Back${NC}"
-        echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
-        read -r lang_choice
-        echo -e -n "${NC}"
-        if [[ "$lang_choice" =~ ^e([0-9]+)$ ]]; then
-            _explain_by_index LANGUAGES_LIST "${BASH_REMATCH[1]}"
-            continue
-        elif [ "$lang_choice" = "all" ] || [ "$lang_choice" = "$all_idx" ]; then
-            install_all_languages
-        elif [ "$lang_choice" = "$check_idx" ]; then
-            check_languages_installations
-        elif [ "$lang_choice" = "$back_idx" ]; then
-            show_main_menu; return
-        elif [[ "$lang_choice" =~ ^[0-9]+$ ]] && [ "$lang_choice" -ge 1 ] && [ "$lang_choice" -lt "$all_idx" ]; then
-            local idx=0
-            for info in "${LANGUAGES_LIST[@]}"; do
-                if [ "$idx" -eq $((lang_choice - 1)) ]; then
-                    local call="${info#*|}"
-                    call="${call%%|*}"
-                    $call
-                    break
-                fi
-                ((idx++))
-            done
-        else
-            log_message "WARN" "Invalid option"
-        fi
-    done
+    _render_menu LANGUAGES_LIST "Languages" \
+        install_all_languages check_languages_installations show_main_menu
 }
 
 install_all_languages() { _install_list "Languages" LANGUAGES_LIST; }
 
 check_languages_installations() {
-    log_message "INFO" "--- Checking Language Installations ---"
-    for info in "${LANGUAGES_LIST[@]}"; do
-        local name="${info%%|*}"
-        local installed=false
-        case $name in
-            Python) command -v python3 &> /dev/null && installed=true ;;
-            "Node.js") command -v node &> /dev/null && installed=true ;;
-            TypeScript) command -v tsc &> /dev/null && installed=true ;;
-            Go) command -v go &> /dev/null && installed=true ;;
-            Rust) command -v rustc &> /dev/null && installed=true ;;
-            "Java (OpenJDK)") command -v java &> /dev/null && installed=true ;;
-            "C/C++ (GCC)") command -v gcc &> /dev/null && command -v g++ &> /dev/null && installed=true ;;
-            "C# (.NET)") command -v dotnet &> /dev/null && installed=true ;;
-            Ruby) command -v ruby &> /dev/null && installed=true ;;
-            PHP) command -v php &> /dev/null && installed=true ;;
-            Lua) command -v lua &> /dev/null && installed=true ;;
-            R) command -v R &> /dev/null && installed=true ;;
-            Zig) command -v zig &> /dev/null && installed=true ;;
-            Dart) command -v dart &> /dev/null && installed=true ;;
-            Kotlin) command -v kotlin &> /dev/null && installed=true ;;
-        esac
-        if [ "$installed" = true ]; then
-            echo -e "${GREEN}[✔] $name is installed.${NC}"
-        else
-            echo -e "${RED}[✘] $name is NOT installed.${NC}"
-        fi
-    done
+    _check_installations LANGUAGES_LIST \
+        "Python:python3" "Node.js:node" "TypeScript:tsc" "Go:go" "Rust:rustc" \
+        "Java (OpenJDK):java" "C/C++ (GCC):gcc" "C# (.NET):dotnet" \
+        "Ruby:ruby" "PHP:php" "Lua:lua" "R:R" "Zig:zig" "Dart:dart" "Kotlin:kotlin"
 }

@@ -19,7 +19,7 @@ exec 3>>"$LOG_FILE"
 
 MINIMAL_MODE=false
 FULL_MODE=false
-DRY_RUN=false
+DRY_RUN="${DRY_RUN:-false}"
 YES_MODE=false
 UNINSTALL_MODE=false
 START_TIME=0
@@ -254,93 +254,13 @@ show_main_menu() {
 }
 
 show_productivity_menu() {
-    while true; do
-        echo -e "\n${PURPLE}── Productivity ──${NC}"
-        local i=1
-        for info in "${PRODUCTIVITY_LIST[@]}"; do
-            local name="${info%%|*}"
-            echo -e "${YELLOW}$i)${GREEN} Install $name${NC}"
-            ((i++))
-        done
-        local all_idx=$i
-        echo -e "${YELLOW}$all_idx)${GREEN} Install All${NC}"
-        local check_idx=$((all_idx + 1))
-        echo -e "${YELLOW}$check_idx)${GREEN} Check Installations${NC}"
-        local back_idx=$((all_idx + 2))
-        echo -e "${YELLOW}$back_idx)${GREEN} Back${NC}"
-        echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
-        read -r p_choice
-        echo -e -n "${NC}"
-        if [[ "$p_choice" =~ ^e([0-9]+)$ ]]; then
-            _explain_by_index PRODUCTIVITY_LIST "${BASH_REMATCH[1]}"
-            continue
-        elif [ "$p_choice" = "all" ] || [ "$p_choice" = "$all_idx" ]; then
-            install_productivity
-        elif [ "$p_choice" = "$check_idx" ]; then
-            check_productivity_installations
-        elif [ "$p_choice" = "$back_idx" ]; then
-            show_main_menu; return
-        elif [[ "$p_choice" =~ ^[0-9]+$ ]] && [ "$p_choice" -ge 1 ] && [ "$p_choice" -lt "$all_idx" ]; then
-            local idx=0
-            for info in "${PRODUCTIVITY_LIST[@]}"; do
-                if [ "$idx" -eq $((p_choice - 1)) ]; then
-                    local call="${info#*|}"
-                    call="${call%%|*}"
-                    $call
-                    break
-                fi
-                ((idx++))
-            done
-        else
-            log_message "WARN" "Invalid option"
-        fi
-    done
+    _render_menu PRODUCTIVITY_LIST "Productivity" \
+        install_productivity check_productivity_installations show_main_menu
 }
 
 show_ides_menu() {
-    while true; do
-        echo -e "\n${PURPLE}── IDEs & Editors ──${NC}"
-        local i=1
-        for info in "${IDES_LIST[@]}"; do
-            local name="${info%%|*}"
-            echo -e "${YELLOW}$i)${GREEN} Install $name${NC}"
-            ((i++))
-        done
-        local all_idx=$i
-        echo -e "${YELLOW}$all_idx)${GREEN} Install All${NC}"
-        local check_idx=$((all_idx + 1))
-        echo -e "${YELLOW}$check_idx)${GREEN} Check Installations${NC}"
-        local back_idx=$((all_idx + 2))
-        echo -e "${YELLOW}$back_idx)${GREEN} Back${NC}"
-        echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
-        read -r i_choice
-        echo -e -n "${NC}"
-        if [[ "$i_choice" =~ ^e([0-9]+)$ ]]; then
-            _explain_by_index IDES_LIST "${BASH_REMATCH[1]}"
-            continue
-        elif [ "$i_choice" = "all" ] || [ "$i_choice" = "$all_idx" ]; then
-            install_ides
-        elif [ "$i_choice" = "$check_idx" ]; then
-            check_ides_installations
-        elif [ "$i_choice" = "$back_idx" ]; then
-            show_main_menu; return
-        elif [[ "$i_choice" =~ ^[0-9]+$ ]] && [ "$i_choice" -ge 1 ] && [ "$i_choice" -lt "$all_idx" ]; then
-            local idx=0
-            for info in "${IDES_LIST[@]}"; do
-                if [ "$idx" -eq $((i_choice - 1)) ]; then
-                    local call="${info#*|}"
-                    call="${call%%|*}"
-                    $call
-                    break
-                fi
-                ((idx++))
-            done
-        else
-            log_message "WARN" "Invalid option"
-        fi
-    done
+    _render_menu IDES_LIST "IDEs & Editors" \
+        install_ides check_ides_installations show_main_menu
 }
 
 install_single_terminal() {
@@ -402,6 +322,90 @@ show_terminals_menu() {
             7) show_main_menu; return ;;
             *) log_message "WARN" "Invalid option"; continue ;;
         esac
+    done
+}
+
+# --- Generic Menu & Check Helpers ---
+
+# Generic menu renderer
+# Usage: _render_menu LIST_VAR "Title" on_all_callback on_check_callback on_back_callback
+_render_menu() {
+    local -n _list="$1"
+    local _title="$2"
+    local _on_all="$3"
+    local _on_check="$4"
+    local _on_back="$5"
+
+    while true; do
+        echo -e "\n${PURPLE}── ${_title} ──${NC}"
+        local i=1
+        for _info in "${_list[@]}"; do
+            local _name="${_info%%|*}"
+            echo -e "${YELLOW}${i})${GREEN} Install ${_name}${NC}"
+            ((i++))
+        done
+        local _all_idx=$i
+        echo -e "${YELLOW}${_all_idx})${GREEN} Install All${NC}"
+        local _check_idx=$((_all_idx + 1))
+        echo -e "${YELLOW}${_check_idx})${GREEN} Check Installations${NC}"
+        local _back_idx=$((_all_idx + 2))
+        echo -e "${YELLOW}${_back_idx})${GREEN} Back${NC}"
+        echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
+        echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
+        read -r _choice
+        echo -e -n "${NC}"
+
+        if [[ "$_choice" =~ ^e([0-9]+)$ ]]; then
+            _explain_by_index "$1" "${BASH_REMATCH[1]}"
+            continue
+        elif [[ "$_choice" = "all" ]] || [[ "$_choice" = "$_all_idx" ]]; then
+            "$_on_all"
+        elif [[ "$_choice" = "$_check_idx" ]]; then
+            "$_on_check"
+        elif [[ "$_choice" = "$_back_idx" ]]; then
+            $_on_back; return
+        elif [[ "$_choice" =~ ^[0-9]+$ ]] && [ "$_choice" -ge 1 ] && [ "$_choice" -lt "$_all_idx" ]; then
+            local _idx=0
+            for _info in "${_list[@]}"; do
+                if [ "$_idx" -eq $((_choice - 1)) ]; then
+                    local _call="${_info#*|}"
+                    _call="${_call%%|*}"
+                    $_call
+                    break
+                fi
+                ((_idx++))
+            done
+        else
+            log_message "WARN" "Invalid option"
+        fi
+    done
+}
+
+# Generic installation checker
+# Usage: _check_installations LIST_VAR "Name1:bin1" "Name2:bin2" ...
+_check_installations() {
+    local -n _list="$1"
+    shift
+    declare -A _bin_map
+    for _pair in "$@"; do
+        _bin_map["${_pair%%:*}"]="${_pair#*:}"
+    done
+
+    log_message "INFO" "--- Checking $(echo "$1" | sed 's/_LIST$//') Installations ---"
+    for _info in "${_list[@]}"; do
+        local _name="${_info%%|*}"
+        local _installed=false
+        if [[ -n "${_bin_map[_name]}" ]]; then
+            bin_check "${_bin_map[_name]}" && _installed=true
+        else
+            # fallback: try lowercase name
+            bin_check "$(echo "$_name" | tr '[:upper:]' '[:lower:]')" && _installed=true
+        fi
+        if [ "$_installed" = true ]; then
+            echo -e "${GREEN}[✔] ${_name} is installed.${NC}"
+        else
+            echo -e "${RED}[✘] ${_name} is NOT installed.${NC}"
+        fi
     done
 }
 
@@ -542,23 +546,20 @@ install_yt_dlp() {
 install_productivity() { _install_list "Productivity" PRODUCTIVITY_LIST; }
 
 check_productivity_installations() {
-    log_message "INFO" "--- Checking Productivity Installations ---"
-    for info in "${PRODUCTIVITY_LIST[@]}"; do
-        local name="${info%%|*}"
-        local installed=false
-        case $name in
-            Obsidian) bin_check obsidian && installed=true ;;
-            "WPS Office") bin_check wps && installed=true ;;
-            "OBS Studio") bin_check obs && installed=true ;;
-            ffmpeg) bin_check ffmpeg && installed=true ;;
-            yt-dlp) bin_check yt-dlp && installed=true ;;
-        esac
-        if [ "$installed" = true ]; then
-            echo -e "${GREEN}[✔] $name is installed.${NC}"
-        else
-            echo -e "${RED}[✘] $name is NOT installed.${NC}"
-        fi
-    done
+    _check_installations PRODUCTIVITY_LIST \
+        "Obsidian:obsidian" "WPS Office:wps" "OBS Studio:obs" \
+        "ffmpeg:ffmpeg" "yt-dlp:yt-dlp"
+}
+
+check_ides_installations() {
+    _check_installations IDES_LIST \
+        "VS Code:code" "Sublime Text:subl" "JetBrains Toolbox:jetbrains-toolbox" \
+        "OpenCode:opencode" "ZCode:zcode" "Antigravity:antigravity" "Kiro:kiro"
+}
+
+check_terminals_installations() {
+    _check_installations TERMINALS_LIST \
+        "Kitty:kitty" "Alacritty:alacritty" "Tilix:tilix" "GNOME Terminal:gnome-terminal"
 }
 
 install_vscode() {
@@ -817,6 +818,16 @@ main() {
                 ;;
         esac
     fi
+
+    # Parse --dry-run early so check_sudo can see it
+    for arg in "$@"; do
+        if [ "$arg" = "--dry-run" ]; then
+            DRY_RUN=true
+            break
+        fi
+    done
+    # Also check env var (for DRY_RUN=true source setup.sh)
+    [ "${DRY_RUN:-}" = "true" ] && DRY_RUN=true
 
     check_sudo
     show_banner

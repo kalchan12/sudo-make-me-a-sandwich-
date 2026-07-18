@@ -17,47 +17,8 @@ BROWSERS_LIST=(
 )
 
 show_browsers_menu() {
-    while true; do
-        echo -e "\n${PURPLE}── Browsers ──${NC}"
-        
-        local i=1
-        for browser_info in "${BROWSERS_LIST[@]}"; do
-            local name="${browser_info%%|*}"
-            echo -e "${YELLOW}$i)${GREEN} Install $name${NC}"
-            ((i++))
-        done
-        
-        local all_idx=$i
-        echo -e "${YELLOW}$all_idx)${GREEN} Install All${NC}"
-        
-        local check_idx=$((i+1))
-        echo -e "${YELLOW}$check_idx)${GREEN} Check Installations${NC}"
-        
-        local back_idx=$((i+2))
-        echo -e "${YELLOW}$back_idx)${GREEN} Back${NC}"
-        echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        
-        echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
-        read -r b_choice
-        echo -e -n "${NC}"
-        
-        if [[ "$b_choice" =~ ^e([0-9]+)$ ]]; then
-            _explain_by_index BROWSERS_LIST "${BASH_REMATCH[1]}"
-            continue
-        elif [[ "$b_choice" -eq "$all_idx" ]]; then
-            install_browsers
-        elif [[ "$b_choice" -eq "$check_idx" ]]; then
-            check_browsers_installations
-        elif [[ "$b_choice" -eq "$back_idx" ]]; then
-            show_main_menu; return
-        elif [[ "$b_choice" -ge 1 && "$b_choice" -lt "$all_idx" ]]; then
-            local selected_info="${BROWSERS_LIST[$((b_choice-1))]}"
-            local func_name="${selected_info##*|}"
-            $func_name
-        else
-            log_message "WARN" "Invalid option"
-        fi
-    done
+    _render_menu BROWSERS_LIST "Browsers" \
+        install_browsers check_browsers_installations show_main_menu
 }
 
 install_brave() {
