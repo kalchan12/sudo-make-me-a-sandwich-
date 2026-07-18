@@ -15,7 +15,18 @@ Instead of hunting down install commands every time you reinstall, this script a
 - Internet connection.
 - `curl` or `wget` installed (for downloading .deb packages or keys).
 
-## How to Run
+## One-Liner Install
+```bash
+curl -fsSL https://raw.githubusercontent.com/kalchan12/sudo-make-me-a-sandwich-/main/install.sh | bash
+```
+
+Or with flags:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/kalchan12/sudo-make-me-a-sandwich-/main/install.sh | bash -s -- --verbose --install nmap,burpsuite
+```
+
+## Manual Install
 ```bash
 git clone https://github.com/kalchan12/sudo-make-me-a-sandwich-.git
 cd sudo-make-me-a-sandwich
