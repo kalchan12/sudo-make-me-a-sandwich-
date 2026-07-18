@@ -14,6 +14,27 @@ def cmd_banner() -> None:
     pass
 
 
+def cmd_menu(category: str = "main") -> None:
+    from src.tui.render import show_main_menu, render_menu
+    from rich.console import Console
+
+    console = Console()
+
+    if category == "main":
+        choice = show_main_menu()
+    else:
+        tools = []
+        try:
+            import json
+            tools = json.loads(category)
+        except (json.JSONDecodeError, TypeError):
+            pass
+        choice = render_menu(tools, "Category")
+
+    console.print(f"[dim]Selected: {choice}[/]")
+    print(choice)
+
+
 def cmd_persona() -> None:
     from rich import box
     from rich.panel import Panel
@@ -91,6 +112,8 @@ def main() -> None:
 
     if subcommand == "persona":
         cmd_persona()
+    elif subcommand == "menu":
+        cmd_menu(rest[0] if rest else "main")
     elif subcommand == "exec":
         cmd_exec(rest)
     else:
