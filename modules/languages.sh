@@ -77,11 +77,7 @@ install_go() {
         return
     fi
     confirm_install "Go" "golang" || return
-    case $DISTRO in
-        debian|fedora) pkg_install_native golang ;;
-        arch) pkg_install_native go ;;
-    esac
-    log_message "SUCCESS" "Go installed."
+    install_with_fallback "Go" "golang" "go" "" "go"
     log_version "Go" golang go
 }
 
@@ -108,12 +104,7 @@ install_java() {
         return
     fi
     confirm_install "Java (OpenJDK)" "default-jdk" || return
-    case $DISTRO in
-        debian) pkg_install_native default-jdk ;;
-        arch) pkg_install_native jdk-openjdk ;;
-        fedora) pkg_install_native java-latest-openjdk ;;
-    esac
-    log_message "SUCCESS" "Java installed."
+    install_with_fallback "Java (OpenJDK)" "default-jdk" "jdk-openjdk" "" "java"
     log_version "Java" default-jdk java
 }
 
@@ -188,12 +179,7 @@ install_r() {
         return
     fi
     confirm_install "R" "r-base" || return
-    case $DISTRO in
-        debian) pkg_install_native r-base ;;
-        arch) pkg_install_native r ;;
-        fedora) pkg_install_native R ;;
-    esac
-    log_message "SUCCESS" "R installed."
+    install_with_fallback "R" "r-base" "r" "" "R"
     log_version "R" r-base R
 }
 

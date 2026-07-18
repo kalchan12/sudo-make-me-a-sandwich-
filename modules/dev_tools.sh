@@ -93,11 +93,7 @@ install_fd() {
         return
     fi
     confirm_install "fd" "fd" || return
-    case $DISTRO in
-        arch) pkg_install_native fd ;;
-        debian|fedora) pkg_install_native fd-find ;;
-    esac
-    log_message "SUCCESS" "fd installed."
+    install_with_fallback "fd" "fd-find" "fd" "" "fd"
     log_version "fd" "fd-find" "fd"
 }
 
