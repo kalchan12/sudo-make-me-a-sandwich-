@@ -76,8 +76,8 @@ check_sudo() {
     if [[ $EUID -ne 0 ]]; then
         if command -v sudo &> /dev/null; then
             echo -e "${YELLOW} ⚡ Not running as root — re-launching with sudo...${NC}"
-            # Preserve flags set so far, restore tty for interactive input (curl|bash)
-            if [ -e /dev/tty ]; then
+            # Preserve flags set so far; restore tty for interactive input (curl|bash)
+            if ( : </dev/tty ) 2>/dev/null; then
                 exec sudo env DRY_RUN="$DRY_RUN" VERBOSE_MODE="$VERBOSE_MODE" bash "$0" "$@" </dev/tty
             else
                 exec sudo env DRY_RUN="$DRY_RUN" VERBOSE_MODE="$VERBOSE_MODE" bash "$0" "$@"
