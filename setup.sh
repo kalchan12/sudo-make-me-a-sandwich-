@@ -74,6 +74,15 @@ check_sudo() {
         return
     fi
     if [[ $EUID -ne 0 ]]; then
+        if command -v sudo &> /dev/null; then
+            echo -e "${YELLOW} ⚡ Not running as root — re-launching with sudo...${NC}"
+            # Preserve flags set so far, restore tty for interactive input (curl|bash)
+            if [ -e /dev/tty ]; then
+                exec sudo env DRY_RUN="$DRY_RUN" VERBOSE_MODE="$VERBOSE_MODE" bash "$0" "$@" </dev/tty
+            else
+                exec sudo env DRY_RUN="$DRY_RUN" VERBOSE_MODE="$VERBOSE_MODE" bash "$0" "$@"
+            fi
+        fi
         log_message "ERROR" "This script must be run with sudo."
         exit 1
     fi
@@ -829,6 +838,9 @@ main() {
                     list_tools
                 fi
                 exit 0
+                ;;
+            --dry-run|-v|--verbose)
+                shift
                 ;;
             --explain)
                 if [ -n "$2" ]; then
