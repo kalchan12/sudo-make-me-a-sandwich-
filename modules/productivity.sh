@@ -2,6 +2,7 @@
 
 PRODUCTIVITY_LIST=(
     "Obsidian|install_obsidian|obsidian"
+    "Telegram|install_telegram|telegram-desktop"
     "WPS Office|install_wps|wps"
     "OBS Studio|install_obs_studio|obs-studio"
     "ffmpeg|install_ffmpeg|ffmpeg"
@@ -60,6 +61,16 @@ install_obsidian() {
     esac
     log_message "SUCCESS" "Obsidian installed."
     log_version "Obsidian" obsidian
+}
+
+install_telegram() {
+    if command -v telegram-desktop &> /dev/null; then
+        log_message "WARN" "Telegram is already installed."
+        return
+    fi
+    confirm_install "Telegram" "telegram-desktop" || return
+    install_with_fallback "Telegram" "telegram-desktop" "telegram-desktop" "org.telegram.desktop" "telegram-desktop"
+    log_version "Telegram" telegram-desktop
 }
 
 install_wps() {
@@ -133,5 +144,5 @@ install_productivity() { _install_list "Productivity" PRODUCTIVITY_LIST; }
 
 check_productivity_installations() {
     _check_installations PRODUCTIVITY_LIST \
-        "Obsidian:obsidian" "WPS Office:wps" "OBS Studio:obs" "ffmpeg:ffmpeg" "yt-dlp:yt-dlp"
+        "Obsidian:obsidian" "Telegram:telegram-desktop" "WPS Office:wps" "OBS Studio:obs" "ffmpeg:ffmpeg" "yt-dlp:yt-dlp"
 }

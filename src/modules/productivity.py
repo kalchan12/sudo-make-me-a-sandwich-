@@ -7,6 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 TOOLS: list[tuple[str, str, str]] = [
     ("Obsidian", "install_obsidian", "obsidian"),
+    ("Telegram", "install_telegram", "telegram-desktop"),
     ("WPS Office", "install_wps", "wps"),
     ("OBS Studio", "install_obs_studio", "obs-studio"),
     ("ffmpeg", "install_ffmpeg", "ffmpeg"),
@@ -46,8 +47,9 @@ def check() -> None:
     from src.core.logging import log_message
     from src.core.distro import is_installed
     log_message("INFO", "--- Checking Productivity Installations ---")
-    bins = {"Obsidian": "obsidian", "WPS Office": "wps",
-            "OBS Studio": "obs", "ffmpeg": "ffmpeg", "yt-dlp": "yt-dlp"}
+    bins = {"Obsidian": "obsidian", "Telegram": "telegram-desktop",
+            "WPS Office": "wps", "OBS Studio": "obs", "ffmpeg": "ffmpeg",
+            "yt-dlp": "yt-dlp"}
     for name, _, _ in TOOLS:
         binary = bins.get(name, name.lower())
         if is_installed(binary):

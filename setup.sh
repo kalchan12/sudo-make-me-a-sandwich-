@@ -218,6 +218,7 @@ TERMINALS_LIST=(
 
 PRODUCTIVITY_LIST=(
     "Obsidian|install_obsidian|obsidian"
+    "Telegram|install_telegram|telegram-desktop"
     "WPS Office|install_wps|"
     "OBS Studio|install_obs_studio|obs-studio"
     "ffmpeg|install_ffmpeg|ffmpeg"
