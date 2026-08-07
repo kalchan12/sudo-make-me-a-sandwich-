@@ -19,6 +19,7 @@ exec 3>>"$LOG_FILE"
 
 MINIMAL_MODE=false
 FULL_MODE=false
+UPDATE_MODE=false
 DRY_RUN="${DRY_RUN:-false}"
 YES_MODE=false
 UNINSTALL_MODE=false
@@ -731,7 +732,9 @@ run_installation() {
 
     if [ "$YES_MODE" = true ]; then
         pkg_ensure_prerequisites
-        pkg_update_system
+        if [ "$UPDATE_MODE" = true ]; then
+            pkg_update_system
+        fi
 
         if [ "$FULL_MODE" = true ] || [ "$MINIMAL_MODE" = true ]; then
             install_browsers
@@ -806,6 +809,7 @@ usage() {
     gecho "  --full       Install everything (Browsers, Productivity, IDEs, Shells, Dev Tools, Languages, Terminals, Pentesting)"
     gecho "  -y, --yes    Auto-confirm all installations (skip prompts)"
     gecho "  --dry-run    Print what would be installed without actually installing"
+    gecho "  -u, --update Update system packages first (opt-in; not done by default)"
     gecho "  --explain    Show info about a tool (e.g., --explain tmux)"
     gecho "  --install    Install specific tools by name (comma-separated, e.g. --install nmap,burpsuite)"
     gecho "  --list       List all available tools by category and exit"
@@ -889,6 +893,7 @@ main() {
             case $1 in
             --minimal) MINIMAL_MODE=true; shift ;;
             --full)    FULL_MODE=true; shift ;;
+            -u|--update) UPDATE_MODE=true; shift ;;
             -y|--yes)  YES_MODE=true; shift ;;
             -v|--verbose) VERBOSE_MODE=true; shift ;;
             --dry-run) DRY_RUN=true; shift ;;

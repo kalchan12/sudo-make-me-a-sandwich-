@@ -166,8 +166,13 @@ def cmd_interactive(show_splash: bool = True) -> None:
     while True:
         choice = show_main_menu()
 
-        if choice in ("12", "exit", "q"):
+        if choice in ("13", "exit", "q"):
             break
+
+        if choice in ("12", "update"):
+            log_message("INFO", "--- Updating System ---")
+            bash_call("pkg_update_system")
+            continue
 
         if choice in ("10", "full", "all"):
             log_message("INFO", "--- Full Install ---")

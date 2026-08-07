@@ -38,8 +38,9 @@ def show_main_menu() -> str:
     table.add_section()
     table.add_row("10)", "[green]Full Install (everything)[/]")
     table.add_row("11)", "[green]Minimal Install (browsers + terminals)[/]")
+    table.add_row("12)", "[cyan]Update System[/]")
     table.add_section()
-    table.add_row("12)", "[red]Exit[/]")
+    table.add_row("13)", "[red]Exit[/]")
 
     panel = Panel(
         table,

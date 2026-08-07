@@ -293,7 +293,15 @@ show_selection_and_install() {
 
     log_message "INFO" "Preparing installation selection..."
     pkg_ensure_prerequisites
-    pkg_update_system
+    if [ "$UPDATE_MODE" = true ]; then
+        pkg_update_system
+    elif [ "$DRY_RUN" = false ] && [ "$YES_MODE" = false ]; then
+        echo -ne "${YELLOW}Update system packages first? [y/N] ${NC}"
+        read -r upd
+        if [[ "$upd" =~ ^[yY] ]]; then
+            pkg_update_system
+        fi
+    fi
 
     _show_selection_menu "$mode" selected || {
         log_message "INFO" "Nothing to install."
