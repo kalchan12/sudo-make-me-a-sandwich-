@@ -5,6 +5,15 @@ import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
+from src.modules.base import (
+    install as _install,
+    install_all as _install_all,
+    check as _check,
+    cli_main,
+)
+
+CATEGORY = "Terminals"
+
 TOOLS: list[tuple[str, str, str]] = [
     ("Kitty", "install_kitty", "kitty"),
     ("Alacritty", "install_alacritty", "alacritty"),
@@ -12,62 +21,22 @@ TOOLS: list[tuple[str, str, str]] = [
     ("GNOME Terminal", "install_gnome_terminal", "gnome-terminal"),
 ]
 
+BINS: dict[str, str] = {
+    "Kitty": "kitty", "Alacritty": "alacritty", "Tilix": "tilix", "GNOME Terminal": "gnome-terminal"
+}
+
 
 def install(name: str) -> int:
-    from src.core import bash
-    from src.core.logging import log_message
-    for display, bash_fn, _ in TOOLS:
-        if display == name:
-            log_message("INFO", f"Installing {name}...")
-            code, out, err = bash.call(bash_fn)
-            if code == 0:
-                log_message("SUCCESS", f"{name} installed.")
-            else:
-                log_message("ERROR", f"{name} install failed (exit {code}).")
-                if err:
-                    log_message("ERROR", err)
-            return code
-    log_message("ERROR", f"Unknown tool: {name}")
-    return 1
+    return _install(TOOLS, name)
 
 
 def install_all() -> int:
-    from src.core.logging import log_message
-    log_message("INFO", "--- Installing All Terminals ---")
-    ec = 0
-    for name, _, _ in TOOLS:
-        if install(name) != 0:
-            ec = 1
-    return ec
+    return _install_all(TOOLS, CATEGORY)
 
 
 def check() -> None:
-    from src.core.logging import log_message
-    from src.core.distro import is_installed
-    log_message("INFO", "--- Checking Terminal Installations ---")
-    bins = {"Kitty": "kitty", "Alacritty": "alacritty",
-            "Tilix": "tilix", "GNOME Terminal": "gnome-terminal"}
-    for name, _, _ in TOOLS:
-        binary = bins.get(name, name.lower())
-        if is_installed(binary):
-            print(f"\033[1;32m[✔] {name} is installed.\033[0m")
-        else:
-            print(f"\033[0;31m[✘] {name} is NOT installed.\033[0m")
+    _check(TOOLS, BINS, CATEGORY)
 
 
 if __name__ == "__main__":
-    from src.core.bash import setup as bash_setup
-    bash_setup(os.path.join(os.path.dirname(__file__), "..", ".."))
-    if len(sys.argv) < 2:
-        print("Usage: terminals.py <install|install_all|check> [name]")
-        sys.exit(1)
-    cmd = sys.argv[1]
-    if cmd == "install" and len(sys.argv) > 2:
-        sys.exit(install(sys.argv[2]))
-    elif cmd == "install_all":
-        sys.exit(install_all())
-    elif cmd == "check":
-        check()
-    else:
-        print(f"Unknown command: {cmd}")
-        sys.exit(1)
+    cli_main(TOOLS, BINS, CATEGORY, os.path.basename(__file__))
