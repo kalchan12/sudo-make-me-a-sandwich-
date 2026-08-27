@@ -17,6 +17,8 @@ CATEGORY = "Productivity"
 TOOLS: list[tuple[str, str, str]] = [
     ("Obsidian", "install_obsidian", "obsidian"),
     ("Telegram", "install_telegram", "telegram-desktop"),
+    ("Proton Pass", "install_proton_pass", "proton-pass"),
+    ("Proton VPN", "install_proton_vpn", "protonvpn"),
     ("WPS Office", "install_wps", "wps"),
     ("OBS Studio", "install_obs_studio", "obs-studio"),
     ("ffmpeg", "install_ffmpeg", "ffmpeg"),
@@ -24,7 +26,14 @@ TOOLS: list[tuple[str, str, str]] = [
 ]
 
 BINS: dict[str, str] = {
-    "Obsidian": "obsidian", "Telegram": "telegram-desktop", "WPS Office": "wps", "OBS Studio": "obs", "ffmpeg": "ffmpeg", "yt-dlp": "yt-dlp"
+    "Obsidian": "obsidian",
+    "Telegram": "telegram-desktop",
+    "Proton Pass": "proton-pass protonpass",
+    "Proton VPN": "protonvpn-app protonvpn proton-vpn-gnome-desktop",
+    "WPS Office": "wps",
+    "OBS Studio": "obs",
+    "ffmpeg": "ffmpeg",
+    "yt-dlp": "yt-dlp",
 }
 
 

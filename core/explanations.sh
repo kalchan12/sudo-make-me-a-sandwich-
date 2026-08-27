@@ -124,6 +124,38 @@ _explain_tool() {
             gecho "  • Use [[wikilinks]] to connect notes together"
             gecho "  • Sync across devices via Obsidian Sync (paid) or a cloud folder (free)"
             ;;
+        Telegram)
+            echo -e "${YELLOW}Telegram${NC}"
+            gecho ""
+            gecho "Fast and secure cloud-based instant messaging application with end-to-end encryption support."
+            gecho ""
+            gecho "Tips:"
+            gecho "  • Supports large group chats, channels, and automated bot integrations"
+            gecho "  • Cloud-synced chats across mobile and desktop clients"
+            gecho "  • Secret Chats feature provides client-to-client end-to-end encryption"
+            ;;
+        "Proton Pass")
+            echo -e "${YELLOW}Proton Pass${NC}"
+            gecho ""
+            gecho "Open-source, end-to-end encrypted password and identity manager by Proton."
+            gecho ""
+            gecho "Tips:"
+            gecho "  • End-to-end encryption for logins, notes, cards, and 2FA secrets"
+            gecho "  • Built-in email alias generation (Hide-my-email via SimpleLogin integration)"
+            gecho "  • Integrated 2FA authenticator with auto-fill support"
+            gecho "  • Cross-platform syncing with Android, iOS, Windows, macOS, and Linux"
+            ;;
+        "Proton VPN")
+            echo -e "${YELLOW}Proton VPN${NC}"
+            gecho ""
+            gecho "High-speed, open-source Swiss VPN service with strong privacy protections and no-logs policy."
+            gecho ""
+            gecho "Tips:"
+            gecho "  • Secure Core architecture routes traffic through privacy-friendly countries"
+            gecho "  • NetShield Ad-blocker protects against malware, ads, and online trackers"
+            gecho "  • Built-in Kill Switch prevents accidental IP leaks on disconnect"
+            gecho "  • Supports WireGuard, OpenVPN, and Stealth VPN protocols"
+            ;;
         "WPS Office")
             echo -e "${YELLOW}WPS Office${NC}"
             gecho ""

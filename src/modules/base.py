@@ -43,8 +43,9 @@ def check(tools: list[tuple[str, str, str]], bins: dict[str, str], category: str
     console = Console(highlight=False)
     log_message("INFO", f"--- Checking {category} Installations ---")
     for name, _, _ in tools:
-        binary = bins.get(name, name.lower())
-        if shutil.which(binary):
+        binary_str = bins.get(name, name.lower())
+        binaries = binary_str.split() if binary_str else [name.lower()]
+        if any(shutil.which(b) for b in binaries):
             console.print(f"[bold green][✔] {name} is installed.[/]")
         else:
             console.print(f"[red][✘] {name} is NOT installed.[/]")

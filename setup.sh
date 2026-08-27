@@ -222,6 +222,8 @@ TERMINALS_LIST=(
 PRODUCTIVITY_LIST=(
     "Obsidian|install_obsidian|obsidian"
     "Telegram|install_telegram|telegram-desktop"
+    "Proton Pass|install_proton_pass|"
+    "Proton VPN|install_proton_vpn|proton-vpn-gnome-desktop"
     "WPS Office|install_wps|"
     "OBS Studio|install_obs_studio|obs-studio"
     "ffmpeg|install_ffmpeg|ffmpeg"
@@ -573,7 +575,8 @@ install_productivity() { _install_list "Productivity" PRODUCTIVITY_LIST; }
 
 check_productivity_installations() {
     _check_installations PRODUCTIVITY_LIST \
-        "Obsidian:obsidian" "WPS Office:wps" "OBS Studio:obs" \
+        "Obsidian:obsidian" "Telegram:telegram-desktop" "Proton Pass:proton-pass" \
+        "Proton VPN:protonvpn-app" "WPS Office:wps" "OBS Studio:obs" \
         "ffmpeg:ffmpeg" "yt-dlp:yt-dlp"
 }
 

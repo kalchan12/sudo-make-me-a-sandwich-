@@ -122,6 +122,9 @@ _show_selection_menu() {
             install_ungoogled_chromium) command -v ungoogled-chromium &>/dev/null && already=true ;;
             install_librewolf) command -v librewolf &>/dev/null && already=true ;;
             install_obsidian) command -v obsidian &>/dev/null && already=true ;;
+            install_telegram) command -v telegram-desktop &>/dev/null && already=true ;;
+            install_proton_pass) command -v proton-pass &>/dev/null || command -v protonpass &>/dev/null && already=true ;;
+            install_proton_vpn) command -v protonvpn-app &>/dev/null || command -v protonvpn &>/dev/null || command -v proton-vpn-gnome-desktop &>/dev/null && already=true ;;
             install_wps) command -v wps &>/dev/null && already=true ;;
             install_obs_studio) command -v obs &>/dev/null && already=true ;;
             install_ffmpeg) command -v ffmpeg &>/dev/null && already=true ;;
