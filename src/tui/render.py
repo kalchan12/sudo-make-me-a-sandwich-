@@ -13,7 +13,7 @@ def show_main_menu() -> str:
     console.clear()
     console.print()
 
-    title = Text("╔══╗╚══╝", style="magenta")
+    title = Text("⚡ SUDO MAKE ME A SANDWICH ⚡", style="magenta")
     title.append("\n")
 
     table = Table(box=box.SIMPLE, border_style="magenta", show_header=False, pad_edge=False)
@@ -30,21 +30,22 @@ def show_main_menu() -> str:
         ("7", "Languages"),
         ("8", "Pentesting"),
         ("9", "Frameworks"),
+        ("10", "Agentic IDEs"),
     ]
 
     for num, name in categories:
         table.add_row(f"{num})", name)
 
     table.add_section()
-    table.add_row("10)", "[green]Full Install (everything)[/]")
-    table.add_row("11)", "[green]Minimal Install (browsers + terminals)[/]")
-    table.add_row("12)", "[cyan]Update System[/]")
+    table.add_row("11)", "[green]Full Install (everything)[/]")
+    table.add_row("12)", "[green]Minimal Install (browsers + terminals)[/]")
+    table.add_row("13)", "[cyan]Update System[/]")
     table.add_section()
-    table.add_row("13)", "[red]Exit[/]")
+    table.add_row("14)", "[red]Exit[/]")
 
     panel = Panel(
         table,
-        title="[magenta]╔══╗╚══╝[/]",
+        title="[magenta]⚡ SUDO MAKE ME A SANDWICH ⚡[/]",
         box=box.HEAVY,
         border_style="magenta",
         padding=(1, 2),
@@ -60,9 +61,6 @@ def show_main_menu() -> str:
 def render_menu(
     tools: list[tuple[str, str]],
     title: str,
-    on_all: str = "",
-    on_check: str = "",
-    on_back: str = "",
 ) -> str:
     from rich.prompt import Prompt
 

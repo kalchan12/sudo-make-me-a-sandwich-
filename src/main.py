@@ -82,7 +82,7 @@ def cmd_list() -> None:
     categories = [
         ("Browsers", ["Brave", "Google Chrome", "Firefox", "Vivaldi", "Chromium",
                        "Firefox Developer Edition", "Ungoogled Chromium", "LibreWolf"]),
-        ("Productivity", ["Obsidian", "WPS Office", "OBS Studio", "ffmpeg", "yt-dlp"]),
+        ("Productivity", ["Obsidian", "Telegram", "WPS Office", "OBS Studio", "ffmpeg", "yt-dlp"]),
         ("IDEs & Editors", ["VS Code", "Sublime Text", "JetBrains Toolbox"]),
         ("Terminals", ["Kitty", "Alacritty", "Tilix", "GNOME Terminal"]),
         ("Shells", ["Zsh", "Fish", "Dash", "Ksh", "Tcsh", "Nushell", "Elvish", "Xonsh"]),
@@ -161,27 +161,28 @@ def cmd_interactive(show_splash: bool = True) -> None:
         "7": ("languages", "Languages"),
         "8": ("pentest", "Pentesting"),
         "9": ("frameworks", "Frameworks"),
+        "10": ("agentic_ides", "Agentic IDEs"),
     }
 
     while True:
         choice = show_main_menu()
 
-        if choice in ("13", "exit", "q"):
+        if choice in ("14", "exit", "q"):
             break
 
-        if choice in ("12", "update"):
+        if choice in ("13", "update"):
             log_message("INFO", "--- Updating System ---")
             bash_call("pkg_update_system")
             continue
 
-        if choice in ("10", "full", "all"):
+        if choice in ("11", "full", "all"):
             log_message("INFO", "--- Full Install ---")
             for key, (mod_name, _) in ALL_MODULES.items():
                 mod = importlib.import_module(f"src.modules.{mod_name}")
                 mod.install_all()
             continue
 
-        if choice in ("11", "minimal"):
+        if choice in ("12", "minimal"):
             log_message("INFO", "--- Minimal Install ---")
             mod = importlib.import_module("src.modules.browsers")
             mod.install_all()
@@ -193,9 +194,14 @@ def cmd_interactive(show_splash: bool = True) -> None:
             try:
                 idx = int(choice[1:])
                 name_list = ["Browsers", "Productivity", "IDEs & Editors", "Terminals",
-                             "Shells", "Dev Tools", "Languages", "Pentesting", "Frameworks"]
+                             "Shells", "Dev Tools", "Languages", "Pentesting", "Frameworks",
+                             "Agentic IDEs"]
                 if 1 <= idx <= len(name_list):
-                    bash_call("_explain_tool", name_list[idx - 1])
+                    code, out, err = bash_call("_explain_tool", name_list[idx - 1])
+                    if out.strip():
+                        print(out)
+                    if err.strip():
+                        print(err, file=sys.stderr)
             except ValueError:
                 pass
             continue
