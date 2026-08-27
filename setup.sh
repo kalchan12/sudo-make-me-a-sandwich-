@@ -143,6 +143,8 @@ list_tools() {
     _print_category "Dev Tools" DEV_TOOLS_LIST
     _print_category "Languages" LANGUAGES_LIST
     _print_category "Pentesting Tools" PENTEST_LIST
+    _print_category "Frameworks" FRAMEWORKS_LIST
+    _print_category "Agentic IDEs" AGENTIC_IDES_LIST
 
     exit 0
 }
@@ -251,9 +253,10 @@ show_main_menu() {
     echo -e " ${YELLOW}7)${GREEN} Programming Languages${NC}${NC}"
     echo -e " ${YELLOW}8)${GREEN} Pentesting Tools${NC}${NC}"
     echo -e " ${YELLOW}9)${GREEN} Frameworks${NC}${NC}"
-    echo -e " ${YELLOW}10)${GREEN} Full Installation${NC}${NC}"
-    echo -e " ${YELLOW}11)${GREEN} Minimal Installation${NC}${NC}"
-    echo -e " ${YELLOW}12)${GREEN} Exit${NC}${NC}"
+    echo -e " ${YELLOW}10)${GREEN} Agentic IDEs${NC}${NC}"
+    echo -e " ${YELLOW}11)${GREEN} Full Installation${NC}${NC}"
+    echo -e " ${YELLOW}12)${GREEN} Minimal Installation${NC}${NC}"
+    echo -e " ${YELLOW}13)${GREEN} Exit${NC}${NC}"
     echo -n -e "${PURPLE}Select an option: ${NC}${YELLOW}"
     read -r choice
     echo -e -n "${NC}"
@@ -267,9 +270,10 @@ show_main_menu() {
         7) show_languages_menu ;;
         8) show_pentest_menu ;;
         9) show_frameworks_menu ;;
-        10) FULL_MODE=true; run_installation ;;
-        11) MINIMAL_MODE=true; run_installation ;;
-        12) log_message "INFO" "Exiting..."; exit 0 ;;
+        10) show_agentic_ides_menu ;;
+        11) FULL_MODE=true; run_installation ;;
+        12) MINIMAL_MODE=true; run_installation ;;
+        13) log_message "INFO" "Exiting..."; exit 0 ;;
         *) log_message "WARN" "Invalid option: $choice"; show_main_menu ;;
     esac
 }
@@ -405,6 +409,7 @@ _render_menu() {
 # Generic installation checker
 # Usage: _check_installations LIST_VAR "Name1:bin1" "Name2:bin2" ...
 _check_installations() {
+    local _list_name="$1"
     local -n _list="$1"
     shift
     declare -A _bin_map
@@ -412,7 +417,7 @@ _check_installations() {
         _bin_map["${_pair%%:*}"]="${_pair#*:}"
     done
 
-    log_message "INFO" "--- Checking $(echo "$1" | sed 's/_LIST$//') Installations ---"
+    log_message "INFO" "--- Checking $(echo "$_list_name" | sed 's/_LIST$//') Installations ---"
     for _info in "${_list[@]}"; do
         local _name="${_info%%|*}"
         local _installed=false
@@ -572,16 +577,6 @@ check_productivity_installations() {
         "ffmpeg:ffmpeg" "yt-dlp:yt-dlp"
 }
 
-check_ides_installations() {
-    _check_installations IDES_LIST \
-        "VS Code:code" "Sublime Text:subl" "JetBrains Toolbox:jetbrains-toolbox" \
-        "OpenCode:opencode" "ZCode:zcode" "Antigravity:antigravity" "Kiro:kiro"
-}
-
-check_terminals_installations() {
-    _check_installations TERMINALS_LIST \
-        "Kitty:kitty" "Alacritty:alacritty" "Tilix:tilix" "GNOME Terminal:gnome-terminal"
-}
 
 install_vscode() {
     if command -v code &> /dev/null; then
@@ -748,6 +743,8 @@ run_installation() {
             install_dev_tools
             install_all_languages
             install_pentest
+            install_frameworks
+            install_all_agentic_ides
         fi
     else
         case $FULL_MODE$MINIMAL_MODE in
@@ -770,7 +767,7 @@ install_by_name() {
     local all_lists=(
         "BROWSERS_LIST" "TERMINALS_LIST" "PRODUCTIVITY_LIST" "IDES_LIST"
         "SHELLS_LIST" "DEV_TOOLS_LIST" "LANGUAGES_LIST"
-        "PENTEST_LIST"
+        "PENTEST_LIST" "FRAMEWORKS_LIST" "AGENTIC_IDES_LIST"
     )
 
     local list_name

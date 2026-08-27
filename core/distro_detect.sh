@@ -53,6 +53,7 @@ detect_distro() {
         fedora) PKG_MANAGER="dnf" ;;
     esac
     readonly PKG_MANAGER
+}
 
 # Memoized command -v cache
 declare -g -A BIN_CACHE=()
@@ -67,7 +68,6 @@ bin_check() {
     local ec=$?
     BIN_CACHE["$bin"]=$ec
     return $ec
-}
 }
 
 pkg_is_installed() {
