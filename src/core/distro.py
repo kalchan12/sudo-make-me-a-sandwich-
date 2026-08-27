@@ -31,20 +31,23 @@ def detect() -> None:
         DISTRO = "fedora"
         PKG_MANAGER = "dnf"
     else:
-        for line in Path("/etc/os-release").read_text().splitlines():
-            if line.startswith("ID_LIKE="):
-                like = line.split("=", 1)[1].strip().strip('"')
-                if "debian" in like:
-                    DISTRO = "debian"
-                    PKG_MANAGER = "apt"
-                elif "fedora" in like:
-                    DISTRO = "fedora"
-                    PKG_MANAGER = "dnf"
-                elif "arch" in like:
-                    DISTRO = "arch"
-                    PKG_MANAGER = "pacman"
-                break
-        else:
+        try:
+            for line in Path("/etc/os-release").read_text().splitlines():
+                if line.startswith("ID_LIKE="):
+                    like = line.split("=", 1)[1].strip().strip('"')
+                    if "debian" in like:
+                        DISTRO = "debian"
+                        PKG_MANAGER = "apt"
+                    elif "fedora" in like:
+                        DISTRO = "fedora"
+                        PKG_MANAGER = "dnf"
+                    elif "arch" in like:
+                        DISTRO = "arch"
+                        PKG_MANAGER = "pacman"
+                    break
+        except FileNotFoundError:
+            pass
+        if not DISTRO:
             DISTRO = "unknown"
             PKG_MANAGER = "unknown"
 

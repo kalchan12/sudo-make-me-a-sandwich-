@@ -1,6 +1,5 @@
 import subprocess
 import os
-from .logging import DRY_RUN, VERBOSE_MODE
 
 API_SCRIPT = ""
 
@@ -11,8 +10,13 @@ def setup(script_dir: str) -> None:
 
 
 def call(func: str, *args: str) -> tuple[int, str, str]:
+    if not API_SCRIPT:
+        raise RuntimeError(
+            "bash.call() used before bash.setup() — "
+            "call bash.setup(script_dir) first."
+        )
     env = os.environ.copy()
-    env["YES_MODE"] = "true"  # Python handles confirmation, bash just executes
+    env["YES_MODE"] = os.environ.get("YES_MODE", "true")
     cmd = ["bash", API_SCRIPT, func] + list(args)
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=600, env=env)
     return result.returncode, result.stdout, result.stderr

@@ -26,9 +26,12 @@ def log_message(msg_type: str, msg: str) -> None:
     style = _colors.get(msg_type, "white")
     _console.print(f"[{style}][{msg_type}][/] {msg}")
     if LOG_FILE:
-        ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(LOG_FILE, "a") as f:
-            f.write(f"[{ts}] [{msg_type}] {msg}\n")
+        try:
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            with open(LOG_FILE, "a") as f:
+                f.write(f"[{ts}] [{msg_type}] {msg}\n")
+        except OSError:
+            pass
 
 
 def verbose_cmd(cmd: str) -> None:
