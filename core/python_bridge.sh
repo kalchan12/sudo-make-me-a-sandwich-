@@ -1,7 +1,8 @@
 # Python Bridge — replaces bash UI functions with Python+rich equivalents
 # Sourced by setup.sh when python3 + rich are available
 
-PYTHON_ENGINE="$(dirname "$(dirname "$0")")/src/main.py"
+BRIDGE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PYTHON_ENGINE="$(dirname "$BRIDGE_DIR")/src/main.py"
 
 # Replace persona with rich version
 show_persona() {

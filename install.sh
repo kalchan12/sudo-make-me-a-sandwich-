@@ -12,4 +12,8 @@ else
     git clone "https://github.com/$REPO.git" "$DEST"
 fi
 
-exec "$DEST/setup.sh" "$@"
+if ( : </dev/tty ) 2>/dev/null; then
+    exec "$DEST/setup.sh" "$@" </dev/tty
+else
+    exec "$DEST/setup.sh" "$@"
+fi
