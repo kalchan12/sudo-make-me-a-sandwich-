@@ -12,8 +12,13 @@ else
     git clone "https://github.com/$REPO.git" "$DEST"
 fi
 
+SUDO_CMD=""
+if [[ $EUID -ne 0 ]]; then
+    SUDO_CMD="sudo"
+fi
+
 if ( : </dev/tty ) 2>/dev/null; then
-    exec "$DEST/setup.sh" "$@" </dev/tty
+    exec $SUDO_CMD "$DEST/setup.sh" "$@" </dev/tty
 else
-    exec "$DEST/setup.sh" "$@"
+    exec $SUDO_CMD "$DEST/setup.sh" "$@"
 fi

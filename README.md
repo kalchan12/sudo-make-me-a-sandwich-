@@ -31,9 +31,9 @@ curl -fsSL https://raw.githubusercontent.com/kalchan12/sudo-make-me-a-sandwich-/
 ## Manual Install
 ```bash
 git clone https://github.com/kalchan12/sudo-make-me-a-sandwich-.git
-cd sudo-make-me-a-sandwich
+cd sudo-make-me-a-sandwich-
 chmod +x setup.sh
-./setup.sh
+sudo ./setup.sh
 ```
 
 ## Roadmap
