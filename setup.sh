@@ -773,7 +773,7 @@ install_by_name() {
                 local rest="${info#*|}"
                 local call="${rest%%|*}"
                 log_message "INFO" "Installing $name..."
-                $call
+                eval "$call"
                 return $?
             fi
         done
@@ -794,6 +794,8 @@ install_multiple() {
 usage() {
     gecho "Usage: $0 [OPTIONS]"
     gecho "Options:"
+    gecho "  --gui        Launch Graphical User Interface (GUI)"
+    gecho "  --cli, --tui Force terminal interactive mode (skip GUI auto-detection)"
     gecho "  --minimal    Install only Browsers and Terminals"
     gecho "  --full       Install everything (Browsers, Productivity, IDEs, Shells, Dev Tools, Languages, Terminals, Pentesting)"
     gecho "  -y, --yes    Auto-confirm all installations (skip prompts)"
@@ -806,15 +808,73 @@ usage() {
     gecho "  -v, --verbose  Show actual commands being executed"
     gecho "  --help       Show this help message"
     gecho ""
-    gecho "Run without options for interactive menu."
+    gecho "Run without options to launch GUI (or interactive terminal menu if no display)."
     gecho "Inside menus, enter a number to install, or e<N> for details (e.g., e1)."
     exit 0
 }
 
 main() {
-    # Handle non-sudo flags early (process all args)
+    local GUI_REQUESTED=false
+    local CLI_REQUESTED=false
+    local ACTION_SPECIFIED=false
+
+    # Scan arguments early
+    for arg in "$@"; do
+        case "$arg" in
+            --gui)
+                GUI_REQUESTED=true
+                ;;
+            --cli|--tui)
+                CLI_REQUESTED=true
+                ;;
+            --dry-run)
+                DRY_RUN=true
+                ;;
+            -v|--verbose)
+                VERBOSE_MODE=true
+                ;;
+            --minimal|--full|-u|--update|--install|--uninstall|--help|--list|--explain|--banner-only)
+                ACTION_SPECIFIED=true
+                ;;
+        esac
+    done
+    [ "${DRY_RUN:-}" = "true" ] && DRY_RUN=true
+    [ "${VERBOSE_MODE:-}" = "true" ] && VERBOSE_MODE=true
+
+    # If running under sudo and DISPLAY is not set, preserve desktop user's X environment
+    if [ -n "$SUDO_USER" ]; then
+        export DISPLAY="${DISPLAY:-:0}"
+        if [ -z "$XAUTHORITY" ] && [ -f "/home/$SUDO_USER/.Xauthority" ]; then
+            export XAUTHORITY="/home/$SUDO_USER/.Xauthority"
+        fi
+    fi
+
+    # Helper function: test if graphical environment is available
+    _can_launch_gui() {
+        [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ] && return 1
+        command -v python3 &>/dev/null || return 1
+        python3 -c "from src.gui.launcher import is_gui_available; import sys; sys.exit(0 if is_gui_available() else 1)" 2>/dev/null
+    }
+
+    # Decide whether to launch GUI:
+    # If --gui was passed, OR if no action flags and not forced to CLI mode, launch GUI if available!
+    if [ "$GUI_REQUESTED" = true ]; then
+        exec python3 "$(dirname "$0")/src/main.py" gui "$@"
+    elif [ "$CLI_REQUESTED" = false ] && [ "$ACTION_SPECIFIED" = false ]; then
+        if _can_launch_gui; then
+            exec python3 "$(dirname "$0")/src/main.py" gui "$@"
+        fi
+    fi
+
+    # --- Terminal Execution Flow ---
+
+    # Handle quick terminal flags
+    local pass_args=()
     while [[ $# -gt 0 ]]; do
         case $1 in
+            --gui|--cli|--tui)
+                shift
+                ;;
             --skip-python)
                 shift
                 ;;
@@ -833,9 +893,6 @@ main() {
                 fi
                 exit 0
                 ;;
-            --dry-run|-v|--verbose)
-                shift
-                ;;
             --explain)
                 if [ -n "$2" ]; then
                     if command -v python3 &> /dev/null && python3 -c "import rich" 2>/dev/null; then
@@ -850,22 +907,14 @@ main() {
                 fi
                 ;;
             *)
-                break
+                pass_args+=("$1")
+                shift
                 ;;
         esac
     done
 
-    # Parse --dry-run and --verbose early so check_sudo can see them
-    for arg in "$@"; do
-        if [ "$arg" = "--dry-run" ]; then
-            DRY_RUN=true
-        elif [ "$arg" = "--verbose" ] || [ "$arg" = "-v" ]; then
-            VERBOSE_MODE=true
-        fi
-    done
-    # Also check env vars (for DRY_RUN=true source setup.sh)
-    [ "${DRY_RUN:-}" = "true" ] && DRY_RUN=true
-    [ "${VERBOSE_MODE:-}" = "true" ] && VERBOSE_MODE=true
+    # Restore remaining args for standard installer parsing
+    set -- "${pass_args[@]}"
 
     check_sudo
     show_banner
@@ -898,8 +947,12 @@ main() {
             run_installation
         fi
     else
-        # No flags, enter interactive mode
-        show_main_menu
+        # Terminal interactive mode: prefer Rich TUI if available, otherwise bash menu
+        if command -v python3 &> /dev/null && python3 -c "import rich" 2>/dev/null; then
+            exec python3 "$(dirname "$0")/src/main.py" interactive
+        else
+            show_main_menu
+        fi
     fi
 }
 
