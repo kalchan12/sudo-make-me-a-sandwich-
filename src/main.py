@@ -249,17 +249,30 @@ def cmd_exec(args: list[str]) -> None:
     os.execvp("bash", ["bash", script] + args)
 
 
+def cmd_gui(args: list[str]) -> None:
+    from src.gui.launcher import launch_gui
+    dry = "--dry-run" in args
+    verb = "-v" in args or "--verbose" in args
+    sys.exit(launch_gui(initial_dry_run=dry, initial_verbose=verb))
+
+
 def main() -> None:
     logging.setup()
 
     if len(sys.argv) < 2:
-        cmd_interactive(show_splash=True)
+        from src.gui.launcher import is_gui_available
+        if is_gui_available():
+            cmd_gui([])
+        else:
+            cmd_interactive(show_splash=True)
         return
 
     subcommand = sys.argv[1]
     rest = sys.argv[2:]
 
-    if subcommand == "interactive":
+    if subcommand in ("gui", "--gui"):
+        cmd_gui(rest)
+    elif subcommand in ("interactive", "cli", "tui", "--cli", "--tui"):
         cmd_interactive(show_splash=False)
     elif subcommand == "persona":
         cmd_persona()
@@ -281,3 +294,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

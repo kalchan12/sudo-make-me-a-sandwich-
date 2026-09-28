@@ -324,7 +324,7 @@ show_selection_and_install() {
         local call="$_ITEM_CALL"
 
         log_message "INFO" "Installing $_ITEM_NAME ..."
-        $call
+        eval "$call"
     done
 
     SELECTION_MODE=false
