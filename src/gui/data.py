@@ -27,11 +27,13 @@ CATEGORIES = [
 # Supplementary descriptions and tips for pentest tools and any missing tools
 EXTRA_TOOL_DESCRIPTIONS: dict[str, tuple[str, list[str]]] = {
     "Kitty (Hacker Suite)": (
-        "GPU-accelerated terminal emulator pre-configured with modular cyberpunk/matrix themes, Oh My Zsh, real-time syntax highlighting, and command history prediction.",
+        "GPU-accelerated terminal emulator bundled with 19 modular dark themes (9 Hacker + 10 Dev), Oh My Zsh, real-time syntax highlighting, and history command prediction.",
         [
-            "Includes live theme switcher: kitty-theme matrix-green / kitty-theme cyberpunk-neon",
-            "Configured with zsh-autosuggestions (Right-Arrow / Ctrl+Space to accept)",
-            "Hot reload inside Kitty with Ctrl+Shift+F5",
+            "Includes 9 Hacker themes (Cyberpunk, Matrix, Mr. Robot, Ghost In The Shell, Kali Dragon, etc.)",
+            "Includes 10 Modern Dev themes (Catppuccin Mocha, Tokyo Night, Gruvbox, Nord, OneDark, etc.)",
+            "Switch anytime via GUI '🎨 Kitty Themes' button or 'kitty-theme <name>' in terminal",
+            "History-based prediction: Right-Arrow / Ctrl+Space to accept suggestion",
+            "Instant live reload inside Kitty with Ctrl+Shift+F5",
         ],
     ),
     "nmap": (
@@ -465,3 +467,76 @@ def get_system_profile() -> dict[str, str]:
         "cpu": f"{cpu_model} ({cpu_cores} cores)" if cpu_cores else cpu_model,
         "ram": total_ram,
     }
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# KITTY THEMES (19 Compelling Hacker & Dev Themes)
+# ──────────────────────────────────────────────────────────────────────────────
+
+KITTY_THEMES: list[dict] = [
+    # 💀 Hacker Themes (9)
+    {"id": "cyberpunk-neon", "name": "Cyberpunk Neon", "category": "Hacker", "desc": "Obsidian backdrop (#0a0b10) with neon cyan, magenta & laser yellow", "bg": "#0a0b10", "fg": "#00f0ff"},
+    {"id": "matrix-green", "name": "Matrix Green", "category": "Hacker", "desc": "Pitch black with glowing phosphor green (#00ff66) rain", "bg": "#050805", "fg": "#00ff66"},
+    {"id": "ghost-in-the-shell", "name": "Ghost In The Shell", "category": "Hacker", "desc": "Cybernetic void (#05080f) with electric cyan & cyber violet", "bg": "#05080f", "fg": "#00d2ff"},
+    {"id": "mr-robot", "name": "Mr. Robot", "category": "Hacker", "desc": "Pure black #000000 FSociety terminal with amber-gold phosphor", "bg": "#000000", "fg": "#ffb000"},
+    {"id": "kali-dragon", "name": "Kali Dragon", "category": "Hacker", "desc": "OffSec electric blue (#00a8ff) and crimson on deep void", "bg": "#07080d", "fg": "#00a8ff"},
+    {"id": "neon-abyss", "name": "Neon Abyss", "category": "Hacker", "desc": "Pitch navy (#04040a) with toxic emerald (#00e676) & ultraviolet", "bg": "#04040a", "fg": "#00e676"},
+    {"id": "black-hat", "name": "Black Hat", "category": "Hacker", "desc": "Stealth charcoal (#080808) with venom green (#39ff14)", "bg": "#080808", "fg": "#39ff14"},
+    {"id": "cyber-blood", "name": "Cyber Blood", "category": "Hacker", "desc": "Offensive red team stealth with glowing crimson & amber", "bg": "#0a0608", "fg": "#ff1e42"},
+    {"id": "synthwave-retro", "name": "Synthwave Retro", "category": "Hacker", "desc": "80s outrun neon with deep violet (#141124) & hot pink", "bg": "#141124", "fg": "#ff79c6"},
+
+    # 💻 Modern Dev Themes (10)
+    {"id": "catppuccin-mocha", "name": "Catppuccin Mocha", "category": "Dev", "desc": "Soothing velvet dark (#0f0f17) with pastel lavender & sky blue", "bg": "#0f0f17", "fg": "#cdd6f4"},
+    {"id": "tokyo-night-storm", "name": "Tokyo Night Storm", "category": "Dev", "desc": "Modern slate (#0e1017) with calm cyan, violet & mint", "bg": "#0e1017", "fg": "#7aa2f7"},
+    {"id": "gruvbox-dark-hard", "name": "Gruvbox Dark Hard", "category": "Dev", "desc": "Warm retro dark (#141617) with gentle earth contrast", "bg": "#141617", "fg": "#ebdbb2"},
+    {"id": "nord-deep-abyss", "name": "Nord Deep Abyss", "category": "Dev", "desc": "Deep arctic night (#0a0e14) with frost blue & aurora green", "bg": "#0a0e14", "fg": "#88c0d0"},
+    {"id": "rose-pine-moon", "name": "Rosé Pine Moon", "category": "Dev", "desc": "Elegant muted slate (#0f0d19) with soft rosé, gold & foam", "bg": "#0f0d19", "fg": "#ea9a97"},
+    {"id": "kanagawa-wave", "name": "Kanagawa Wave", "category": "Dev", "desc": "Traditional Japanese ink (#0d0e12) with autumn wave blues", "bg": "#0d0e12", "fg": "#7e9cd8"},
+    {"id": "onedark-pro", "name": "One Dark Pro", "category": "Dev", "desc": "Iconic Atom slate (#0f1117) with balanced syntax colors", "bg": "#0f1117", "fg": "#61afef"},
+    {"id": "everforest-deep", "name": "Everforest Deep", "category": "Dev", "desc": "Natural organic night (#0e1411) with matcha green & earth amber", "bg": "#0e1411", "fg": "#a7c080"},
+    {"id": "solarized-dark-cyan", "name": "Solarized Dark Cyan", "category": "Dev", "desc": "Deep solarized (#001117) with razor-sharp cyan & yellow", "bg": "#001117", "fg": "#2aa198"},
+    {"id": "dracula-midnight", "name": "Dracula Midnight", "category": "Dev", "desc": "Vampiric obsidian (#08070d) with neon purple, pink & cyan", "bg": "#08070d", "fg": "#bd93f9"},
+]
+
+
+def get_kitty_themes() -> list[dict]:
+    """Return all 19 Kitty themes with metadata."""
+    return KITTY_THEMES
+
+
+def get_active_kitty_theme() -> str:
+    """Return name of current active Kitty theme."""
+    active_file = Path.home() / ".config" / "kitty" / "themes" / "active-theme.conf"
+    if active_file.is_symlink():
+        try:
+            target = os.readlink(active_file)
+            return os.path.basename(target).replace(".conf", "")
+        except Exception:
+            pass
+    return "cyberpunk-neon"
+
+
+def set_kitty_theme(theme_id: str) -> tuple[bool, str]:
+    """Apply Kitty theme and reload running instances."""
+    themes_dir = Path.home() / ".config" / "kitty" / "themes"
+    target_conf = themes_dir / f"{theme_id}.conf"
+    if not target_conf.exists():
+        repo_conf = PROJECT_ROOT / "kitty-config" / "themes" / f"{theme_id}.conf"
+        if repo_conf.exists():
+            themes_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy(repo_conf, target_conf)
+        else:
+            return False, f"Theme '{theme_id}' not found."
+
+    active_symlink = themes_dir / "active-theme.conf"
+    try:
+        if active_symlink.is_symlink() or active_symlink.exists():
+            active_symlink.unlink()
+        os.symlink(f"{theme_id}.conf", active_symlink)
+        # Hot-reload running kitty instances
+        import subprocess
+        subprocess.run(["killall", "-SIGUSR1", "kitty"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return True, f"Successfully activated theme '{theme_id}'!"
+    except Exception as e:
+        return False, str(e)
+

@@ -19,6 +19,9 @@ from src.gui.data import (
     get_all_tools,
     get_status_map,
     get_system_profile,
+    get_kitty_themes,
+    get_active_kitty_theme,
+    set_kitty_theme,
 )
 from src.gui.runner import CommandRunner
 
@@ -94,6 +97,16 @@ class TkSandwichApp:
             relief=tk.FLAT,
         )
         btn_ref.pack(side=tk.LEFT, padx=4)
+
+        btn_themes = tk.Button(
+            header,
+            text="🎨 Kitty Themes",
+            command=self._show_kitty_themes,
+            bg="#313244",
+            fg="#cdd6f4",
+            relief=tk.FLAT,
+        )
+        btn_themes.pack(side=tk.LEFT, padx=4)
 
         chk_dry = tk.Checkbutton(
             header,
@@ -618,7 +631,121 @@ class TkSandwichApp:
             f"CPU: {prof.get('cpu')}\n"
             f"RAM: {prof.get('ram')}"
         )
-        messagebox.showinfo("System Profile", msg)
+    def _show_kitty_themes(self):
+        all_themes = get_kitty_themes()
+        active_theme = get_active_kitty_theme()
+
+        top = tk.Toplevel(self.root)
+        top.title("🎨 Kitty Themes (19 Themes)")
+        top.geometry("540x520")
+        top.configure(bg="#181825")
+        top.transient(self.root)
+        top.grab_set()
+
+        lbl_header = tk.Label(
+            top,
+            text=f"Active Theme: {active_theme}",
+            bg="#181825",
+            fg="#a6e3a1",
+            font=("Sans", 11, "bold"),
+            anchor="w",
+            padx=10,
+            pady=8,
+        )
+        lbl_header.pack(fill=tk.X)
+
+        container = tk.Frame(top, bg="#11111b")
+        container.pack(fill=tk.BOTH, expand=True, padx=8, pady=4)
+
+        canvas = tk.Canvas(container, bg="#11111b", highlightthickness=0)
+        scrollbar = ttk.Scrollbar(container, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg="#11111b")
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+        def add_category_section(cat_name, filter_cat):
+            sec_lbl = tk.Label(
+                scrollable_frame,
+                text=cat_name,
+                bg="#1e1e2e",
+                fg="#f5c2e7",
+                font=("Sans", 10, "bold"),
+                anchor="w",
+                padx=8,
+                pady=4,
+            )
+            sec_lbl.pack(fill=tk.X, pady=(6, 2))
+
+            for t in [th for th in all_themes if th.get("category") == filter_cat]:
+                row = tk.Frame(scrollable_frame, bg="#181825", padx=6, pady=4)
+                row.pack(fill=tk.X, pady=2, padx=4)
+
+                is_active = (t["id"] == active_theme)
+                txt_name = f"{t['name']} [ACTIVE]" if is_active else t["name"]
+
+                txt_frame = tk.Frame(row, bg="#181825")
+                txt_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+                nlbl = tk.Label(
+                    txt_frame,
+                    text=txt_name,
+                    bg="#181825",
+                    fg="#a6e3a1" if is_active else "#cdd6f4",
+                    font=("Sans", 9, "bold"),
+                    anchor="w",
+                )
+                nlbl.pack(anchor="w")
+
+                dlbl = tk.Label(
+                    txt_frame,
+                    text=t.get("desc", ""),
+                    bg="#181825",
+                    fg="#6c7086",
+                    font=("Sans", 8),
+                    anchor="w",
+                )
+                dlbl.pack(anchor="w")
+
+                def make_apply(tid=t["id"], tname=t["name"], name_lbl=nlbl):
+                    def do_apply():
+                        ok, msg = set_kitty_theme(tid)
+                        if ok:
+                            lbl_header.config(text=f"Active Theme: {tid}")
+                            name_lbl.config(text=f"{tname} [ACTIVE]", fg="#a6e3a1")
+                            self._append_line(f"✔ Live applied Kitty theme: {tname}\n")
+                    return do_apply
+
+                btn_apply = tk.Button(
+                    row,
+                    text="Current" if is_active else "Apply",
+                    bg="#313244",
+                    fg="#89b4fa",
+                    relief=tk.FLAT,
+                    state=tk.DISABLED if is_active else tk.NORMAL,
+                    command=make_apply(),
+                )
+                btn_apply.pack(side=tk.RIGHT, padx=4)
+
+        add_category_section("💀 Hacker Themes (9)", "Hacker")
+        add_category_section("💻 Modern Dev Themes (10)", "Dev")
+
+        btn_close = tk.Button(
+            top,
+            text="Close",
+            command=top.destroy,
+            bg="#313244",
+            fg="#cdd6f4",
+            relief=tk.FLAT,
+        )
+        btn_close.pack(pady=8)
 
     def run(self):
         self.root.mainloop()

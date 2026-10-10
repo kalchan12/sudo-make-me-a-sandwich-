@@ -19,6 +19,9 @@ from src.gui.data import (
     get_status_map,
     get_system_profile,
     check_tool_installed,
+    get_kitty_themes,
+    get_active_kitty_theme,
+    set_kitty_theme,
 )
 from src.gui.runner import CommandRunner
 
@@ -198,6 +201,12 @@ class SandwichApp(Gtk.Window):
         refresh_btn.set_tooltip_text("Rescan installed tools status")
         refresh_btn.connect("clicked", lambda _: self._refresh_statuses())
         header.pack_start(refresh_btn)
+
+        # Kitty Themes button
+        themes_btn = Gtk.Button(label="🎨 Kitty Themes")
+        themes_btn.set_tooltip_text("Browse and apply from 19 dark Hacker & Dev themes")
+        themes_btn.connect("clicked", self._on_show_kitty_themes)
+        header.pack_start(themes_btn)
 
         # Right side options: Dry-run and Verbose switches
         options_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
@@ -868,6 +877,102 @@ class SandwichApp(Gtk.Window):
         persona_lbl.set_markup("<i>\"A modular Linux bootstrapper for Debian-based distros.\"</i>")
         persona_lbl.set_halign(Gtk.Align.CENTER)
         content.pack_end(persona_lbl, False, False, 8)
+
+        dialog.show_all()
+        dialog.run()
+        dialog.destroy()
+
+    def _on_show_kitty_themes(self, _):
+        all_themes = get_kitty_themes()
+        active_theme = get_active_kitty_theme()
+
+        dialog = Gtk.Dialog(
+            title="🎨 Kitty Theme Selector (19 Themes)",
+            transient_for=self,
+            flags=Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+        )
+        dialog.add_button("Close", Gtk.ResponseType.CLOSE)
+        dialog.set_default_size(580, 500)
+
+        content = dialog.get_content_area()
+        content.set_spacing(10)
+        content.set_border_width(12)
+
+        header_lbl = Gtk.Label()
+        header_lbl.set_markup(f"<b>Active Theme:</b> <span foreground='#a6e3a1'><b>{active_theme}</b></span>")
+        header_lbl.set_halign(Gtk.Align.START)
+        content.pack_start(header_lbl, False, False, 4)
+
+        notebook = Gtk.Notebook()
+
+        # Helper to build theme tab list
+        def create_theme_tab(category_name, filter_cat):
+            scroll = Gtk.ScrolledWindow()
+            scroll.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+            listbox = Gtk.ListBox()
+            listbox.set_selection_mode(Gtk.SelectionMode.NONE)
+
+            for t in [th for th in all_themes if th.get("category") == filter_cat]:
+                row = Gtk.ListBoxRow()
+                row_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+                row_box.set_border_width(6)
+
+                # Color preview box
+                preview = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+                preview.set_size_request(24, 24)
+                color_css = f"box {{ background-color: {t.get('bg', '#000000')}; border: 2px solid {t.get('fg', '#ffffff')}; border-radius: 4px; }}"
+                style_provider = Gtk.CssProvider()
+                style_provider.load_from_data(color_css.encode())
+                preview.get_style_context().add_provider(style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+                row_box.pack_start(preview, False, False, 0)
+
+                # Info labels
+                info_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2)
+                name_lbl = Gtk.Label()
+                is_active = (t["id"] == active_theme)
+                active_badge = " <span foreground='#a6e3a1'>[ACTIVE]</span>" if is_active else ""
+                name_lbl.set_markup(f"<b>{t['name']}</b>{active_badge}")
+                name_lbl.set_halign(Gtk.Align.START)
+
+                desc_lbl = Gtk.Label(label=t.get("desc", ""))
+                desc_lbl.set_halign(Gtk.Align.START)
+                desc_lbl.get_style_context().add_class("dim-label")
+                desc_lbl.set_line_wrap(True)
+
+                info_box.pack_start(name_lbl, False, False, 0)
+                info_box.pack_start(desc_lbl, False, False, 0)
+                row_box.pack_start(info_box, True, True, 0)
+
+                # Apply button
+                apply_btn = Gtk.Button(label="Apply" if not is_active else "Current")
+                apply_btn.set_sensitive(not is_active)
+
+                def make_apply_handler(theme_id, th_name, btn, n_lbl):
+                    def handler(_):
+                        ok, msg = set_kitty_theme(theme_id)
+                        if ok:
+                            header_lbl.set_markup(f"<b>Active Theme:</b> <span foreground='#a6e3a1'><b>{theme_id}</b></span>")
+                            btn.set_label("Current")
+                            btn.set_sensitive(False)
+                            n_lbl.set_markup(f"<b>{th_name}</b> <span foreground='#a6e3a1'>[ACTIVE]</span>")
+                            self._append_console_line(f"✔ Live applied Kitty theme: {th_name}\n")
+                    return handler
+
+                apply_btn.connect("clicked", make_apply_handler(t["id"], t["name"], apply_btn, name_lbl))
+                row_box.pack_end(apply_btn, False, False, 4)
+
+                row.add(row_box)
+                listbox.add(row)
+
+            scroll.add(listbox)
+            return scroll
+
+        hacker_tab = create_theme_tab("💀 Hacker", "Hacker")
+        dev_tab = create_theme_tab("💻 Modern Dev", "Dev")
+
+        notebook.append_page(hacker_tab, Gtk.Label(label="💀 Hacker Themes (9)"))
+        notebook.append_page(dev_tab, Gtk.Label(label="💻 Dev Themes (10)"))
+        content.pack_start(notebook, True, True, 0)
 
         dialog.show_all()
         dialog.run()
