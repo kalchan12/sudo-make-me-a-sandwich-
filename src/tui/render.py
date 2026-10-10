@@ -21,6 +21,7 @@ def show_main_menu() -> str:
     table.add_column(style="green")
 
     categories = [
+        ("0", "Psycho (Essentials & Hacker Kitty)"),
         ("1", "Browsers"),
         ("2", "Productivity"),
         ("3", "IDEs & Editors"),

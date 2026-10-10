@@ -11,6 +11,7 @@ import shutil
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 CATEGORIES = [
+    ("psycho", "Psycho", "💀"),
     ("browsers", "Browsers", "🌐"),
     ("productivity", "Productivity", "💼"),
     ("ides", "IDEs & Editors", "💻"),
@@ -25,6 +26,14 @@ CATEGORIES = [
 
 # Supplementary descriptions and tips for pentest tools and any missing tools
 EXTRA_TOOL_DESCRIPTIONS: dict[str, tuple[str, list[str]]] = {
+    "Kitty (Hacker Suite)": (
+        "GPU-accelerated terminal emulator pre-configured with modular cyberpunk/matrix themes, Oh My Zsh, real-time syntax highlighting, and command history prediction.",
+        [
+            "Includes live theme switcher: kitty-theme matrix-green / kitty-theme cyberpunk-neon",
+            "Configured with zsh-autosuggestions (Right-Arrow / Ctrl+Space to accept)",
+            "Hot reload inside Kitty with Ctrl+Shift+F5",
+        ],
+    ),
     "nmap": (
         "Industry-standard network exploration tool and security/port scanner.",
         [

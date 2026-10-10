@@ -129,6 +129,7 @@ list_tools() {
     echo -e "${PURPLE}Available Tools by Category${NC}"
     echo ""
 
+    _print_category "Psycho" PSYCHO_LIST
     _print_category "Browsers" BROWSERS_LIST
     _print_category "Productivity" PRODUCTIVITY_LIST
     _print_category "IDEs & Editors" IDES_LIST
@@ -235,6 +236,7 @@ show_main_menu() {
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
     echo -e "${PURPLE}           Main Menu${NC}"
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
+    echo -e " ${YELLOW}0)${GREEN} Psycho (Essentials & Hacker Kitty)${NC}${NC}"
     echo -e " ${YELLOW}1)${GREEN} Browsers${NC}${NC}"
     echo -e " ${YELLOW}2)${GREEN} Productivity${NC}${NC}"
     echo -e " ${YELLOW}3)${GREEN} IDEs & Editors${NC}${NC}"
@@ -252,6 +254,7 @@ show_main_menu() {
     read -r choice
     echo -e -n "${NC}"
     case $choice in
+        0) show_psycho_menu ;;
         1) show_browsers_menu ;;
         2) show_productivity_menu ;;
         3) show_ides_menu ;;
@@ -757,7 +760,7 @@ install_by_name() {
     target_lower=$(echo "$target" | tr '[:upper:]' '[:lower:]')
 
     local all_lists=(
-        "BROWSERS_LIST" "TERMINALS_LIST" "PRODUCTIVITY_LIST" "IDES_LIST"
+        "PSYCHO_LIST" "BROWSERS_LIST" "TERMINALS_LIST" "PRODUCTIVITY_LIST" "IDES_LIST"
         "SHELLS_LIST" "DEV_TOOLS_LIST" "LANGUAGES_LIST"
         "PENTEST_LIST" "FRAMEWORKS_LIST" "AGENTIC_IDES_LIST"
     )

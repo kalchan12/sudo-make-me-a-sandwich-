@@ -80,6 +80,7 @@ def cmd_explain(name: str) -> int:
 
 def cmd_list() -> None:
     categories = [
+        ("Psycho", ["Kitty (Hacker Suite)", "Brave", "WPS Office", "OBS Studio", "ffmpeg", "yt-dlp"]),
         ("Browsers", ["Brave", "Google Chrome", "Firefox", "Vivaldi", "Chromium",
                        "Firefox Developer Edition", "Ungoogled Chromium", "LibreWolf"]),
         ("Productivity", ["Obsidian", "Telegram", "Proton Pass", "Proton VPN", "WPS Office", "OBS Studio", "ffmpeg", "yt-dlp"]),
@@ -152,6 +153,7 @@ def cmd_interactive(show_splash: bool = True) -> None:
         cmd_persona()
 
     ALL_MODULES = {
+        "0": ("psycho", "Psycho"),
         "1": ("browsers", "Browsers"),
         "2": ("productivity", "Productivity"),
         "3": ("ides", "IDEs & Editors"),
