@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Script: kitty-theme
+# Description: Modular theme switcher for Kitty Terminal with live instant reload
+# ==============================================================================
+
+THEMES_DIR="$HOME/.config/kitty/themes"
+ACTIVE_CONF="$THEMES_DIR/active-theme.conf"
+
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+BOLD='\033[1m'
+NC='\033[0m' # No Color
+
+list_themes() {
+    echo -e "${CYAN}${BOLD}╔═══════════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}${BOLD}║           KITTY HACKER THEME SELECTOR         ║${NC}"
+    echo -e "${CYAN}${BOLD}╚═══════════════════════════════════════════════╝${NC}"
+    echo -e "${BOLD}Available Themes:${NC}\n"
+
+    CURRENT_TARGET=""
+    if [ -L "$ACTIVE_CONF" ]; then
+        CURRENT_TARGET=$(readlink "$ACTIVE_CONF")
+    fi
+
+    for file in "$THEMES_DIR"/*.conf; do
+        theme_file=$(basename "$file")
+        [ "$theme_file" = "active-theme.conf" ] && continue
+        theme_name="${theme_file%.conf}"
+
+        if [ "$theme_file" = "$CURRENT_TARGET" ]; then
+            echo -e "  ${GREEN}● ${BOLD}$theme_name${NC} ${GREEN}[ACTIVE]${NC}"
+        else
+            echo -e "    $theme_name"
+        fi
+    done
+    echo ""
+    echo -e "Usage: ${YELLOW}kitty-theme <name>${NC}  (e.g., kitty-theme matrix-green)"
+}
+
+reload_kitty() {
+    # Send SIGUSR1 to reload kitty config in all running instances
+    if pgrep -x kitty > /dev/null 2>&1; then
+        killall -SIGUSR1 kitty 2>/dev/null || pkill -USR1 kitty 2>/dev/null
+        echo -e "${GREEN}✔ Live reloaded all running Kitty terminal instances!${NC}"
+    else
+        echo -e "${YELLOW}ℹ Kitty is not currently running. Changes will apply on next launch.${NC}"
+    fi
+}
+
+set_theme() {
+    target_input="$1"
+    matched_file=""
+
+    # Exact match first
+    if [ -f "$THEMES_DIR/$target_input.conf" ]; then
+        matched_file="$target_input.conf"
+    elif [ -f "$THEMES_DIR/$target_input" ]; then
+        matched_file="$target_input"
+    else
+        # Prefix / substring match
+        for f in "$THEMES_DIR"/*.conf; do
+            tname=$(basename "$f" .conf)
+            [ "$tname" = "active-theme" ] && continue
+            if [[ "$tname" == *"$target_input"* ]]; then
+                matched_file=$(basename "$f")
+                break
+            fi
+        done
+    fi
+
+    if [ -z "$matched_file" ] || [ ! -f "$THEMES_DIR/$matched_file" ]; then
+        echo -e "${RED}✘ Theme '$target_input' not found!${NC}"
+        echo -e "Run ${YELLOW}kitty-theme${NC} to see available themes."
+        exit 1
+    fi
+
+    ln -sfn "$matched_file" "$ACTIVE_CONF"
+    theme_clean_name="${matched_file%.conf}"
+    echo -e "${GREEN}✔ Activated theme:${NC} ${BOLD}$theme_clean_name${NC}"
+    reload_kitty
+}
+
+if [ -z "$1" ] || [ "$1" = "list" ] || [ "$1" = "-l" ] || [ "$1" = "--list" ]; then
+    list_themes
+else
+    set_theme "$1"
+fi
