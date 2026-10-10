@@ -9,6 +9,7 @@ PRODUCTIVITY_LIST=(
     "OBS Studio|install_obs_studio|obs-studio"
     "ffmpeg|install_ffmpeg|ffmpeg"
     "yt-dlp|install_yt_dlp|yt-dlp"
+    "Redshift|install_redshift|redshift"
 )
 
 show_productivity_menu() {
@@ -227,9 +228,24 @@ install_yt_dlp() {
     log_version "yt-dlp" yt-dlp
 }
 
+install_redshift() {
+    if command -v redshift &> /dev/null; then
+        log_message "WARN" "Redshift is already installed."
+        return
+    fi
+    confirm_install "Redshift" "redshift" || return
+    case $DISTRO in
+        debian)
+            _check_deps "Redshift (GUI)" "redshift-gtk"
+            ;;
+    esac
+    install_with_fallback "Redshift" "redshift" "redshift" "" "redshift"
+    log_version "Redshift" redshift
+}
+
 install_productivity() { _install_list "Productivity" PRODUCTIVITY_LIST; }
 
 check_productivity_installations() {
     _check_installations PRODUCTIVITY_LIST \
-        "Obsidian:obsidian" "Telegram:telegram-desktop" "Proton Pass:proton-pass" "Proton VPN:protonvpn-app" "WPS Office:wps" "OBS Studio:obs" "ffmpeg:ffmpeg" "yt-dlp:yt-dlp"
+        "Obsidian:obsidian" "Telegram:telegram-desktop" "Proton Pass:proton-pass" "Proton VPN:protonvpn-app" "WPS Office:wps" "OBS Studio:obs" "ffmpeg:ffmpeg" "yt-dlp:yt-dlp" "Redshift:redshift"
 }

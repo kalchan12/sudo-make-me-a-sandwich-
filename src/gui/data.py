@@ -36,6 +36,15 @@ EXTRA_TOOL_DESCRIPTIONS: dict[str, tuple[str, list[str]]] = {
             "Instant live reload inside Kitty with Ctrl+Shift+F5",
         ],
     ),
+    "Redshift": (
+        "Screen color temperature adjuster that adjusts display warmth according to your surroundings and time of day to prevent eye strain.",
+        [
+            "Syntax: redshift -O 4500 (one-shot temperature change to warm 4500K)",
+            "Reset: redshift -x (resets gamma and color temperature to default)",
+            "Automatic geo transition: redshift -l LAT:LON (e.g. redshift -l 40.7:-74.0)",
+            "System tray indicator: launch redshift-gtk",
+        ],
+    ),
     "nmap": (
         "Industry-standard network exploration tool and security/port scanner.",
         [

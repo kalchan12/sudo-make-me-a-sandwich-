@@ -218,6 +218,7 @@ PRODUCTIVITY_LIST=(
     "OBS Studio|install_obs_studio|obs-studio"
     "ffmpeg|install_ffmpeg|ffmpeg"
     "yt-dlp|install_yt_dlp|yt-dlp"
+    "Redshift|install_redshift|redshift"
 )
 
 IDES_LIST=(

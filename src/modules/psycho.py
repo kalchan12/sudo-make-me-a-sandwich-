@@ -22,6 +22,7 @@ TOOLS: list[tuple[str, str, str]] = [
     ("OBS Studio", "install_obs_studio", "obs-studio"),
     ("ffmpeg", "install_ffmpeg", "ffmpeg"),
     ("yt-dlp", "install_yt_dlp", "yt-dlp"),
+    ("Redshift", "install_redshift", "redshift"),
 ]
 
 BINS: dict[str, str] = {
@@ -31,6 +32,7 @@ BINS: dict[str, str] = {
     "OBS Studio": "obs",
     "ffmpeg": "ffmpeg",
     "yt-dlp": "yt-dlp",
+    "Redshift": "redshift",
 }
 
 

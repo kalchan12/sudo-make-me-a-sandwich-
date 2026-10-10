@@ -209,6 +209,17 @@ _explain_tool() {
             gecho "  yt-dlp -S 'res:1080' 'URL'             Filter by resolution"
             gecho "  yt-dlp --cookies-from-browser firefox 'URL'  Use browser cookies"
             ;;
+        Redshift)
+            echo -e "${YELLOW}Redshift Screen Temperature Adjuster${NC}"
+            gecho ""
+            gecho "Adjusts the color temperature of your display according to your surroundings to prevent eye strain."
+            gecho ""
+            gecho "Tips & Syntax:"
+            gecho "  • redshift -O 4500         One-shot transition to warm 4500K color"
+            gecho "  • redshift -x              Reset color temperature to normal"
+            gecho "  • redshift -l LAT:LON      Auto-adjust day/night based on GPS coordinates"
+            gecho "  • redshift-gtk             Launch system tray icon for quick toggling"
+            ;;
         "VS Code")
             echo -e "${YELLOW}Visual Studio Code${NC}"
             gecho ""
