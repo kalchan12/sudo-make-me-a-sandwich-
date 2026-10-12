@@ -20,6 +20,7 @@ CATEGORIES = [
     ("dev_tools", "Dev Tools", "🔧"),
     ("languages", "Languages", "📜"),
     ("pentest", "Pentesting", "🛡️"),
+    ("bug_bounty", "Bug Bounty", "🎯"),
     ("frameworks", "Frameworks", "🧱"),
     ("agentic_ides", "Agentic IDEs", "🤖"),
 ]
@@ -274,6 +275,62 @@ EXTRA_TOOL_DESCRIPTIONS: dict[str, tuple[str, list[str]]] = {
             "Filter host and port: tcpdump -i any host 10.0.0.1 and port 80",
         ],
     ),
+    "subfinder": (
+        "Fast and modular passive subdomain enumeration tool for discovering valid domains and attack surfaces.",
+        [
+            "Passive enumeration: subfinder -d target.com -o subdomains.txt",
+            "Recursive discovery: subfinder -d target.com -recursive",
+            "Pipe to httpx: subfinder -d target.com -silent | httpx -title -status-code",
+            "Add API keys to ~/.config/subfinder/provider-config.yaml for dramatically higher yields",
+        ],
+    ),
+    "httpx": (
+        "Fast and multi-purpose HTTP probing toolkit for analyzing endpoints, status codes, and tech stacks.",
+        [
+            "Probe alive hosts: httpx -l subdomains.txt -title -tech-detect -status-code",
+            "Filter status codes & follow redirects: httpx -l urls.txt -mc 200,302 -follow-redirects",
+            "Identify web stacks & response hash: httpx -l urls.txt -favicon -hash sha256",
+            "High concurrency & rate limiting: httpx -threads 100 -rl 50",
+        ],
+    ),
+    "nuclei": (
+        "Fast and customizable vulnerability scanner powered by community-driven YAML templates.",
+        [
+            "Scan single URL: nuclei -u https://target.com",
+            "Scan list with severity filter: nuclei -l targets.txt -severity critical,high",
+            "Filter by category tags: nuclei -u <target> -tags cve,exposure,misconfig,takeover",
+            "Update template library: nuclei -update-templates",
+            "Custom headers & proxy: nuclei -u <target> -header 'Cookie: session=xyz' -proxy http://127.0.0.1:8080",
+        ],
+    ),
+    "katana": (
+        "Next-generation web crawler and spidering framework with standard and headless browser modes.",
+        [
+            "Standard web crawl: katana -u https://target.com -o endpoints.txt",
+            "Headless crawling (SPAs & JS heavy): katana -u <url> -headless -system-chrome",
+            "Automatic form filling: katana -u <url> -aff -kf all",
+            "Crawl scope restriction: katana -u <url> -crawl-scope '*.target.com' -depth 3",
+            "Pipe crawled endpoints to nuclei: katana -u <url> -silent | nuclei -t vulnerabilities/",
+        ],
+    ),
+    "ghidra": (
+        "NSA's flagship software reverse engineering (SRE) framework with multi-architecture decompilation.",
+        [
+            "Launch GUI: ghidra (or /usr/local/bin/ghidra)",
+            "Disassemble, decompile, and inspect binaries, firmware, and native shared libraries",
+            "Headless batch analysis: analyzeHeadless <project_dir> <project_name> -import <binary>",
+            "Supports Python and Java plugins, custom scripts, and architectural extensions",
+        ],
+    ),
+    "caido": (
+        "Modern, lightweight web security auditing toolkit and interception proxy built in Rust.",
+        [
+            "Launch: caido (opens local web interface or native desktop UI on 127.0.0.1:8080)",
+            "Ultra-low RAM & CPU footprint compared to Java-based proxies",
+            "Intercept, inspect, and modify HTTP/WebSocket traffic with full syntax highlighting",
+            "Automate replay workflows and extend functionality with custom JavaScript plugins",
+        ],
+    ),
 }
 
 
@@ -418,6 +475,8 @@ def check_tool_installed(tool: ToolInfo) -> bool:
         "ZCode": "/opt/zcode",
         "Antigravity": "/opt/antigravity",
         "Kiro": "/opt/kiro",
+        "ghidra": "/opt/ghidra/ghidraRun",
+        "caido": "/opt/caido/caido",
     }
     if tool.name in custom_paths:
         p = Path(custom_paths[tool.name])

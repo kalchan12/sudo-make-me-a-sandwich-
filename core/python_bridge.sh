@@ -24,6 +24,7 @@ show_shells_menu() { python3 "$PYTHON_ENGINE" interactive; }
 show_dev_tools_menu() { python3 "$PYTHON_ENGINE" interactive; }
 show_languages_menu() { python3 "$PYTHON_ENGINE" interactive; }
 show_pentest_menu() { python3 "$PYTHON_ENGINE" interactive; }
+show_bug_bounty_menu() { python3 "$PYTHON_ENGINE" interactive; }
 show_frameworks_menu() { python3 "$PYTHON_ENGINE" interactive; }
 show_agentic_ides_menu() { python3 "$PYTHON_ENGINE" interactive; }
 

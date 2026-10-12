@@ -30,19 +30,20 @@ def show_main_menu() -> str:
         ("6", "Dev Tools"),
         ("7", "Languages"),
         ("8", "Pentesting"),
-        ("9", "Frameworks"),
-        ("10", "Agentic IDEs"),
+        ("9", "Bug Bounty"),
+        ("10", "Frameworks"),
+        ("11", "Agentic IDEs"),
     ]
 
     for num, name in categories:
         table.add_row(f"{num})", name)
 
     table.add_section()
-    table.add_row("11)", "[green]Full Install (everything)[/]")
-    table.add_row("12)", "[green]Minimal Install (browsers + terminals)[/]")
-    table.add_row("13)", "[cyan]Update System[/]")
+    table.add_row("12)", "[green]Full Install (everything)[/]")
+    table.add_row("13)", "[green]Minimal Install (browsers + terminals)[/]")
+    table.add_row("14)", "[cyan]Update System[/]")
     table.add_section()
-    table.add_row("14)", "[red]Exit[/]")
+    table.add_row("15)", "[red]Exit[/]")
 
     panel = Panel(
         table,

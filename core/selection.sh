@@ -99,6 +99,10 @@ _show_selection_menu() {
         for info in "${PENTEST_LIST[@]}"; do
             all_items+=("$info")
         done
+        echo -e "  ${GREEN}── Bug Bounty Tools ──${NC}"
+        for info in "${BUG_BOUNTY_LIST[@]}"; do
+            all_items+=("$info")
+        done
     fi
 
     local total_bytes=0
@@ -211,6 +215,12 @@ _show_selection_menu() {
             install_tor) command -v tor &>/dev/null && already=true ;;
             install_wireshark) command -v tshark &>/dev/null && already=true ;;
             install_tcpdump) command -v tcpdump &>/dev/null && already=true ;;
+            install_subfinder) command -v subfinder &>/dev/null && already=true ;;
+            install_httpx) (command -v httpx &>/dev/null || command -v httpx-toolkit &>/dev/null) && already=true ;;
+            install_nuclei) command -v nuclei &>/dev/null && already=true ;;
+            install_katana) command -v katana &>/dev/null && already=true ;;
+            install_ghidra) (command -v ghidra &>/dev/null || command -v ghidraRun &>/dev/null || [ -d /opt/ghidra ]) && already=true ;;
+            install_caido) (command -v caido &>/dev/null || command -v caido-cli &>/dev/null || [ -f /opt/caido/caido ]) && already=true ;;
         esac
 
         if [ "$already" = true ]; then

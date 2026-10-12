@@ -100,6 +100,7 @@ def cmd_list() -> None:
                          "recon-ng", "sherlock", "exiftool", "steghide", "binwalk",
                          "aircrack-ng", "bettercap", "reaver", "proxychains", "tor",
                          "wireshark", "tcpdump"]),
+        ("Bug Bounty", ["subfinder", "httpx", "nuclei", "katana", "ghidra", "caido"]),
         ("Frameworks", ["Flutter", "React Native", "Next.js", "Node.js (Latest)",
                          "Electron", "Tauri", "Deno", "Bun"]),
         ("Agentic IDEs", ["OpenCode", "ZCode", "Antigravity", "Kiro"]),
@@ -162,29 +163,30 @@ def cmd_interactive(show_splash: bool = True) -> None:
         "6": ("dev_tools", "Dev Tools"),
         "7": ("languages", "Languages"),
         "8": ("pentest", "Pentesting"),
-        "9": ("frameworks", "Frameworks"),
-        "10": ("agentic_ides", "Agentic IDEs"),
+        "9": ("bug_bounty", "Bug Bounty"),
+        "10": ("frameworks", "Frameworks"),
+        "11": ("agentic_ides", "Agentic IDEs"),
     }
 
     while True:
         choice = show_main_menu()
 
-        if choice in ("14", "exit", "q"):
+        if choice in ("15", "exit", "q"):
             break
 
-        if choice in ("13", "update"):
+        if choice in ("14", "update"):
             log_message("INFO", "--- Updating System ---")
             bash_call("pkg_update_system")
             continue
 
-        if choice in ("11", "full", "all"):
+        if choice in ("12", "full", "all"):
             log_message("INFO", "--- Full Install ---")
             for key, (mod_name, _) in ALL_MODULES.items():
                 mod = importlib.import_module(f"src.modules.{mod_name}")
                 mod.install_all()
             continue
 
-        if choice in ("12", "minimal"):
+        if choice in ("13", "minimal"):
             log_message("INFO", "--- Minimal Install ---")
             mod = importlib.import_module("src.modules.browsers")
             mod.install_all()
@@ -196,7 +198,7 @@ def cmd_interactive(show_splash: bool = True) -> None:
             try:
                 idx = int(choice[1:])
                 name_list = ["Browsers", "Productivity", "IDEs & Editors", "Terminals",
-                             "Shells", "Dev Tools", "Languages", "Pentesting", "Frameworks",
+                             "Shells", "Dev Tools", "Languages", "Pentesting", "Bug Bounty", "Frameworks",
                              "Agentic IDEs"]
                 if 1 <= idx <= len(name_list):
                     code, out, err = bash_call("_explain_tool", name_list[idx - 1])

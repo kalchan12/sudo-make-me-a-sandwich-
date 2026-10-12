@@ -1036,6 +1036,70 @@ _explain_tool() {
             gecho "  kotlinc-jvm              REPL"
             ;;
 
+        subfinder)
+            echo -e "${YELLOW}subfinder — Passive Subdomain Discovery${NC}"
+            gecho ""
+            gecho "Fast and modular passive subdomain enumeration tool for mapping attack surfaces."
+            gecho ""
+            gecho "Usage:"
+            gecho "  subfinder -d target.com              — enumerate subdomains"
+            gecho "  subfinder -d target.com -recursive   — recursive discovery"
+            gecho "  subfinder -d target.com -o subs.txt  — output results to file"
+            gecho "  subfinder -d target.com -silent | httpx -title  — pipe to HTTP prober"
+            ;;
+        httpx)
+            echo -e "${YELLOW}httpx — HTTP Toolkit & Prober${NC}"
+            gecho ""
+            gecho "Multi-purpose, high-performance HTTP probing and web fingerprinting toolkit."
+            gecho ""
+            gecho "Usage:"
+            gecho "  httpx -l hosts.txt                   — probe live HTTP services"
+            gecho "  httpx -l hosts.txt -title -tech-detect -status-code  — extract tech & titles"
+            gecho "  httpx -l hosts.txt -mc 200,302 -follow-redirects     — filter response codes"
+            gecho "  httpx -threads 100 -rl 50             — tuned concurrency & rate limits"
+            ;;
+        nuclei)
+            echo -e "${YELLOW}nuclei — Template-Based Vulnerability Scanner${NC}"
+            gecho ""
+            gecho "Fast and customizable vulnerability scanner driven by community YAML templates."
+            gecho ""
+            gecho "Usage:"
+            gecho "  nuclei -u https://target.com         — scan single target"
+            gecho "  nuclei -l targets.txt -severity critical,high  — scan list with severity filter"
+            gecho "  nuclei -u <target> -tags cve,exposure,misconfig — scan targeted tags"
+            gecho "  nuclei -update-templates             — update community template repo"
+            ;;
+        katana)
+            echo -e "${YELLOW}katana — Next-Gen Web Crawler${NC}"
+            gecho ""
+            gecho "Next-generation web crawler and spider supporting headless browser mode and JS parsing."
+            gecho ""
+            gecho "Usage:"
+            gecho "  katana -u https://target.com         — standard spidering"
+            gecho "  katana -u <url> -headless            — headless browser mode for dynamic SPAs"
+            gecho "  katana -u <url> -aff -kf all         — automatic form fill and form discovery"
+            gecho "  katana -u <url> -crawl-scope '*.target.com' -depth 3 — restrict scope"
+            ;;
+        ghidra)
+            echo -e "${YELLOW}Ghidra — Software Reverse Engineering Framework${NC}"
+            gecho ""
+            gecho "NSA's flagship software reverse engineering suite with multi-architecture decompiler."
+            gecho ""
+            gecho "Usage:"
+            gecho "  ghidra                               — launch interactive GUI"
+            gecho "  analyzeHeadless <dir> <proj> -import <file> — headless batch analysis"
+            gecho "  Includes C/C++ decompiler, dissassembler, and scripting support"
+            ;;
+        caido)
+            echo -e "${YELLOW}caido — Web Security Auditing Toolkit${NC}"
+            gecho ""
+            gecho "Modern, lightweight security auditing proxy built in Rust as a fast Burp Suite alternative."
+            gecho ""
+            gecho "Usage:"
+            gecho "  caido                                — launch Caido proxy (web UI on 127.0.0.1:8080)"
+            gecho "  Intercept, inspect, and replay HTTP/WebSocket traffic with minimal resource footprint"
+            ;;
+
         *)
             gecho "No explanation available for '$tool_name'."
             ;;

@@ -138,6 +138,7 @@ list_tools() {
     _print_category "Dev Tools" DEV_TOOLS_LIST
     _print_category "Languages" LANGUAGES_LIST
     _print_category "Pentesting Tools" PENTEST_LIST
+    _print_category "Bug Bounty Tools" BUG_BOUNTY_LIST
     _print_category "Frameworks" FRAMEWORKS_LIST
     _print_category "Agentic IDEs" AGENTIC_IDES_LIST
 
@@ -246,11 +247,12 @@ show_main_menu() {
     echo -e " ${YELLOW}6)${GREEN} Dev Tools${NC}${NC}"
     echo -e " ${YELLOW}7)${GREEN} Programming Languages${NC}${NC}"
     echo -e " ${YELLOW}8)${GREEN} Pentesting Tools${NC}${NC}"
-    echo -e " ${YELLOW}9)${GREEN} Frameworks${NC}${NC}"
-    echo -e " ${YELLOW}10)${GREEN} Agentic IDEs${NC}${NC}"
-    echo -e " ${YELLOW}11)${GREEN} Full Installation${NC}${NC}"
-    echo -e " ${YELLOW}12)${GREEN} Minimal Installation${NC}${NC}"
-    echo -e " ${YELLOW}13)${GREEN} Exit${NC}${NC}"
+    echo -e " ${YELLOW}9)${GREEN} Bug Bounty Tools${NC}${NC}"
+    echo -e " ${YELLOW}10)${GREEN} Frameworks${NC}${NC}"
+    echo -e " ${YELLOW}11)${GREEN} Agentic IDEs${NC}${NC}"
+    echo -e " ${YELLOW}12)${GREEN} Full Installation${NC}${NC}"
+    echo -e " ${YELLOW}13)${GREEN} Minimal Installation${NC}${NC}"
+    echo -e " ${YELLOW}14)${GREEN} Exit${NC}${NC}"
     echo -n -e "${PURPLE}Select an option: ${NC}${YELLOW}"
     read -r choice
     echo -e -n "${NC}"
@@ -264,11 +266,12 @@ show_main_menu() {
         6) show_dev_tools_menu ;;
         7) show_languages_menu ;;
         8) show_pentest_menu ;;
-        9) show_frameworks_menu ;;
-        10) show_agentic_ides_menu ;;
-        11) FULL_MODE=true; run_installation ;;
-        12) MINIMAL_MODE=true; run_installation ;;
-        13) log_message "INFO" "Exiting..."; exit 0 ;;
+        9) show_bug_bounty_menu ;;
+        10) show_frameworks_menu ;;
+        11) show_agentic_ides_menu ;;
+        12) FULL_MODE=true; run_installation ;;
+        13) MINIMAL_MODE=true; run_installation ;;
+        14) log_message "INFO" "Exiting..."; exit 0 ;;
         *) log_message "WARN" "Invalid option: $choice"; show_main_menu ;;
     esac
 }
@@ -739,6 +742,7 @@ run_installation() {
             install_dev_tools
             install_all_languages
             install_pentest
+            install_bug_bounty
             install_frameworks
             install_all_agentic_ides
         fi
@@ -763,7 +767,7 @@ install_by_name() {
     local all_lists=(
         "PSYCHO_LIST" "BROWSERS_LIST" "TERMINALS_LIST" "PRODUCTIVITY_LIST" "IDES_LIST"
         "SHELLS_LIST" "DEV_TOOLS_LIST" "LANGUAGES_LIST"
-        "PENTEST_LIST" "FRAMEWORKS_LIST" "AGENTIC_IDES_LIST"
+        "PENTEST_LIST" "BUG_BOUNTY_LIST" "FRAMEWORKS_LIST" "AGENTIC_IDES_LIST"
     )
 
     local list_name
