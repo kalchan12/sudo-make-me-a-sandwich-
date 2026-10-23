@@ -630,6 +630,26 @@ def set_kitty_theme(theme_id: str) -> tuple[bool, str]:
         except Exception:
             pass
 
+    # Ensure ~/.zshrc exists with autosuggestions & predictions
+    zshrc_dest = Path.home() / ".zshrc"
+    repo_zshrc = PROJECT_ROOT / "kitty-config" / "zsh" / ".zshrc"
+    if not zshrc_dest.exists() and repo_zshrc.exists():
+        try:
+            shutil.copy(repo_zshrc, zshrc_dest)
+        except Exception:
+            pass
+
+    # Auto-bootstrap Oh My Zsh & plugins in background if not present
+    omz_dir = Path.home() / ".oh-my-zsh"
+    if not omz_dir.exists():
+        install_script = PROJECT_ROOT / "kitty-config" / "install.sh"
+        if install_script.exists():
+            try:
+                import subprocess
+                subprocess.Popen(["bash", str(install_script)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except Exception:
+                pass
+
     target_conf = themes_dir / f"{theme_id}.conf"
     if not target_conf.exists():
         repo_conf = repo_themes_dir / f"{theme_id}.conf"

@@ -6,7 +6,7 @@ DEST="${HOME}/.sudo-make-me-a-sandwich"
 
 if [ -d "$DEST" ]; then
     echo "Updating existing installation..."
-    git -C "$DEST" pull --ff-only
+    git -C "$DEST" pull --ff-only 2>/dev/null || (git -C "$DEST" fetch origin main && git -C "$DEST" reset --hard origin/main 2>/dev/null) || true
 else
     echo "Cloning into $DEST..."
     git clone "https://github.com/$REPO.git" "$DEST"
