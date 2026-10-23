@@ -667,6 +667,9 @@ def set_kitty_theme(theme_id: str) -> tuple[bool, str]:
         import subprocess
         subprocess.run(["pkill", "-SIGUSR1", "kitty"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         subprocess.run(["killall", "-SIGUSR1", "kitty"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(["kitty", "@", "set-colors", "--all", "--configured", str(target_conf)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if target_script.exists():
+            subprocess.run([str(target_script), theme_id], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         return True, f"Successfully activated theme '{theme_id}'!"
     except Exception as e:
         return False, str(e)

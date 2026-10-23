@@ -852,28 +852,40 @@ main() {
     [ "${DRY_RUN:-}" = "true" ] && DRY_RUN=true
     [ "${VERBOSE_MODE:-}" = "true" ] && VERBOSE_MODE=true
 
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
     # If running under sudo and DISPLAY is not set, preserve desktop user's X environment
     if [ -n "$SUDO_USER" ]; then
         export DISPLAY="${DISPLAY:-:0}"
         if [ -z "$XAUTHORITY" ] && [ -f "/home/$SUDO_USER/.Xauthority" ]; then
             export XAUTHORITY="/home/$SUDO_USER/.Xauthority"
         fi
+        sudo -u "$SUDO_USER" xhost +si:localuser:root 2>/dev/null || true
     fi
 
     # Helper function: test if graphical environment is available
     _can_launch_gui() {
         [ -z "$DISPLAY" ] && [ -z "$WAYLAND_DISPLAY" ] && return 1
         command -v python3 &>/dev/null || return 1
-        python3 -c "from src.gui.launcher import is_gui_available; import sys; sys.exit(0 if is_gui_available() else 1)" 2>/dev/null
+        PYTHONPATH="$script_dir" python3 -c "from src.gui.launcher import is_gui_available; import sys; sys.exit(0 if is_gui_available() else 1)" 2>/dev/null
+    }
+
+    _exec_gui() {
+        if [ -n "$SUDO_USER" ] && [ "$EUID" -eq 0 ]; then
+            exec sudo -u "$SUDO_USER" env DISPLAY="$DISPLAY" XAUTHORITY="$XAUTHORITY" PYTHONPATH="$script_dir" python3 "$script_dir/src/main.py" gui "$@"
+        else
+            PYTHONPATH="$script_dir" exec python3 "$script_dir/src/main.py" gui "$@"
+        fi
     }
 
     # Decide whether to launch GUI:
     # If --gui was passed, OR if no action flags and not forced to CLI mode, launch GUI if available!
     if [ "$GUI_REQUESTED" = true ]; then
-        exec python3 "$(dirname "$0")/src/main.py" gui "$@"
+        _exec_gui "$@"
     elif [ "$CLI_REQUESTED" = false ] && [ "$ACTION_SPECIFIED" = false ]; then
         if _can_launch_gui; then
-            exec python3 "$(dirname "$0")/src/main.py" gui "$@"
+            _exec_gui "$@"
         fi
     fi
 

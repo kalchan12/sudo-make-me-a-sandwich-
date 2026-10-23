@@ -671,6 +671,8 @@ class TkSandwichApp:
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
+        theme_widgets = {}
+
         def add_category_section(cat_name, filter_cat):
             sec_lbl = tk.Label(
                 scrollable_frame,
@@ -714,15 +716,6 @@ class TkSandwichApp:
                 )
                 dlbl.pack(anchor="w")
 
-                def make_apply(tid=t["id"], tname=t["name"], name_lbl=nlbl):
-                    def do_apply():
-                        ok, msg = set_kitty_theme(tid)
-                        if ok:
-                            lbl_header.config(text=f"Active Theme: {tid}")
-                            name_lbl.config(text=f"{tname} [ACTIVE]", fg="#a6e3a1")
-                            self._append_line(f"✔ Live applied Kitty theme: {tname}\n")
-                    return do_apply
-
                 btn_apply = tk.Button(
                     row,
                     text="Current" if is_active else "Apply",
@@ -730,9 +723,26 @@ class TkSandwichApp:
                     fg="#89b4fa",
                     relief=tk.FLAT,
                     state=tk.DISABLED if is_active else tk.NORMAL,
-                    command=make_apply(),
                 )
                 btn_apply.pack(side=tk.RIGHT, padx=4)
+                theme_widgets[t["id"]] = (btn_apply, nlbl, t["name"])
+
+                def make_apply(tid=t["id"], tname=t["name"]):
+                    def do_apply():
+                        ok, msg = set_kitty_theme(tid)
+                        if ok:
+                            lbl_header.config(text=f"Active Theme: {tid}")
+                            for w_id, (b_obj, l_obj, th_n) in theme_widgets.items():
+                                if w_id == tid:
+                                    b_obj.config(text="Current", state=tk.DISABLED)
+                                    l_obj.config(text=f"{th_n} [ACTIVE]", fg="#a6e3a1")
+                                else:
+                                    b_obj.config(text="Apply", state=tk.NORMAL)
+                                    l_obj.config(text=th_n, fg="#cdd6f4")
+                            self._append_line(f"✔ Live applied Kitty theme: {tname}\n")
+                    return do_apply
+
+                btn_apply.config(command=make_apply(t["id"], t["name"]))
 
         add_category_section("💀 Hacker Themes (9)", "Hacker")
         add_category_section("💻 Modern Dev Themes (10)", "Dev")

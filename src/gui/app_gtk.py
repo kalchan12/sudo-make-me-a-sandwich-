@@ -904,6 +904,7 @@ class SandwichApp(Gtk.Window):
         content.pack_start(header_lbl, False, False, 4)
 
         notebook = Gtk.Notebook()
+        theme_buttons = {}
 
         # Helper to build theme tab list
         def create_theme_tab(category_name, filter_cat):
@@ -946,19 +947,28 @@ class SandwichApp(Gtk.Window):
                 # Apply button
                 apply_btn = Gtk.Button(label="Apply" if not is_active else "Current")
                 apply_btn.set_sensitive(not is_active)
+                theme_buttons[t["id"]] = (apply_btn, name_lbl, t["name"])
 
-                def make_apply_handler(theme_id, th_name, btn, n_lbl):
+                def make_apply_handler(theme_id, th_name):
                     def handler(_):
                         ok, msg = set_kitty_theme(theme_id)
                         if ok:
                             header_lbl.set_markup(f"<b>Active Theme:</b> <span foreground='#a6e3a1'><b>{theme_id}</b></span>")
-                            btn.set_label("Current")
-                            btn.set_sensitive(False)
-                            n_lbl.set_markup(f"<b>{th_name}</b> <span foreground='#a6e3a1'>[ACTIVE]</span>")
+                            for tid, (btn_obj, lbl_obj, name_str) in theme_buttons.items():
+                                if tid == theme_id:
+                                    btn_obj.set_label("Current")
+                                    btn_obj.set_sensitive(False)
+                                    lbl_obj.set_markup(f"<b>{name_str}</b> <span foreground='#a6e3a1'>[ACTIVE]</span>")
+                                else:
+                                    btn_obj.set_label("Apply")
+                                    btn_obj.set_sensitive(True)
+                                    lbl_obj.set_markup(f"<b>{name_str}</b>")
                             self._append_console_line(f"✔ Live applied Kitty theme: {th_name}\n")
+                        else:
+                            self._append_console_line(f"✘ Failed to apply Kitty theme '{th_name}': {msg}\n")
                     return handler
 
-                apply_btn.connect("clicked", make_apply_handler(t["id"], t["name"], apply_btn, name_lbl))
+                apply_btn.connect("clicked", make_apply_handler(t["id"], t["name"]))
                 row_box.pack_end(apply_btn, False, False, 4)
 
                 row.add(row_box)
