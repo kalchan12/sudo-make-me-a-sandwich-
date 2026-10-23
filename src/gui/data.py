@@ -586,12 +586,54 @@ def get_active_kitty_theme() -> str:
 
 def set_kitty_theme(theme_id: str) -> tuple[bool, str]:
     """Apply Kitty theme and reload running instances."""
-    themes_dir = Path.home() / ".config" / "kitty" / "themes"
+    kitty_dir = Path.home() / ".config" / "kitty"
+    themes_dir = kitty_dir / "themes"
+    themes_dir.mkdir(parents=True, exist_ok=True)
+
+    repo_themes_dir = PROJECT_ROOT / "kitty-config" / "themes"
+    # Ensure all themes from repo are deployed to user themes dir
+    if repo_themes_dir.exists():
+        for f in repo_themes_dir.glob("*.conf"):
+            dest_f = themes_dir / f.name
+            if not dest_f.exists() and not f.is_symlink():
+                try:
+                    shutil.copy(f, dest_f)
+                except Exception:
+                    pass
+
+    # Ensure ~/.config/kitty/kitty.conf exists and includes themes/active-theme.conf
+    kitty_conf = kitty_dir / "kitty.conf"
+    repo_kitty_conf = PROJECT_ROOT / "kitty-config" / "kitty.conf"
+    if not kitty_conf.exists() and repo_kitty_conf.exists():
+        try:
+            shutil.copy(repo_kitty_conf, kitty_conf)
+        except Exception:
+            pass
+    elif kitty_conf.exists():
+        try:
+            content = kitty_conf.read_text(encoding="utf-8", errors="ignore")
+            if "active-theme.conf" not in content:
+                with kitty_conf.open("a", encoding="utf-8") as kf:
+                    kf.write("\n# --- MODULAR THEME IMPORT ---\ninclude themes/active-theme.conf\n")
+        except Exception:
+            pass
+
+    # Deploy CLI switcher to ~/.local/bin/kitty-theme
+    local_bin = Path.home() / ".local" / "bin"
+    local_bin.mkdir(parents=True, exist_ok=True)
+    target_script = local_bin / "kitty-theme"
+    repo_script = PROJECT_ROOT / "kitty-config" / "scripts" / "kitty-theme"
+    if repo_script.exists():
+        try:
+            shutil.copy(repo_script, target_script)
+            target_script.chmod(0o755)
+        except Exception:
+            pass
+
     target_conf = themes_dir / f"{theme_id}.conf"
     if not target_conf.exists():
-        repo_conf = PROJECT_ROOT / "kitty-config" / "themes" / f"{theme_id}.conf"
+        repo_conf = repo_themes_dir / f"{theme_id}.conf"
         if repo_conf.exists():
-            themes_dir.mkdir(parents=True, exist_ok=True)
             shutil.copy(repo_conf, target_conf)
         else:
             return False, f"Theme '{theme_id}' not found."
@@ -603,6 +645,7 @@ def set_kitty_theme(theme_id: str) -> tuple[bool, str]:
         os.symlink(f"{theme_id}.conf", active_symlink)
         # Hot-reload running kitty instances
         import subprocess
+        subprocess.run(["pkill", "-SIGUSR1", "kitty"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         subprocess.run(["killall", "-SIGUSR1", "kitty"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         return True, f"Successfully activated theme '{theme_id}'!"
     except Exception as e:

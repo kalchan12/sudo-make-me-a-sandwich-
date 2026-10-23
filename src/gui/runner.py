@@ -76,11 +76,15 @@ class CommandRunner:
             if has_pkexec:
                 display = os.environ.get("DISPLAY", ":0")
                 xauth = os.environ.get("XAUTHORITY", str(Path.home() / ".Xauthority"))
+                current_user = os.environ.get("USER", os.environ.get("LOGNAME", "kal"))
+                current_home = str(Path.home())
                 final_cmd = [
                     "pkexec",
                     "env",
                     f"DISPLAY={display}",
                     f"XAUTHORITY={xauth}",
+                    f"SUDO_USER={current_user}",
+                    f"HOME={current_home}",
                     "bash",
                     str(setup_script),
                 ] + full_script_args

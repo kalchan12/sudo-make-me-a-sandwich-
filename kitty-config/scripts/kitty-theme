@@ -43,7 +43,7 @@ list_themes() {
 reload_kitty() {
     # Send SIGUSR1 to reload kitty config in all running instances
     if pgrep -x kitty > /dev/null 2>&1; then
-        killall -SIGUSR1 kitty 2>/dev/null || pkill -USR1 kitty 2>/dev/null
+        pkill -SIGUSR1 kitty 2>/dev/null || killall -SIGUSR1 kitty 2>/dev/null
         echo -e "${GREEN}✔ Live reloaded all running Kitty terminal instances!${NC}"
     else
         echo -e "${YELLOW}ℹ Kitty is not currently running. Changes will apply on next launch.${NC}"
@@ -75,6 +75,15 @@ set_theme() {
         echo -e "${RED}✘ Theme '$target_input' not found!${NC}"
         echo -e "Run ${YELLOW}kitty-theme${NC} to see available themes."
         exit 1
+    fi
+
+    # Ensure ~/.config/kitty/kitty.conf exists and includes themes/active-theme.conf
+    KITTY_CONF="$HOME/.config/kitty/kitty.conf"
+    if [ ! -f "$KITTY_CONF" ]; then
+        mkdir -p "$HOME/.config/kitty"
+        echo -e "include themes/active-theme.conf\n" > "$KITTY_CONF"
+    elif ! grep -q "active-theme.conf" "$KITTY_CONF" 2>/dev/null; then
+        echo -e "\ninclude themes/active-theme.conf" >> "$KITTY_CONF"
     fi
 
     ln -sfn "$matched_file" "$ACTIVE_CONF"

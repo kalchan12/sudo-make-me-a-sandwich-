@@ -124,9 +124,12 @@ setup_default_shell() {
     ZSH_PATH=$(command -v zsh || echo "/bin/zsh")
 
     if [ "$CURRENT_SHELL" != "zsh" ]; then
-        log_info "Changing default shell to zsh ($ZSH_PATH)..."
-        if command -v chsh &>/dev/null; then
-            chsh -s "$ZSH_PATH" "$USER" || log_warn "Could not change default shell automatically. Run: chsh -s $(which zsh)"
+        if [ "$EUID" -eq 0 ]; then
+            log_info "Changing default shell to zsh ($ZSH_PATH)..."
+            chsh -s "$ZSH_PATH" "$USER" 2>/dev/null || true
+        else
+            log_info "Kitty terminal is configured to launch zsh directly."
+            log_warn "To also set zsh as your system-wide default login shell, run: chsh -s $(which zsh)"
         fi
     else
         log_success "Zsh is already your default shell."
@@ -424,7 +427,7 @@ tab_title_template "{index}: {title}"
 active_tab_font_style bold
 
 # --- SHELL INTEGRATION ---
-shell /bin/zsh
+shell zsh
 close_on_child_death no
 allow_remote_control yes
 
@@ -483,7 +486,7 @@ list_themes() {
 
 reload_kitty() {
     if pgrep -x kitty > /dev/null 2>&1; then
-        killall -SIGUSR1 kitty 2>/dev/null || pkill -USR1 kitty 2>/dev/null
+        pkill -SIGUSR1 kitty 2>/dev/null || killall -SIGUSR1 kitty 2>/dev/null
         echo -e "${GREEN}✔ Live reloaded all running Kitty terminal instances!${NC}"
     else
         echo -e "${YELLOW}ℹ Kitty is not currently running. Changes will apply on next launch.${NC}"

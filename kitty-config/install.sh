@@ -23,7 +23,13 @@ echo -e "${CYAN}${BOLD}╚══════════════════
 
 # Detect sudo privileges & determine target desktop user
 SUDO=""
-TARGET_USER="${SUDO_USER:-$USER}"
+if [ -n "$SUDO_USER" ]; then
+    TARGET_USER="$SUDO_USER"
+elif [ -n "$PKEXEC_UID" ]; then
+    TARGET_USER=$(id -un "$PKEXEC_UID" 2>/dev/null)
+else
+    TARGET_USER="${USER:-$(whoami)}"
+fi
 TARGET_HOME=$(getent passwd "$TARGET_USER" 2>/dev/null | cut -d: -f6)
 [ -z "$TARGET_HOME" ] && TARGET_HOME="$HOME"
 
@@ -87,8 +93,13 @@ install_dependencies
 # Set default shell to zsh if not already
 USER_SHELL=$(getent passwd "$TARGET_USER" 2>/dev/null | cut -d: -f7)
 if [ "$(basename "$USER_SHELL")" != "zsh" ]; then
-    echo -e "${CYAN}[*] Setting default shell to zsh for $TARGET_USER...${NC}"
-    chsh -s "$(command -v zsh)" "$TARGET_USER" 2>/dev/null || echo -e "${YELLOW}[!] Please run: chsh -s $(which zsh)${NC}"
+    if [ "$EUID" -eq 0 ]; then
+        echo -e "${CYAN}[*] Setting default shell to zsh for $TARGET_USER...${NC}"
+        chsh -s "$(command -v zsh)" "$TARGET_USER" 2>/dev/null || true
+    else
+        echo -e "${CYAN}[ℹ] Kitty is configured to launch zsh directly.${NC}"
+        echo -e "${YELLOW}    To also make zsh your system login shell, run: chsh -s $(which zsh)${NC}"
+    fi
 fi
 
 # Setup Oh My Zsh in TARGET_HOME
@@ -120,6 +131,9 @@ echo -e "${CYAN}[*] Deploying Kitty terminal configuration & themes to $TARGET_H
 mkdir -p "$TARGET_HOME/.config/kitty/themes"
 cp "$SCRIPT_DIR/kitty.conf" "$TARGET_HOME/.config/kitty/kitty.conf"
 cp -r "$SCRIPT_DIR/themes/"* "$TARGET_HOME/.config/kitty/themes/"
+if [ ! -L "$TARGET_HOME/.config/kitty/themes/active-theme.conf" ]; then
+    (cd "$TARGET_HOME/.config/kitty/themes" && ln -sfn cyberpunk-neon.conf active-theme.conf)
+fi
 
 # Deploy kitty-theme switcher script
 mkdir -p "$TARGET_HOME/.local/bin"
@@ -133,9 +147,15 @@ if [ -f "$TARGET_HOME/.zshrc" ] && [ ! -f "$TARGET_HOME/.zshrc.pre-hacker.bak" ]
 fi
 cp "$SCRIPT_DIR/zsh/.zshrc" "$TARGET_HOME/.zshrc"
 
-# Fix ownership if running under sudo
-if [ "$EUID" -eq 0 ] && [ -n "$SUDO_USER" ]; then
-    chown -R "$TARGET_USER:$TARGET_USER" "$TARGET_HOME/.config/kitty" "$TARGET_HOME/.local" "$TARGET_HOME/.oh-my-zsh" "$TARGET_HOME/.zshrc" 2>/dev/null || true
+# Add kitty-theme to ~/.bashrc for easy access when running bash
+if [ -f "$TARGET_HOME/.bashrc" ] && ! grep -q "kitty-theme" "$TARGET_HOME/.bashrc" 2>/dev/null; then
+    echo -e '\n# Kitty theme switcher\nexport PATH="$HOME/.local/bin:$PATH"\nalias kitty-theme="kitty-theme"\nalias kt="kitty-theme"' >> "$TARGET_HOME/.bashrc"
+fi
+
+# Fix ownership if running under root/sudo
+if [ "$EUID" -eq 0 ] && [ "$TARGET_USER" != "root" ]; then
+    TARGET_GROUP=$(id -gn "$TARGET_USER" 2>/dev/null || echo "$TARGET_USER")
+    chown -R "$TARGET_USER:$TARGET_GROUP" "$TARGET_HOME/.config/kitty" "$TARGET_HOME/.local" "$TARGET_HOME/.oh-my-zsh" "$TARGET_HOME/.zshrc" "$TARGET_HOME/.bashrc" 2>/dev/null || true
 fi
 
 echo -e "\n${GREEN}${BOLD}✔ Successfully imported Kitty and Zsh Hacker Configuration!${NC}"

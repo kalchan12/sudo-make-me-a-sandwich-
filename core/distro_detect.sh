@@ -21,27 +21,33 @@ detect_distro() {
     local kernel_version
     kernel_version=$(uname -r)
 
+    _log_distro_info() {
+        if [ -n "$LOG_FILE" ] && [ -w "$LOG_FILE" ]; then
+            echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: $1 ($OS_PRETTY_NAME, kernel $kernel_version)" >> "$LOG_FILE"
+        fi
+    }
+
     if [ -f /etc/debian_version ]; then
         DISTRO="debian"
         gecho "Detected distro: Debian-based ($OS_PRETTY_NAME, kernel $kernel_version)"
-        echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Debian-based ($OS_PRETTY_NAME, kernel $kernel_version)" >> "$LOG_FILE"
+        _log_distro_info "Debian-based"
     elif [ -f /etc/arch-release ]; then
         DISTRO="arch"
         if [ "$distro_id" = "arch" ]; then
             gecho "Detected distro: Arch Linux ($OS_PRETTY_NAME, kernel $kernel_version)"
-            echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Arch Linux ($OS_PRETTY_NAME, kernel $kernel_version)" >> "$LOG_FILE"
+            _log_distro_info "Arch Linux"
         else
             gecho "Detected distro: Arch-based ($OS_PRETTY_NAME, kernel $kernel_version)"
-            echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Arch-based ($OS_PRETTY_NAME, kernel $kernel_version)" >> "$LOG_FILE"
+            _log_distro_info "Arch-based"
         fi
     elif [ "$distro_id" = "fedora" ] || echo "$distro_like" | grep -qi "fedora"; then
         DISTRO="fedora"
         gecho "Detected distro: Fedora-based ($OS_PRETTY_NAME, kernel $kernel_version)"
-        echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Fedora-based ($OS_PRETTY_NAME, kernel $kernel_version)" >> "$LOG_FILE"
+        _log_distro_info "Fedora-based"
     elif [ -f /etc/fedora-release ]; then
         DISTRO="fedora"
         gecho "Detected distro: Fedora-based ($OS_PRETTY_NAME, kernel $kernel_version)"
-        echo "[$(date "+%Y-%m-%d %H:%M:%S")] [INFO] Detected distro: Fedora-based ($OS_PRETTY_NAME, kernel $kernel_version)" >> "$LOG_FILE"
+        _log_distro_info "Fedora-based"
     else
         log_message "ERROR" "Unsupported distro (only Debian-based, Arch and Fedora-based are supported)"
         exit 1
@@ -52,7 +58,7 @@ detect_distro() {
         arch)   PKG_MANAGER="pacman" ;;
         fedora) PKG_MANAGER="dnf" ;;
     esac
-    readonly PKG_MANAGER
+    export PKG_MANAGER
 }
 
 # Memoized command -v cache

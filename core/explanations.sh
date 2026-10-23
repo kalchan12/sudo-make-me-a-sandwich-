@@ -262,7 +262,7 @@ _explain_tool() {
         # ──────────────────────────────────────────────────────────────
         # TERMINALS
         # ──────────────────────────────────────────────────────────────
-        Kitty)
+        Kitty|"Kitty (Hacker Suite)")
             echo -e "${YELLOW}Kitty${NC}"
             gecho ""
             gecho "GPU-accelerated terminal emulator with great performance and features."

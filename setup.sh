@@ -15,7 +15,10 @@
 
 # --- Configuration & Colors ---
 LOG_FILE="$(cd "$(dirname "$0")" && pwd)/install.log"
-exec 3>>"$LOG_FILE"
+if ! exec 3>>"$LOG_FILE" 2>/dev/null; then
+    LOG_FILE="/tmp/sandwich-install.log"
+    exec 3>>"$LOG_FILE" 2>/dev/null || exec 3>/dev/null
+fi
 
 MINIMAL_MODE=false
 FULL_MODE=false

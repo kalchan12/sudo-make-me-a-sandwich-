@@ -16,7 +16,10 @@ done
 
 # Source config from setup.sh
 LOG_FILE="$SCRIPT_DIR/install.log"
-exec 3>>"$LOG_FILE"
+if ! exec 3>>"$LOG_FILE" 2>/dev/null; then
+    LOG_FILE="/tmp/sandwich-install.log"
+    exec 3>>"$LOG_FILE" 2>/dev/null || exec 3>/dev/null
+fi
 
 # Minimal gecho/log_message for the API
 GREEN='\033[1;32m'
