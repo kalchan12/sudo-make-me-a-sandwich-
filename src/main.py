@@ -80,7 +80,7 @@ def cmd_explain(name: str) -> int:
 
 def cmd_list() -> None:
     categories = [
-        ("Psycho", ["Kitty (Hacker Suite)", "Brave", "WPS Office", "OBS Studio", "ffmpeg", "yt-dlp", "Redshift"]),
+        ("Psycho", ["Kitty (Hacker Suite)", "Brave", "WPS Office", "OBS Studio", "ffmpeg", "yt-dlp", "Redshift", "scrcpy"]),
         ("Browsers", ["Brave", "Google Chrome", "Firefox", "Vivaldi", "Chromium",
                        "Firefox Developer Edition", "Ungoogled Chromium", "LibreWolf"]),
         ("Productivity", ["Obsidian", "Telegram", "Proton Pass", "Proton VPN", "WPS Office", "OBS Studio", "ffmpeg", "yt-dlp", "Redshift"]),

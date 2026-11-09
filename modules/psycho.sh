@@ -12,6 +12,7 @@ PSYCHO_LIST=(
     "ffmpeg|install_ffmpeg|ffmpeg"
     "yt-dlp|install_yt_dlp|yt-dlp"
     "Redshift|install_redshift|redshift"
+    "scrcpy|install_scrcpy|scrcpy"
 )
 
 show_psycho_menu() {
@@ -49,5 +50,6 @@ install_psycho() { _install_list "Psycho" PSYCHO_LIST; }
 check_psycho_installations() {
     _check_installations PSYCHO_LIST \
         "Kitty (Hacker Suite):kitty" "Brave:brave-browser" "WPS Office:wps" \
-        "OBS Studio:obs" "ffmpeg:ffmpeg" "yt-dlp:yt-dlp" "Redshift:redshift"
+        "OBS Studio:obs" "ffmpeg:ffmpeg" "yt-dlp:yt-dlp" "Redshift:redshift" \
+        "scrcpy:scrcpy"
 }
