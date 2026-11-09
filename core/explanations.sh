@@ -846,6 +846,21 @@ _explain_tool() {
             gecho "  • Turn screen off while mirroring: cast --turn-screen-off"
             gecho "  • Audio forwarding supported natively (Android 11+)"
             ;;
+        Zellij|zellij)
+            echo -e "${YELLOW}Zellij — Terminal Workspace & Multiplexer${NC}"
+            gecho ""
+            gecho "Modern terminal workspace and multiplexer written in Rust with built-in tabs, panes, and plugins."
+            gecho ""
+            gecho "Tips:"
+            gecho "  • Launch: zellij"
+            gecho "  • Status bar & keybindings guide is displayed along the bottom"
+            gecho "  • Panes mode: Ctrl+p (n: new pane, x: close pane, arrows: move)"
+            gecho "  • Tabs mode: Ctrl+t (n: new tab, x: close tab, 1-9: switch)"
+            gecho "  • Resize mode: Ctrl+n (use arrows to resize active pane)"
+            gecho "  • Detach session: Ctrl+o d (re-attach via 'zellij attach')"
+            gecho "  • Scrollback / Search: Ctrl+s"
+            gecho "  • Fallback build: Compiles from source via 'cargo install --locked zellij'"
+            ;;
 
         # ──────────────────────────────────────────────────────────────
         # LANGUAGES

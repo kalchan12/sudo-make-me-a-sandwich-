@@ -24,6 +24,7 @@ TOOLS: list[tuple[str, str, str]] = [
     ("yt-dlp", "install_yt_dlp", "yt-dlp"),
     ("Redshift", "install_redshift", "redshift"),
     ("scrcpy", "install_scrcpy", "scrcpy"),
+    ("Zellij", "install_zellij", "zellij"),
 ]
 
 BINS: dict[str, str] = {
@@ -35,6 +36,7 @@ BINS: dict[str, str] = {
     "yt-dlp": "yt-dlp",
     "Redshift": "redshift",
     "scrcpy": "scrcpy",
+    "Zellij": "zellij",
 }
 
 

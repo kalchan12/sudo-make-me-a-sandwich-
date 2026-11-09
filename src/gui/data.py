@@ -57,6 +57,18 @@ EXTRA_TOOL_DESCRIPTIONS: dict[str, tuple[str, list[str]]] = {
             "Audio forwarding is enabled by default on Android 11+",
         ],
     ),
+    "Zellij": (
+        "Modern terminal workspace and multiplexer written in Rust with built-in layout system and plugins.",
+        [
+            "Launch: zellij",
+            "Panes mode: Ctrl+p (n: new pane, x: close pane, arrows: move)",
+            "Tabs mode: Ctrl+t (n: new tab, x: close tab, 1-9: switch)",
+            "Resize mode: Ctrl+n (use arrows to resize active pane)",
+            "Detach session: Ctrl+o d (re-attach via 'zellij attach')",
+            "Scrollback / Search: Ctrl+s",
+            "Fallback build: Compiles from source via 'cargo install --locked zellij'",
+        ],
+    ),
     "nmap": (
         "Industry-standard network exploration tool and security/port scanner.",
         [

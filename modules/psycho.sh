@@ -13,6 +13,7 @@ PSYCHO_LIST=(
     "yt-dlp|install_yt_dlp|yt-dlp"
     "Redshift|install_redshift|redshift"
     "scrcpy|install_scrcpy|scrcpy"
+    "Zellij|install_zellij|zellij"
 )
 
 show_psycho_menu() {
@@ -51,5 +52,5 @@ check_psycho_installations() {
     _check_installations PSYCHO_LIST \
         "Kitty (Hacker Suite):kitty" "Brave:brave-browser" "WPS Office:wps" \
         "OBS Studio:obs" "ffmpeg:ffmpeg" "yt-dlp:yt-dlp" "Redshift:redshift" \
-        "scrcpy:scrcpy"
+        "scrcpy:scrcpy" "Zellij:zellij"
 }

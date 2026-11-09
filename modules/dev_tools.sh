@@ -30,6 +30,7 @@ DEV_TOOLS_LIST=(
     "Syncthing|install_syncthing|syncthing"
     "VLC|install_vlc|vlc"
     "scrcpy|install_scrcpy|scrcpy"
+    "Zellij|install_zellij|zellij"
 )
 
 # --- CLI Essentials ---
@@ -338,5 +339,5 @@ check_dev_tools_installations() {
         "glances:glances" "thefuck:thefuck" "eza:eza" \
         "dust:dust" "Flameshot:flameshot" "KeePassXC:keepassxc" \
         "mpv:mpv" "Syncthing:syncthing" "VLC:vlc" \
-        "scrcpy:scrcpy"
+        "scrcpy:scrcpy" "Zellij:zellij"
 }
