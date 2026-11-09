@@ -20,20 +20,17 @@ Instead of hunting down install commands every time you reinstall, this script a
 
 ## Usage
 
-### 🖥️ Launching the GUI
-Simply run the script in a desktop environment to launch the Graphical User Interface:
+### 🚀 Running the Installer
+Simply run the script in your terminal:
 
 ```bash
 ./setup.sh
 ```
 
-Or explicitly force GUI mode:
-```bash
-./setup.sh --gui
-```
+When run in a desktop terminal, it lets you choose between the **Terminal Interactive Menu** (default) or the **Graphical User Interface (GUI)**. You can also switch between them at any time.
 
-### 💻 Running in Terminal Mode
-To force the interactive terminal interface (Rich TUI / Bash menu) in a desktop environment, use `--cli` or `--tui`:
+### 💻 Direct Terminal Mode
+To jump directly into the interactive terminal menu (Rich TUI / Bash menu) without prompt:
 
 ```bash
 ./setup.sh --cli
@@ -41,7 +38,14 @@ To force the interactive terminal interface (Rich TUI / Bash menu) in a desktop 
 ./setup.sh --tui
 ```
 
-*Note: In headless environments, servers, or SSH sessions without a graphical display, `setup.sh` automatically falls back to the terminal mode.*
+### 🖥️ Direct GUI Mode
+To jump directly into the Graphical User Interface:
+
+```bash
+./setup.sh --gui
+```
+
+*Note: In headless environments, servers, or SSH sessions without a graphical display, `setup.sh` automatically falls back to terminal mode.*
 
 ### ⚡ Direct Command-Line Installation
 You can directly pass flags to install specific tools without opening any UI:

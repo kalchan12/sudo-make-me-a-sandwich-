@@ -174,6 +174,15 @@ def cmd_interactive(show_splash: bool = True) -> None:
         if choice in ("15", "exit", "q"):
             break
 
+        if choice.lower() in ("g", "gui"):
+            from src.gui.launcher import is_gui_available
+            if is_gui_available():
+                cmd_gui([])
+                break
+            else:
+                log_message("WARN", "GUI is not available (no display detected).")
+                continue
+
         if choice in ("14", "update"):
             log_message("INFO", "--- Updating System ---")
             bash_call("pkg_update_system")
@@ -265,7 +274,25 @@ def main() -> None:
 
     if len(sys.argv) < 2:
         from src.gui.launcher import is_gui_available
-        if is_gui_available():
+        if sys.stdin.isatty() and is_gui_available():
+            print("\n  Select interface mode:")
+            print("    1) Terminal Interactive Menu (CLI / TUI)  [Default]")
+            print("    2) Graphical User Interface (Desktop GUI)\n")
+            try:
+                import select
+                rlist, _, _ = select.select([sys.stdin], [], [], 10.0)
+                choice = sys.stdin.readline().strip() if rlist else ""
+            except Exception:
+                try:
+                    choice = input("  Enter choice [1/2] (Default: 1): ").strip()
+                except Exception:
+                    choice = ""
+
+            if choice in ("2", "g", "G", "gui", "GUI"):
+                cmd_gui([])
+            else:
+                cmd_interactive(show_splash=True)
+        elif is_gui_available():
             cmd_gui([])
         else:
             cmd_interactive(show_splash=True)

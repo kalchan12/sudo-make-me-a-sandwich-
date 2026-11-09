@@ -255,6 +255,7 @@ show_main_menu() {
     echo -e " ${YELLOW}11)${GREEN} Agentic IDEs${NC}${NC}"
     echo -e " ${YELLOW}12)${GREEN} Full Installation${NC}${NC}"
     echo -e " ${YELLOW}13)${GREEN} Minimal Installation${NC}${NC}"
+    echo -e " ${YELLOW}g)${CYAN} Launch Desktop GUI${NC}${NC}"
     echo -e " ${YELLOW}14)${GREEN} Exit${NC}${NC}"
     echo -n -e "${PURPLE}Select an option: ${NC}${YELLOW}"
     read -r choice
@@ -274,6 +275,14 @@ show_main_menu() {
         11) show_agentic_ides_menu ;;
         12) FULL_MODE=true; run_installation ;;
         13) MINIMAL_MODE=true; run_installation ;;
+        g|G|[gG][uU][iI])
+            if _can_launch_gui; then
+                _exec_gui
+            else
+                log_message "WARN" "GUI is not available (no display detected)."
+                show_main_menu
+            fi
+            ;;
         14) log_message "INFO" "Exiting..."; exit 0 ;;
         *) log_message "WARN" "Invalid option: $choice"; show_main_menu ;;
     esac
@@ -819,7 +828,7 @@ usage() {
     gecho "  -v, --verbose  Show actual commands being executed"
     gecho "  --help       Show this help message"
     gecho ""
-    gecho "Run without options to launch GUI (or interactive terminal menu if no display)."
+    gecho "Run without options for interactive mode (choose Terminal or GUI)."
     gecho "Inside menus, enter a number to install, or e<N> for details (e.g., e1)."
     exit 0
 }
@@ -879,13 +888,39 @@ main() {
         fi
     }
 
-    # Decide whether to launch GUI:
-    # If --gui was passed, OR if no action flags and not forced to CLI mode, launch GUI if available!
+    # Decide whether to launch GUI or Terminal:
     if [ "$GUI_REQUESTED" = true ]; then
         _exec_gui "$@"
-    elif [ "$CLI_REQUESTED" = false ] && [ "$ACTION_SPECIFIED" = false ]; then
+    elif [ "$CLI_REQUESTED" = true ] || [ "$ACTION_SPECIFIED" = true ]; then
+        : # Proceed directly to terminal flow
+    elif [ ! -t 0 ]; then
+        # Launched non-interactively without terminal stdin (e.g. from desktop launcher)
         if _can_launch_gui; then
             _exec_gui "$@"
+        fi
+    else
+        # Running interactively inside a terminal with no explicit flags:
+        # Give the user a clear choice between Terminal Installer (default) and Desktop GUI
+        if _can_launch_gui; then
+            echo ""
+            echo -e "${PURPLE}╔═══════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${PURPLE}║               ⚡ MAKE ME A SANDWICH ⚡                    ║${NC}"
+            echo -e "${PURPLE}╚═══════════════════════════════════════════════════════════╝${NC}"
+            echo -e "  Select interface mode:"
+            echo -e "    ${YELLOW}1)${GREEN} Terminal Interactive Menu (CLI / TUI)  ${CYAN}[Default]${NC}"
+            echo -e "    ${YELLOW}2)${GREEN} Graphical User Interface (Desktop GUI)${NC}"
+            echo ""
+            local mode_choice=""
+            read -t 10 -r -p "  Enter choice [1/2] (auto-selects 1 in 10s): " mode_choice || true
+            echo ""
+            case "$mode_choice" in
+                2|[gG]|[gG][uU][iI])
+                    _exec_gui "$@"
+                    ;;
+                *)
+                    # Default: continue to terminal flow
+                    ;;
+            esac
         fi
     fi
 

@@ -42,6 +42,7 @@ def show_main_menu() -> str:
     table.add_row("12)", "[green]Full Install (everything)[/]")
     table.add_row("13)", "[green]Minimal Install (browsers + terminals)[/]")
     table.add_row("14)", "[cyan]Update System[/]")
+    table.add_row("g)", "[magenta]Launch Desktop GUI[/]")
     table.add_section()
     table.add_row("15)", "[red]Exit[/]")
 
