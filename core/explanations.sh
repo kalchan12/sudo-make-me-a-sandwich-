@@ -833,6 +833,19 @@ _explain_tool() {
             gecho "  • Equalizer: Tools → Effects and Filters → Equalizer"
             gecho "  • Loop A→B: View → Advanced Controls, then use A/B buttons"
             ;;
+        scrcpy)
+            echo -e "${YELLOW}scrcpy — Android Screen Mirroring & Control${NC}"
+            gecho ""
+            gecho "Display and control Android devices connected via USB or TCP/IP with high performance and low latency."
+            gecho ""
+            gecho "Tips:"
+            gecho "  • Quick launch alias: cast (or scrcpy)"
+            gecho "  • Requires USB debugging enabled on your Android device"
+            gecho "  • Connect wirelessly: scrcpy --tcpip=<device_ip>:5555"
+            gecho "  • Screen recording: cast --record file.mp4"
+            gecho "  • Turn screen off while mirroring: cast --turn-screen-off"
+            gecho "  • Audio forwarding supported natively (Android 11+)"
+            ;;
 
         # ──────────────────────────────────────────────────────────────
         # LANGUAGES

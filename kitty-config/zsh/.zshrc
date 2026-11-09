@@ -124,6 +124,7 @@ alias diff='diff --color=auto'
 alias ip='ip -c'
 alias c='clear'
 alias reload="source ~/.zshrc && echo '✔ ~/.zshrc reloaded'"
+alias cast='scrcpy'
 
 # Quick hacker tools
 alias myip="curl -s -m 3 https://ifconfig.me || curl -s -m 3 https://icanhazip.com"

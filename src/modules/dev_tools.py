@@ -38,10 +38,11 @@ TOOLS: list[tuple[str, str, str]] = [
     ("mpv", "install_mpv", "mpv"),
     ("Syncthing", "install_syncthing", "syncthing"),
     ("VLC", "install_vlc", "vlc"),
+    ("scrcpy", "install_scrcpy", "scrcpy"),
 ]
 
 BINS: dict[str, str] = {
-    "tmux": "tmux", "Neovim": "nvim", "Docker": "docker", "jq": "jq", "ripgrep": "rg", "fzf": "fzf", "bat": "bat", "fd": "fd", "btop": "btop", "lazygit": "lazygit", "zoxide": "zoxide", "delta": "delta", "tldr": "tldr", "httpie": "http", "glances": "glances", "thefuck": "thefuck", "eza": "eza", "dust": "dust", "Flameshot": "flameshot", "KeePassXC": "keepassxc", "mpv": "mpv", "Syncthing": "syncthing", "VLC": "vlc"
+    "tmux": "tmux", "Neovim": "nvim", "Docker": "docker", "jq": "jq", "ripgrep": "rg", "fzf": "fzf", "bat": "bat", "fd": "fd", "btop": "btop", "lazygit": "lazygit", "zoxide": "zoxide", "delta": "delta", "tldr": "tldr", "httpie": "http", "glances": "glances", "thefuck": "thefuck", "eza": "eza", "dust": "dust", "Flameshot": "flameshot", "KeePassXC": "keepassxc", "mpv": "mpv", "Syncthing": "syncthing", "VLC": "vlc", "scrcpy": "scrcpy"
 }
 
 

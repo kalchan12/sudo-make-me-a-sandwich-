@@ -90,7 +90,7 @@ def cmd_list() -> None:
         ("Dev Tools", ["tmux", "Neovim", "Docker", "jq", "ripgrep", "fzf", "bat", "fd",
                         "btop", "lazygit", "zoxide", "delta", "tldr", "httpie", "glances",
                         "thefuck", "eza", "dust", "Flameshot", "KeePassXC", "mpv",
-                        "Syncthing", "VLC"]),
+                        "Syncthing", "VLC", "scrcpy"]),
         ("Languages", ["Python", "Node.js", "TypeScript", "Go", "Rust", "Java (OpenJDK)",
                         "C/C++ (GCC)", "C# (.NET)", "Ruby", "PHP", "Lua", "R", "Zig",
                         "Dart", "Kotlin"]),

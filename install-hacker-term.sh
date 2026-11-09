@@ -631,6 +631,7 @@ alias diff='diff --color=auto'
 alias ip='ip -c'
 alias c='clear'
 alias reload="source ~/.zshrc && echo '✔ ~/.zshrc reloaded'"
+alias cast='scrcpy'
 alias myip="curl -s -m 3 https://ifconfig.me || curl -s -m 3 https://icanhazip.com"
 alias ports="ss -tulpn 2>/dev/null || netstat -tulanp 2>/dev/null"
 

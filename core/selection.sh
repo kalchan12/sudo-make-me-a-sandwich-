@@ -171,6 +171,7 @@ _show_selection_menu() {
             install_mpv) command -v mpv &>/dev/null && already=true ;;
             install_syncthing) command -v syncthing &>/dev/null && already=true ;;
             install_vlc) command -v vlc &>/dev/null && already=true ;;
+            install_scrcpy) command -v scrcpy &>/dev/null && already=true ;;
             install_python) command -v python3 &>/dev/null && already=true ;;
             install_nodejs) command -v node &>/dev/null && already=true ;;
             install_typescript) command -v tsc &>/dev/null && already=true ;;

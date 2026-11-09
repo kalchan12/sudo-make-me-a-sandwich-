@@ -46,6 +46,17 @@ EXTRA_TOOL_DESCRIPTIONS: dict[str, tuple[str, list[str]]] = {
             "System tray indicator: launch redshift-gtk",
         ],
     ),
+    "scrcpy": (
+        "Display and control Android devices connected via USB or TCP/IP with high performance and low latency (aliased as 'cast').",
+        [
+            "Quick launch: cast (or scrcpy)",
+            "Requires USB debugging enabled on your Android device (Developer Options)",
+            "Wireless connection: scrcpy --tcpip=<device_ip>:5555",
+            "Screen recording: cast --record file.mp4",
+            "Turn screen off while mirroring: cast --turn-screen-off",
+            "Audio forwarding is enabled by default on Android 11+",
+        ],
+    ),
     "nmap": (
         "Industry-standard network exploration tool and security/port scanner.",
         [

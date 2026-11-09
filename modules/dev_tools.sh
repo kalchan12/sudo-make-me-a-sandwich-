@@ -29,6 +29,7 @@ DEV_TOOLS_LIST=(
     "mpv|install_mpv|mpv"
     "Syncthing|install_syncthing|syncthing"
     "VLC|install_vlc|vlc"
+    "scrcpy|install_scrcpy|scrcpy"
 )
 
 # --- CLI Essentials ---
@@ -273,6 +274,51 @@ install_syncthing() {
     install_with_fallback "Syncthing" "syncthing" "syncthing" "" "syncthing"
 }
 
+_setup_scrcpy_alias() {
+    alias cast='scrcpy' 2>/dev/null || true
+
+    local target_users=()
+    if [ -n "$SUDO_USER" ] && [ "$SUDO_USER" != "root" ]; then
+        target_users+=("$SUDO_USER")
+    fi
+    local current_user="${USER:-$(whoami)}"
+    target_users+=("$current_user")
+
+    for u in "${target_users[@]}"; do
+        local u_home
+        u_home=$(getent passwd "$u" 2>/dev/null | cut -d: -f6)
+        [ -z "$u_home" ] && u_home="$HOME"
+        for rc in "$u_home/.zshrc" "$u_home/.bashrc"; do
+            if [ -f "$rc" ]; then
+                if ! grep -q "alias cast=" "$rc" 2>/dev/null; then
+                    echo -e "\n# Alias for scrcpy\nalias cast='scrcpy'" >> "$rc"
+                    [ -n "$SUDO_USER" ] && chown "$u:" "$rc" 2>/dev/null || true
+                    log_message "SUCCESS" "Added alias cast='scrcpy' to $rc"
+                fi
+            fi
+        done
+    done
+}
+
+install_scrcpy() {
+    if command -v scrcpy &> /dev/null; then
+        log_message "WARN" "scrcpy is already installed."
+        _setup_scrcpy_alias
+        return 0
+    fi
+    confirm_install "scrcpy" "scrcpy" || return
+    install_with_fallback "scrcpy" "scrcpy" "scrcpy" "" "scrcpy"
+    local ec=$?
+    if [ $ec -eq 0 ]; then
+        if ! command -v adb &> /dev/null; then
+            log_message "INFO" "Installing adb for scrcpy..."
+            pkg_install_native "adb" 2>/dev/null || true
+        fi
+        _setup_scrcpy_alias
+    fi
+    return $ec
+}
+
 # --- Dev Tools Menu ---
 
 show_dev_tools_menu() {
@@ -291,5 +337,6 @@ check_dev_tools_installations() {
         "zoxide:zoxide" "delta:delta" "tldr:tldr" \
         "glances:glances" "thefuck:thefuck" "eza:eza" \
         "dust:dust" "Flameshot:flameshot" "KeePassXC:keepassxc" \
-        "mpv:mpv" "Syncthing:syncthing" "VLC:vlc"
+        "mpv:mpv" "Syncthing:syncthing" "VLC:vlc" \
+        "scrcpy:scrcpy"
 }
