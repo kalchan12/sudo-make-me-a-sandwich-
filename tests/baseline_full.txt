@@ -35,7 +35,7 @@ fzf
 gcc
 ghidra
 glances
-gnome-terminal
+gnome_terminal
 go
 gobuster
 hashcat

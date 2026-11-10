@@ -9,4 +9,4 @@ vivaldi
 kitty
 alacritty
 tilix
-gnome-terminal
+gnome_terminal

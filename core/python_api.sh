@@ -8,9 +8,10 @@ SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 source "$SCRIPT_DIR/core/distro_detect.sh"
 source "$SCRIPT_DIR/core/confirm.sh"
 source "$SCRIPT_DIR/core/explanations.sh"
+source "$SCRIPT_DIR/core/catalog.sh"
 
 # Source module bash files (for Python modules that call bash install functions)
-for m in "$SCRIPT_DIR/modules"/*.sh; do
+for m in $(find "$SCRIPT_DIR/catalog" -type f -name '*.sh' | sort); do
     [ -f "$m" ] && source "$m"
 done
 

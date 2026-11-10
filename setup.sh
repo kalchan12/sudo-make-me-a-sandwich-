@@ -15,6 +15,7 @@
 
 # --- Configuration & Colors ---
 LOG_FILE="$(cd "$(dirname "$0")" && pwd)/install.log"
+PRESETS_DIR="$(cd "$(dirname "$0")" && pwd)/presets"
 if ! exec 3>>"$LOG_FILE" 2>/dev/null; then
     LOG_FILE="/tmp/sandwich-install.log"
     exec 3>>"$LOG_FILE" 2>/dev/null || exec 3>/dev/null
@@ -23,6 +24,8 @@ fi
 MINIMAL_MODE=false
 FULL_MODE=false
 UPDATE_MODE=false
+PROFILE_NAME=""
+PROFILE_REQUESTED=false
 DRY_RUN="${DRY_RUN:-false}"
 YES_MODE=false
 UNINSTALL_MODE=false
@@ -132,32 +135,27 @@ list_tools() {
     echo -e "${PURPLE}Available Tools by Category${NC}"
     echo ""
 
-    _print_category "Psycho" PSYCHO_LIST
-    _print_category "Browsers" BROWSERS_LIST
-    _print_category "Productivity" PRODUCTIVITY_LIST
-    _print_category "IDEs & Editors" IDES_LIST
-    _print_category "Terminals" TERMINALS_LIST
-    _print_category "Shells" SHELLS_LIST
-    _print_category "Dev Tools" DEV_TOOLS_LIST
-    _print_category "Languages" LANGUAGES_LIST
-    _print_category "Pentesting Tools" PENTEST_LIST
-    _print_category "Bug Bounty Tools" BUG_BOUNTY_LIST
-    _print_category "Frameworks" FRAMEWORKS_LIST
-    _print_category "Agentic IDEs" AGENTIC_IDES_LIST
-
+    catalog_init
+    local g
+    for g in "${CATALOG_GROUPS[@]}"; do
+        local gp
+        gp="$(catalog_group_path "$g")"
+        catalog_categories "$gp"
+        local c
+        for c in "${CATALOG_CAT_LIST[@]}"; do
+            echo -e "${PURPLE}── $(catalog_title "$c") ──${NC}"
+            catalog_tools "$c"
+            local t
+            for t in "${CATALOG_TOOLS[@]}"; do
+                local name="${t%%|*}"
+                gecho "  • $name"
+            done
+            echo ""
+        done
+    done
     exit 0
 }
 
-_print_category() {
-    local title="$1"
-    local -n list="$2"
-    echo -e "${PURPLE}── $title ──${NC}"
-    for info in "${list[@]}"; do
-        local name="${info%%|*}"
-        gecho "  • $name"
-    done
-    echo ""
-}
 
 add_keyring() {
     if [ "$DISTRO" != "debian" ]; then
@@ -196,85 +194,59 @@ for c in "$CORE_DIR"/*.sh; do
     source "$c"
 done
 
-# --- External Modules ---
-MODULES_DIR="$(dirname "$0")/modules"
-for m in "$MODULES_DIR"/*.sh; do
-    if [ -f "$m" ]; then
-        source "$m"
-    fi
-done
-
-# --- Item Lists for Selection UI ---
-# Format: "Display Name|function_call_with_args|pkg_name_for_size"
-TERMINALS_LIST=(
-    "Kitty|install_single_terminal kitty|kitty"
-    "Alacritty|install_single_terminal alacritty|alacritty"
-    "Tilix|install_single_terminal tilix|tilix"
-    "GNOME Terminal|install_single_terminal gnome-terminal|gnome-terminal"
-)
-
-PRODUCTIVITY_LIST=(
-    "Obsidian|install_obsidian|obsidian"
-    "Telegram|install_telegram|telegram-desktop"
-    "Proton Pass|install_proton_pass|"
-    "Proton VPN|install_proton_vpn|proton-vpn-gnome-desktop"
-    "WPS Office|install_wps|"
-    "OBS Studio|install_obs_studio|obs-studio"
-    "ffmpeg|install_ffmpeg|ffmpeg"
-    "yt-dlp|install_yt_dlp|yt-dlp"
-    "Redshift|install_redshift|redshift"
-)
-
-IDES_LIST=(
-    "VS Code|install_vscode|code"
-    "Sublime Text|install_sublime|sublime-text"
-    "JetBrains Toolbox|install_jetbrains_toolbox|"
-    "OpenCode|install_opencode|"
-    "ZCode|install_zcode|"
-    "Antigravity CLI|install_antigravity|agy"
-    "Kiro|install_kiro|"
-)
 
 # --- Interactive Menu Functions ---
+
+show_group_menu() {
+    local gp="$1"
+    local back_cb="$2"
+    local title
+    title="$(catalog_title "$gp")"
+    echo ""
+    echo -e "${PURPLE}── $title ──${NC}"
+    catalog_categories "$gp"
+    local i=1
+    local c
+    for c in "${CATALOG_CAT_LIST[@]}"; do
+        local cnt
+        cnt="$(catalog_tool_count_for "$c")"
+        echo -e "${YELLOW}${i})${GREEN} ${catalog_title "$c"} (${cnt})${NC}"
+        i=$((i+1))
+    done
+    echo -e "${YELLOW}${i})${GREEN} Back${NC}"
+    echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
+    local g_choice
+    read -r g_choice
+    echo -e -n "${NC}"
+    if [[ "$g_choice" =~ ^[0-9]+$ ]] && [ "$g_choice" -ge 1 ] && [ "$g_choice" -lt "$i" ]; then
+        local sel="$((g_choice - 1))"
+        show_catalog_menu "${CATALOG_CAT_LIST[$sel]}" "$back_cb"
+        return 0
+    fi
+    eval "$back_cb"
+    return 0
+}
 
 show_main_menu() {
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
     echo -e "${PURPLE}           Main Menu${NC}"
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
-    echo -e " ${YELLOW}0)${GREEN} Psycho (Essentials & Hacker Kitty)${NC}${NC}"
-    echo -e " ${YELLOW}1)${GREEN} Browsers${NC}${NC}"
-    echo -e " ${YELLOW}2)${GREEN} Productivity${NC}${NC}"
-    echo -e " ${YELLOW}3)${GREEN} IDEs & Editors${NC}${NC}"
-    echo -e " ${YELLOW}4)${GREEN} Terminals${NC}${NC}"
-    echo -e " ${YELLOW}5)${GREEN} Shells${NC}${NC}"
-    echo -e " ${YELLOW}6)${GREEN} Dev Tools${NC}${NC}"
-    echo -e " ${YELLOW}7)${GREEN} Programming Languages${NC}${NC}"
-    echo -e " ${YELLOW}8)${GREEN} Pentesting Tools${NC}${NC}"
-    echo -e " ${YELLOW}9)${GREEN} Bug Bounty Tools${NC}${NC}"
-    echo -e " ${YELLOW}10)${GREEN} Frameworks${NC}${NC}"
-    echo -e " ${YELLOW}11)${GREEN} Agentic IDEs${NC}${NC}"
-    echo -e " ${YELLOW}12)${GREEN} Full Installation${NC}${NC}"
-    echo -e " ${YELLOW}13)${GREEN} Minimal Installation${NC}${NC}"
-    echo -e " ${YELLOW}g)${CYAN} Launch Desktop GUI${NC}${NC}"
-    echo -e " ${YELLOW}14)${GREEN} Exit${NC}${NC}"
+    echo -e " ${YELLOW}0)${GREEN} General${NC}"
+    echo -e " ${YELLOW}1)${GREEN} Development${NC}"
+    echo -e " ${YELLOW}2)${GREEN} Security${NC}"
+    echo -e " ${YELLOW}3)${GREEN} Full Installation${NC}"
+    echo -e " ${YELLOW}4)${GREEN} Minimal Installation${NC}"
+    echo -e " ${YELLOW}g)${CYAN} Launch Desktop GUI${NC}"
+    echo -e " ${YELLOW}5)${GREEN} Exit${NC}"
     echo -n -e "${PURPLE}Select an option: ${NC}${YELLOW}"
     read -r choice
     echo -e -n "${NC}"
     case $choice in
-        0) show_psycho_menu ;;
-        1) show_browsers_menu ;;
-        2) show_productivity_menu ;;
-        3) show_ides_menu ;;
-        4) show_terminals_menu ;;
-        5) show_shells_menu ;;
-        6) show_dev_tools_menu ;;
-        7) show_languages_menu ;;
-        8) show_pentest_menu ;;
-        9) show_bug_bounty_menu ;;
-        10) show_frameworks_menu ;;
-        11) show_agentic_ides_menu ;;
-        12) FULL_MODE=true; run_installation ;;
-        13) MINIMAL_MODE=true; run_installation ;;
+        0) show_group_menu "general" show_main_menu ;;
+        1) show_group_menu "development" show_main_menu ;;
+        2) show_group_menu "security" show_main_menu ;;
+        3) FULL_MODE=true; run_installation ;;
+        4) MINIMAL_MODE=true; run_installation ;;
         g|G|[gG][uU][iI])
             if _can_launch_gui; then
                 _exec_gui
@@ -283,190 +255,17 @@ show_main_menu() {
                 show_main_menu
             fi
             ;;
-        14) log_message "INFO" "Exiting..."; exit 0 ;;
+        5) log_message "INFO" "Exiting..."; exit 0 ;;
         *) log_message "WARN" "Invalid option: $choice"; show_main_menu ;;
     esac
 }
 
-show_productivity_menu() {
-    _render_menu PRODUCTIVITY_LIST "Productivity" \
-        install_productivity check_productivity_installations show_main_menu
-}
 
-show_ides_menu() {
-    _render_menu IDES_LIST "IDEs & Editors" \
-        install_ides check_ides_installations show_main_menu
-}
 
-install_single_terminal() {
-    local pkg="$1"
-    if [ "$UNINSTALL_MODE" = true ]; then
-        if command -v "$pkg" &> /dev/null; then
-            log_message "INFO" "Removing $pkg..."
-            pkg_remove "$pkg"
-        else
-            log_message "WARN" "$pkg is not installed."
-        fi
-        return
-    fi
-    if ! pkg_is_installed "$pkg" && ! command -v "$pkg" &> /dev/null; then
-        confirm_install "$pkg" "$pkg" || return
-        log_message "INFO" "Installing $pkg..."
-        pkg_install_native "$pkg"
-        local ec=$?
-        if [ "$ec" -eq 0 ]; then
-            log_message "SUCCESS" "$pkg installed."
-            log_version "$pkg" "$pkg"
-        fi
-        return "$ec"
-    else
-        log_message "WARN" "$pkg is already installed."
-    fi
-}
 
-show_terminals_menu() {
-    while true; do
-        echo -e "\n${PURPLE}── Terminals ──${NC}"
-        echo -e "${YELLOW}1)${GREEN} Install Kitty${NC}${NC}"
-        echo -e "${YELLOW}2)${GREEN} Install Alacritty${NC}${NC}"
-        echo -e "${YELLOW}3)${GREEN} Install Tilix${NC}${NC}"
-        echo -e "${YELLOW}4)${GREEN} Install GNOME Terminal${NC}${NC}"
-        echo -e "${YELLOW}5)${GREEN} Install All Terminals${NC}${NC}"
-        echo -e "${YELLOW}6)${GREEN} Check Installations${NC}${NC}"
-        echo -e "${YELLOW}7)${GREEN} Back${NC}${NC}"
-        echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
-        read -r t_choice
-        echo -e -n "${NC}"
-        if [[ "$t_choice" =~ ^e([0-9]+)$ ]]; then
-            case "${BASH_REMATCH[1]}" in
-                1) _explain_tool "Kitty" ;;
-                2) _explain_tool "Alacritty" ;;
-                3) _explain_tool "Tilix" ;;
-                4) _explain_tool "GNOME Terminal" ;;
-            esac
-            continue
-        fi
-        case $t_choice in
-            1) install_single_terminal kitty ;;
-            2) install_single_terminal alacritty ;;
-            3) install_single_terminal tilix ;;
-            4) install_single_terminal gnome-terminal ;;
-            5) install_terminals ;;
-            6) check_terminals_installations ;;
-            7) show_main_menu; return ;;
-            *) log_message "WARN" "Invalid option"; continue ;;
-        esac
-    done
-}
 
-# --- Generic Menu & Check Helpers ---
+# --- Installation Helpers (Expanded) ---
 
-# Generic menu renderer
-# Usage: _render_menu LIST_VAR "Title" on_all_callback on_check_callback on_back_callback
-_render_menu() {
-    local -n _list="$1"
-    local _title="$2"
-    local _on_all="$3"
-    local _on_check="$4"
-    local _on_back="$5"
-
-    while true; do
-        echo -e "\n${PURPLE}── ${_title} ──${NC}"
-        local i=1
-        for _info in "${_list[@]}"; do
-            local _name="${_info%%|*}"
-            echo -e "${YELLOW}${i})${GREEN} Install ${_name}${NC}"
-            ((i++))
-        done
-        local _all_idx=$i
-        echo -e "${YELLOW}${_all_idx})${GREEN} Install All${NC}"
-        local _check_idx=$((_all_idx + 1))
-        echo -e "${YELLOW}${_check_idx})${GREEN} Check Installations${NC}"
-        local _back_idx=$((_all_idx + 2))
-        echo -e "${YELLOW}${_back_idx})${GREEN} Back${NC}"
-        echo -e "${PURPLE}Enter a number to install, or e<N> for details (e.g., e1)${NC}"
-        echo -n -e "${PURPLE}Select option: ${NC}${YELLOW}"
-        read -r _choice
-        echo -e -n "${NC}"
-
-        if [[ "$_choice" =~ ^e([0-9]+)$ ]]; then
-            _explain_by_index "$1" "${BASH_REMATCH[1]}"
-            continue
-        elif [[ "$_choice" = "all" ]] || [[ "$_choice" = "$_all_idx" ]]; then
-            "$_on_all"
-        elif [[ "$_choice" = "$_check_idx" ]]; then
-            "$_on_check"
-        elif [[ "$_choice" = "$_back_idx" ]]; then
-            $_on_back; return
-        elif [[ "$_choice" =~ ^[0-9]+$ ]] && [ "$_choice" -ge 1 ] && [ "$_choice" -lt "$_all_idx" ]; then
-            local _idx=0
-            for _info in "${_list[@]}"; do
-                if [ "$_idx" -eq $((_choice - 1)) ]; then
-                    local _call="${_info#*|}"
-                    _call="${_call%%|*}"
-                    $_call
-                    break
-                fi
-                ((_idx++))
-            done
-        else
-            log_message "WARN" "Invalid option"
-        fi
-    done
-}
-
-# Generic installation checker
-# Usage: _check_installations LIST_VAR "Name1:bin1" "Name2:bin2" ...
-_check_installations() {
-    local _list_name="$1"
-    local -n _list="$1"
-    shift
-    declare -A _bin_map
-    for _pair in "$@"; do
-        _bin_map["${_pair%%:*}"]="${_pair#*:}"
-    done
-
-    log_message "INFO" "--- Checking $(echo "$_list_name" | sed 's/_LIST$//') Installations ---"
-    for _info in "${_list[@]}"; do
-        local _name="${_info%%|*}"
-        local _installed=false
-        if [[ -n "${_bin_map[_name]}" ]]; then
-            bin_check "${_bin_map[_name]}" && _installed=true
-        else
-            # fallback: try lowercase name
-            bin_check "$(echo "$_name" | tr '[:upper:]' '[:lower:]')" && _installed=true
-        fi
-        if [ "$_installed" = true ]; then
-            echo -e "${GREEN}[✔] ${_name} is installed.${NC}"
-        else
-            echo -e "${RED}[✘] ${_name} is NOT installed.${NC}"
-        fi
-    done
-}
-
-# --- Installation Modules (Expanded) ---
-
-_install_list() {
-    local name="$1"
-    local -n list="$2"
-    local prefix="Installing"
-    [ "$UNINSTALL_MODE" = true ] && prefix="Removing"
-    log_message "INFO" "--- $prefix All $name ---"
-    local overall_ec=0
-    for info in "${list[@]}"; do
-        local item_name="${info%%|*}"
-        local call="${info#*|}"
-        call="${call%%|*}"
-        $call
-        local ec=$?
-        if [ "$ec" -ne 0 ]; then
-            log_message "ERROR" "$call failed for $item_name (exit code $ec)."
-            overall_ec=$ec
-        fi
-    done
-    return "$overall_ec"
-}
 
 install_obsidian() {
     if command -v obsidian &> /dev/null; then
@@ -579,13 +378,12 @@ install_yt_dlp() {
     install_with_fallback "yt-dlp" "yt-dlp" "yt-dlp" "" "yt-dlp"
 }
 
-install_productivity() { _install_list "Productivity" PRODUCTIVITY_LIST; }
+install_productivity() { catalog_install_path "general/apps"; catalog_install_path "general/privacy/passwords"; catalog_install_path "general/privacy/network"; }
 
 check_productivity_installations() {
-    _check_installations PRODUCTIVITY_LIST \
-        "Obsidian:obsidian" "Telegram:telegram-desktop" "Proton Pass:proton-pass" \
-        "Proton VPN:protonvpn-app" "WPS Office:wps" "OBS Studio:obs" \
-        "ffmpeg:ffmpeg" "yt-dlp:yt-dlp"
+    catalog_check_path "general/apps"
+    catalog_check_path "general/privacy/passwords"
+    catalog_check_path "general/privacy/network"
 }
 
 
@@ -685,56 +483,50 @@ install_jetbrains_toolbox() {
     fi
 }
 
-install_ides() { _install_list "IDEs & Editors" IDES_LIST; }
+install_ides() { catalog_install_path "development/editors_ides"; }
 
 check_ides_installations() {
-    log_message "INFO" "--- Checking IDE Installations ---"
-    for info in "${IDES_LIST[@]}"; do
-        local name="${info%%|*}"
-        local installed=false
-        case $name in
-            "VS Code") bin_check code && installed=true ;;
-            "Sublime Text") bin_check subl && installed=true ;;
-            "JetBrains Toolbox") bin_check jetbrains-toolbox && installed=true ;;
-            OpenCode) bin_check opencode && installed=true ;;
-            ZCode) bin_check zcode && installed=true ;;
-            "Antigravity CLI"|Antigravity) (bin_check agy || bin_check antigravity || [ -f "$HOME/.local/bin/agy" ]) && installed=true ;;
-            Kiro) bin_check kiro && installed=true ;;
-        esac
-        if [ "$installed" = true ]; then
-            echo -e "${GREEN}[✔] $name is installed.${NC}"
-        else
-            echo -e "${RED}[✘] $name is NOT installed.${NC}"
-        fi
-    done
+    catalog_check_path "development/editors_ides"
 }
 
-install_terminals() { _install_list "Terminals" TERMINALS_LIST; }
+install_terminals() { catalog_install_path "general/terminal_shells/terminals"; }
 
 check_terminals_installations() {
-    log_message "INFO" "--- Checking Terminal Installations ---"
-    for info in "${TERMINALS_LIST[@]}"; do
-        local name="${info%%|*}"
-        local installed=false
-        case $name in
-            Kitty) bin_check kitty && installed=true ;;
-            Alacritty) bin_check alacritty && installed=true ;;
-            Tilix) bin_check tilix && installed=true ;;
-            "GNOME Terminal") bin_check gnome-terminal && installed=true ;;
-        esac
-        if [ "$installed" = true ]; then
-            echo -e "${GREEN}[✔] $name is installed.${NC}"
-        else
-            echo -e "${RED}[✘] $name is NOT installed.${NC}"
-        fi
-    done
+    catalog_check_path "general/terminal_shells/terminals"
 }
 
 # --- Execution Logic ---
 
+install_profile() {
+    local name="$1"
+    local file="${PRESETS_DIR}/${name}.list"
+    if [ ! -f "$file" ]; then
+        log_message "ERROR" "Unknown profile: '$name'. Available: $(ls "${PRESETS_DIR}"/*.list 2>/dev/null | xargs -n1 basename | tr '\n' ' ')"
+        return 1
+    fi
+    local tool
+    while IFS= read -r tool; do
+        tool="$(echo "$tool" | xargs)"
+        case "$tool" in
+            ""|\#*) continue ;;
+        esac
+        if [ "$tool" = "ALL" ]; then
+            catalog_install_all
+        else
+            catalog_install_one "$tool"
+        fi
+    done < "$file"
+    return 0
+}
+
 run_installation() {
     START_TIME=$(date +%s)
     log_message "INFO" "Starting installation..."
+
+    if [ -n "$PROFILE_NAME" ]; then
+        install_profile "$PROFILE_NAME"
+        return $?
+    fi
 
     if [ "$YES_MODE" = true ]; then
         pkg_ensure_prerequisites
@@ -743,20 +535,14 @@ run_installation() {
         fi
 
         if [ "$FULL_MODE" = true ] || [ "$MINIMAL_MODE" = true ]; then
-            install_browsers
-            install_terminals
-        fi
+            if [ "$MINIMAL_MODE" = true ]; then
+                catalog_install_path "general/browsers"
+                catalog_install_path "general/terminal_shells/terminals"
+            fi
 
-        if [ "$FULL_MODE" = true ]; then
-            install_productivity
-            install_ides
-            install_shells
-            install_dev_tools
-            install_all_languages
-            install_pentest
-            install_bug_bounty
-            install_frameworks
-            install_all_agentic_ides
+            if [ "$FULL_MODE" = true ]; then
+                catalog_install_all
+            fi
         fi
     else
         case $FULL_MODE$MINIMAL_MODE in
@@ -776,27 +562,13 @@ install_by_name() {
     local target_lower
     target_lower=$(echo "$target" | tr '[:upper:]' '[:lower:]')
 
-    local all_lists=(
-        "PSYCHO_LIST" "BROWSERS_LIST" "TERMINALS_LIST" "PRODUCTIVITY_LIST" "IDES_LIST"
-        "SHELLS_LIST" "DEV_TOOLS_LIST" "LANGUAGES_LIST"
-        "PENTEST_LIST" "BUG_BOUNTY_LIST" "FRAMEWORKS_LIST" "AGENTIC_IDES_LIST"
-    )
-
-    local list_name
-    for list_name in "${all_lists[@]}"; do
-        local -n list="$list_name"
-        for info in "${list[@]}"; do
-            local name="${info%%|*}"
-            local name_lower
-            name_lower=$(echo "$name" | tr '[:upper:]' '[:lower:]')
-            if [ "$name_lower" = "$target_lower" ]; then
-                local rest="${info#*|}"
-                local call="${rest%%|*}"
-                log_message "INFO" "Installing $name..."
-                eval "$call"
-                return $?
-            fi
-        done
+    local entry
+    for entry in "${CATALOG_ORDERED[@]}"; do
+        IFS='|' read -r e_path e_id e_name e_desc e_method e_tags e_fn e_pkg <<< "$entry"
+        if [ "$e_id" = "$target_lower" ]; then
+            eval "$e_fn"
+            return $?
+        fi
     done
 
     log_message "ERROR" "Unknown tool: '$target'. Use --list to see all available tools."
@@ -824,6 +596,7 @@ usage() {
     gecho "  --explain    Show info about a tool (e.g., --explain tmux)"
     gecho "  --install    Install specific tools by name (comma-separated, e.g. --install nmap,burpsuite)"
     gecho "  --list       List all available tools by category and exit"
+    gecho "  --profile <name>  Install tools from presets/<name>.list (e.g. --profile psycho)"
     gecho "  --uninstall  Uninstall selected tools instead of installing"
     gecho "  -v, --verbose  Show actual commands being executed"
     gecho "  --help       Show this help message"
@@ -855,6 +628,9 @@ main() {
                 ;;
             --minimal|--full|-u|--update|--install|--uninstall|--help|--list|--explain|--banner-only)
                 ACTION_SPECIFIED=true
+                ;;
+            --profile)
+                PROFILE_REQUESTED=true
                 ;;
         esac
     done
@@ -995,6 +771,7 @@ main() {
             --dry-run) DRY_RUN=true; shift ;;
             --uninstall) UNINSTALL_MODE=true; shift ;;
             --install) INSTALL_LIST="$2"; shift 2 ;;
+            --profile) PROFILE_NAME="$2"; shift 2 ;;
             --help|--explain|--list) shift ;;
                 *)         log_message "ERROR" "Unknown option: $1"; usage ;;
             esac
