@@ -14,6 +14,7 @@ PSYCHO_LIST=(
     "Redshift|install_redshift|redshift"
     "scrcpy|install_scrcpy|scrcpy"
     "Zellij|install_zellij|zellij"
+    "tmux|install_tmux|tmux"
 )
 
 show_psycho_menu() {
@@ -52,5 +53,5 @@ check_psycho_installations() {
     _check_installations PSYCHO_LIST \
         "Kitty (Hacker Suite):kitty" "Brave:brave-browser" "WPS Office:wps" \
         "OBS Studio:obs" "ffmpeg:ffmpeg" "yt-dlp:yt-dlp" "Redshift:redshift" \
-        "scrcpy:scrcpy" "Zellij:zellij"
+        "scrcpy:scrcpy" "Zellij:zellij" "tmux:tmux"
 }

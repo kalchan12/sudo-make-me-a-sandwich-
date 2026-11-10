@@ -20,10 +20,11 @@ TOOLS: list[tuple[str, str, str]] = [
     ("Tilix", "install_tilix", "tilix"),
     ("GNOME Terminal", "install_gnome_terminal", "gnome-terminal"),
     ("Zellij", "install_zellij", "zellij"),
+    ("tmux", "install_tmux", "tmux"),
 ]
 
 BINS: dict[str, str] = {
-    "Kitty": "kitty", "Alacritty": "alacritty", "Tilix": "tilix", "GNOME Terminal": "gnome-terminal", "Zellij": "zellij"
+    "Kitty": "kitty", "Alacritty": "alacritty", "Tilix": "tilix", "GNOME Terminal": "gnome-terminal", "Zellij": "zellij", "tmux": "tmux"
 }
 
 

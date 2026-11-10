@@ -80,12 +80,12 @@ def cmd_explain(name: str) -> int:
 
 def cmd_list() -> None:
     categories = [
-        ("Psycho", ["Kitty (Hacker Suite)", "Brave", "WPS Office", "OBS Studio", "ffmpeg", "yt-dlp", "Redshift", "scrcpy", "Zellij"]),
+        ("Psycho", ["Kitty (Hacker Suite)", "Brave", "WPS Office", "OBS Studio", "ffmpeg", "yt-dlp", "Redshift", "scrcpy", "Zellij", "tmux"]),
         ("Browsers", ["Brave", "Google Chrome", "Firefox", "Vivaldi", "Chromium",
                        "Firefox Developer Edition", "Ungoogled Chromium", "LibreWolf"]),
         ("Productivity", ["Obsidian", "Telegram", "Proton Pass", "Proton VPN", "WPS Office", "OBS Studio", "ffmpeg", "yt-dlp", "Redshift"]),
         ("IDEs & Editors", ["VS Code", "Sublime Text", "JetBrains Toolbox"]),
-        ("Terminals", ["Kitty", "Alacritty", "Tilix", "GNOME Terminal", "Zellij"]),
+        ("Terminals", ["Kitty", "Alacritty", "Tilix", "GNOME Terminal", "Zellij", "tmux"]),
         ("Shells", ["Zsh", "Fish", "Dash", "Ksh", "Tcsh", "Nushell", "Elvish", "Xonsh"]),
         ("Dev Tools", ["tmux", "Neovim", "Docker", "jq", "ripgrep", "fzf", "bat", "fd",
                         "btop", "lazygit", "zoxide", "delta", "tldr", "httpie", "glances",

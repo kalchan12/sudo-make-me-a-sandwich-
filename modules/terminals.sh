@@ -6,6 +6,7 @@ TERMINALS_LIST=(
     "Tilix|install_tilix|tilix"
     "GNOME Terminal|install_gnome_terminal|gnome-terminal"
     "Zellij|install_zellij|zellij"
+    "tmux|install_tmux|tmux"
 )
 
 show_terminals_menu() {
@@ -187,5 +188,5 @@ install_terminals() { _install_list "Terminals" TERMINALS_LIST; }
 check_terminals_installations() {
     _check_installations TERMINALS_LIST \
         "Kitty:kitty" "Alacritty:alacritty" "Tilix:tilix" "GNOME Terminal:gnome-terminal" \
-        "Zellij:zellij"
+        "Zellij:zellij" "tmux:tmux"
 }
