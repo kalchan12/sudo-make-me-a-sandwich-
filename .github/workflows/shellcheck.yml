@@ -15,3 +15,8 @@ jobs:
         uses: ludeeus/action-shellcheck@master
         with:
           severity: style
+          ignore_paths: >-
+            .git
+            *.go
+            */mvnw
+            kitty-config/zsh

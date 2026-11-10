@@ -1,6 +1,13 @@
 #!/bin/bash
 # Python API — thin bridge for Python to call bash install functions
 # Usage: bash core/python_api.sh <function_name> [args...]
+#
+# This file is executed standalone by Python (functions dispatched via "$@")
+# and sourced by catalog tool files, so ShellCheck cannot see all usages:
+# - SC2034  colors/vars consumed by sourced catalog files
+# - SC2329  gecho/log_message/show_package_info called via "$@" dispatch
+# - SC2317  DISTRO case branches resolved at runtime by detect_distro
+# shellcheck disable=SC2034,SC2329,SC2317
 
 SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
@@ -43,7 +50,6 @@ detect_distro > /dev/null 2>&1
 
 # Show package info without prompting (for Python confirm_install)
 # DISTRO is set at runtime by detect_distro, so branch reachability is dynamic.
-# shellcheck disable=SC2317
 show_package_info() {
     local pkg="$1"
     case $DISTRO in
