@@ -54,6 +54,73 @@ You can directly pass flags to install specific tools without opening any UI:
 sudo ./setup.sh --install nmap,burpsuite,tmux
 sudo ./setup.sh --minimal    # Browsers and Terminals only
 sudo ./setup.sh --full       # Everything
+sudo ./setup.sh --profile psycho   # Install a preset from presets/
+sudo ./setup.sh --list       # Browse the full catalog tree
+sudo ./setup.sh --explain tmux
+```
+
+## Catalog Structure
+
+All three interfaces (Bash CLI, Rich TUI, Desktop GUI) read the **same shared
+catalog**, so what you see is identical everywhere. Every tool is a small file
+with metadata at the top and its install function below:
+
+```
+catalog/
+├── general/            # General
+│   ├── apps/           # Apps         (obsidian, ffmpeg, wps, ...)
+│   ├── browsers/       # Browsers
+│   │   ├── mainstream/ # brave, chrome, chromium, firefox, firefox_dev, vivaldi
+│   │   └── privacy/    # librewolf, ungoogled_chromium
+│   ├── cli_utilities/  # CLI Utilities
+│   ├── privacy/        # Privacy (passwords vaults, network anonymity)
+│   └── terminal_shells/# Terminal & Shell (terminals/multiplexers/shells)
+├── development/        # Development
+│   ├── app_frameworks/ # App Frameworks (flutter, electron, tauri, ...)
+│   ├── containers/     # Containers
+│   ├── editors_ides/   # Editors & IDEs (editors/, ides/, ai_coding/)
+│   └── languages/      # Languages
+└── security/           # Security
+    ├── credentials/    # Credentials (online attacks, offline cracking)
+    ├── network/        # Network (scanning, sniffing & MITM, utilities)
+    ├── recon_osint/    # Recon & OSINT
+    ├── reverse_forensics/
+    ├── web/            # Web (discovery & fuzzing, scanners, proxies, exploitation)
+    └── wireless/       # Wireless
+```
+
+### Adding a Tool
+
+1. Create `catalog/<group>/<category>[/<subgroup>]/<id>.sh`
+2. Add the metadata header and installer (copy an existing file as a template):
+
+```bash
+# id: mytool
+# name: My Tool
+# desc: One-line description shown in every UI.
+# method: apt
+# pkg: mytool-package
+# tags: terminal, dev
+install_mytool() {
+    install_with_fallback "My Tool" "mytool"
+}
+```
+
+The file is picked up automatically — no lists to edit. A tool id must be a
+valid bash function-name suffix (`[a-z0-9_]+`).
+
+### Presets
+
+Presets are simple lists of tool ids in `presets/<name>.list` and can be
+installed with `sudo ./setup.sh --profile <name>`. Use the keyword `ALL` for
+"everything in the catalog":
+
+```bash
+# presets/mysetup.list
+kitty
+brave
+zellij
+ALL
 ```
 
 ## One-Liner Install
@@ -81,5 +148,7 @@ chmod +x setup.sh
 * [x] App selection menu (bash + rich TUI)
 * [x] Python integration (rich TUI menus, confirmation dialogs, explanations)
 * [x] Modern Graphical User Interface (GTK 3 + Tkinter fallback) with real-time log output
+* [x] Shared nested catalog (General / Development / Security) driving Bash, TUI and GUI
+* [x] Presets (`presets/*.list`) with `--profile <name>`
 * [ ] Add Fedora/Arch compatibility
 * [ ] Add package manager search mode
