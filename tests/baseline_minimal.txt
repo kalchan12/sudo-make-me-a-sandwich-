@@ -1,0 +1,12 @@
+brave
+chrome
+chromium
+firefox
+firefox_dev
+librewolf
+ungoogled_chromium
+vivaldi
+kitty
+alacritty
+tilix
+gnome-terminal
