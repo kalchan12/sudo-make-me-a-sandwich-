@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: delta
 # name: delta
 # desc: Git diff viewer.

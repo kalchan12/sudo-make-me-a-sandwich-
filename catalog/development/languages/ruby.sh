@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: ruby
 # name: Ruby
 # desc: Ruby runtime.

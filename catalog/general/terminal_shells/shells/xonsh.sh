@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: xonsh
 # name: Xonsh
 # desc: Python-powered shell.

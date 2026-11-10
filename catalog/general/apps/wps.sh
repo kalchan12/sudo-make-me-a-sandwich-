@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: wps
 # name: WPS Office
 # desc: WPS Office suite.

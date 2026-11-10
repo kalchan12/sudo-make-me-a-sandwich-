@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: python
 # name: Python
 # desc: Python runtime.

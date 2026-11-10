@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: firefox_dev
 # name: Firefox Developer Edition
 # desc: Pre-release Firefox for developers.

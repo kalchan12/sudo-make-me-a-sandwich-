@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: redshift
 # name: Redshift
 # desc: Display color temperature adjuster.

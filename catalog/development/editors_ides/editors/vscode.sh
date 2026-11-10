@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: vscode
 # name: VS Code
 # desc: Visual Studio Code editor.

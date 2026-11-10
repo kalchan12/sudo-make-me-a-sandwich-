@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: php
 # name: PHP
 # desc: PHP runtime.

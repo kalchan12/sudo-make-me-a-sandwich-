@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: tldr
 # name: tldr
 # desc: Simplified man pages.

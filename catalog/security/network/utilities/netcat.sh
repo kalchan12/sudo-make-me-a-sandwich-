@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: netcat
 # name: Utilities
 # desc: TCP/IP swiss army knife.

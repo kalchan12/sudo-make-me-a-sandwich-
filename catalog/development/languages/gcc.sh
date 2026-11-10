@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: gcc
 # name: C/C++ (GCC)
 # desc: C/C++ toolchain.

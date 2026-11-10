@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: aircrack
 # name: Wireless
 # desc: WiFi security suite.

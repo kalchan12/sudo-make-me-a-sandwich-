@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: zsh
 # name: Zsh
 # desc: Z shell.

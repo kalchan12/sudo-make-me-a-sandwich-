@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: fish
 # name: Fish
 # desc: Friendly interactive shell.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: caido
 # name: Proxies
 # desc: Caido proxy.

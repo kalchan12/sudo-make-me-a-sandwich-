@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: ghidra
 # name: Reverse engineering
 # desc: Reverse engineering toolkit.

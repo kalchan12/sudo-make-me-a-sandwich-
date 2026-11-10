@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: sublime
 # name: Sublime Text
 # desc: Sublime Text editor.

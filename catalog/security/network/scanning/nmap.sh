@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: nmap
 # name: Scanning
 # desc: Network port scanner.

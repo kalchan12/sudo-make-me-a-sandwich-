@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: react_native
 # name: React Native
 # desc: React Native.

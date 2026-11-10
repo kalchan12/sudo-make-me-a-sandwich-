@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: kotlin
 # name: Kotlin
 # desc: Kotlin runtime.

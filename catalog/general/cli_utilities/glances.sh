@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: glances
 # name: glances
 # desc: System monitor.

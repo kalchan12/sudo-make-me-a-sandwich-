@@ -25,7 +25,6 @@ MINIMAL_MODE=false
 FULL_MODE=false
 UPDATE_MODE=false
 PROFILE_NAME=""
-PROFILE_REQUESTED=false
 DRY_RUN="${DRY_RUN:-false}"
 YES_MODE=false
 UNINSTALL_MODE=false
@@ -63,7 +62,8 @@ show_banner() {
 log_message() {
     local TYPE=$1
     local MSG=$2
-    local TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+    local TIMESTAMP
+    TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
     
     case $TYPE in
         "INFO")    echo -e "${BLUE}[INFO]${NC} $MSG" ;;
@@ -210,7 +210,7 @@ show_group_menu() {
     for c in "${CATALOG_CAT_LIST[@]}"; do
         local cnt
         cnt="$(catalog_tool_count_for "$c")"
-        echo -e "${YELLOW}${i})${GREEN} ${catalog_title "$c"} (${cnt})${NC}"
+        echo -e "${YELLOW}${i})${GREEN} $(catalog_title "$c") (${cnt})${NC}"
         i=$((i+1))
     done
     echo -e "${YELLOW}${i})${GREEN} Back${NC}"
@@ -287,7 +287,8 @@ install_obsidian() {
                 log_message "SUCCESS" "Obsidian installed via Flatpak."
             else
                 log_message "INFO" "Flatpak not found. Downloading latest Obsidian .deb..."
-                local deb_url=$(curl -s https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest \
+                local deb_url
+                deb_url=$(curl -s https://api.github.com/repos/obsidianmd/obsidian-releases/releases/latest \
                     | jq -r '.assets[] | select(.name | endswith("_amd64.deb")) | .browser_download_url' \
                     | head -1)
                 if [ -n "$deb_url" ] && [ "$deb_url" != "null" ]; then
@@ -464,7 +465,8 @@ install_jetbrains_toolbox() {
     _check_deps "JetBrains Toolbox" curl jq wget || return
 
     log_message "INFO" "Installing JetBrains Toolbox..."
-    local toolbox_url=$(curl -s "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" \
+    local toolbox_url
+    toolbox_url=$(curl -s "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" \
         | jq -r '.TBA[0].downloads.linux.link')
     if [ -n "$toolbox_url" ] && [ "$toolbox_url" != "null" ]; then
         if ! wget --progress=bar:force -O /tmp/jetbrains-toolbox.tar.gz "$toolbox_url"; then
@@ -501,7 +503,9 @@ install_profile() {
     local name="$1"
     local file="${PRESETS_DIR}/${name}.list"
     if [ ! -f "$file" ]; then
-        log_message "ERROR" "Unknown profile: '$name'. Available: $(ls "${PRESETS_DIR}"/*.list 2>/dev/null | xargs -n1 basename | tr '\n' ' ')"
+        local available
+        available=$(for f in "${PRESETS_DIR}"/*.list; do [ -f "$f" ] && basename "$f"; done | tr '\n' ' ')
+        log_message "ERROR" "Unknown profile: '$name'. Available: $available"
         return 1
     fi
     local tool
@@ -564,6 +568,7 @@ install_by_name() {
 
     local entry
     for entry in "${CATALOG_ORDERED[@]}"; do
+        # shellcheck disable=SC2034  # only a subset of catalog fields is used here
         IFS='|' read -r e_path e_id e_name e_desc e_method e_tags e_fn e_pkg <<< "$entry"
         if [ "$e_id" = "$target_lower" ]; then
             eval "$e_fn"
@@ -630,7 +635,6 @@ main() {
                 ACTION_SPECIFIED=true
                 ;;
             --profile)
-                PROFILE_REQUESTED=true
                 ;;
         esac
     done

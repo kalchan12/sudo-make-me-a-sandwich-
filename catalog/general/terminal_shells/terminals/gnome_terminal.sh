@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: gnome_terminal
 # name: GNOME Terminal
 # desc: GNOME Terminal emulator.

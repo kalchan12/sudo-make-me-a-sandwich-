@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: binwalk
 # name: Reverse engineering
 # desc: Firmware analysis.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: tilix
 # name: Tilix
 # desc: Flexible terminal emulator with splits and tabs.

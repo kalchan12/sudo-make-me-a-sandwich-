@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: yt_dlp
 # name: yt-dlp
 # desc: YouTube media downloader.

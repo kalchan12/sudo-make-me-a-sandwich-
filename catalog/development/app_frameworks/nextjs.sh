@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: nextjs
 # name: Next.js
 # desc: Next.js framework.

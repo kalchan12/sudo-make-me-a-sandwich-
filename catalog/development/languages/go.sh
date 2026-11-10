@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: go
 # name: Go
 # desc: Go runtime.

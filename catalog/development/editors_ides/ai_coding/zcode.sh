@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: zcode
 # name: ZCode
 # desc: ZCode AI coding CLI.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: neovim
 # name: Neovim
 # desc: Neovim editor.

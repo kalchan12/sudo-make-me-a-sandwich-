@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: docker
 # name: Docker
 # desc: Docker container runtime.

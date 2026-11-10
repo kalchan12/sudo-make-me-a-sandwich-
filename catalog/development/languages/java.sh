@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: java
 # name: Java (OpenJDK)
 # desc: Java runtime.

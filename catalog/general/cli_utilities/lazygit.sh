@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: lazygit
 # name: lazygit
 # desc: Lazy git.

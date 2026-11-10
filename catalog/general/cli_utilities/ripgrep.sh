@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: ripgrep
 # name: ripgrep
 # desc: Ripgrep fast line search.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: burpsuite
 # name: Proxies
 # desc: Burp Suite proxy.

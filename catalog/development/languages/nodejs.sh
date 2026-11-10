@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: nodejs
 # name: Node.js
 # desc: Node.js runtime.

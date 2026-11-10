@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: typescript
 # name: TypeScript
 # desc: TypeScript compiler.

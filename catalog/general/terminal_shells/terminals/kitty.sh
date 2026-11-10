@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: kitty
 # name: Kitty
 # desc: GPU-accelerated terminal emulator with hacker themes.

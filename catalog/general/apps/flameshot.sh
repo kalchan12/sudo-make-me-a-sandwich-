@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: flameshot
 # name: Flameshot
 # desc: Screenshot tool.

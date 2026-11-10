@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: httpie
 # name: httpie
 # desc: HTTP client.

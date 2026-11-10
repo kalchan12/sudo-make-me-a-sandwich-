@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: obs_studio
 # name: OBS Studio
 # desc: Screen recording and streaming.

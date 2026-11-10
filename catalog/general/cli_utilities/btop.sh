@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: btop
 # name: btop
 # desc: Resource usage monitor.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: vlc
 # name: VLC
 # desc: VLC media player.

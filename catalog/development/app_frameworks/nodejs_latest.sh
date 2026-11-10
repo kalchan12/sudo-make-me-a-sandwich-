@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: nodejs_latest
 # name: Node.js (Latest)
 # desc: Node.js latest.

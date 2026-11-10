@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: proxychains
 # name: proxychains
 # desc: Proxy chains wrapper.

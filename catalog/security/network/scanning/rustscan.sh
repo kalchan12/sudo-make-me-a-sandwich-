@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: rustscan
 # name: Scanning
 # desc: Rust port scanner.

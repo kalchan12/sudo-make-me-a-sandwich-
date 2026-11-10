@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # ==============================================================================
 # Shared tool catalog loader for sudo-make-me-a-sandwich
 #
@@ -18,7 +19,6 @@
 # ==============================================================================
 
 CATALOG_ROOT="${CATALOG_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/catalog}"
-CATALOG_AVAILABLE=true
 CATALOG_ORDERED=()
 CATALOG_TOOLS=()
 CATALOG_SUBS=()
@@ -67,6 +67,7 @@ catalog_subgroups() {
     CATALOG_SUBS=()
     local entry e_path e_sub first s
     for entry in "${CATALOG_ORDERED[@]}"; do
+        # shellcheck disable=SC2034  # only a subset of catalog fields is used here
         IFS='|' read -r e_path e_id e_name e_desc e_method e_tags e_fn e_pkg <<< "$entry"
         [ "$e_path" = "$cat" ] && continue
         case "$e_path" in
@@ -96,14 +97,18 @@ catalog_tools() {
     subs=("${CATALOG_SUBS[@]}")
     local sub
     for entry in "${CATALOG_ORDERED[@]}"; do
+        # shellcheck disable=SC2034  # only a subset of catalog fields is used here
         IFS='|' read -r e_path e_id e_name e_desc e_method e_tags e_fn e_pkg <<< "$entry"
         if [ "$e_path" = "$cat" ]; then
             CATALOG_TOOLS+=("$e_name|$e_fn|$e_pkg")
         else
             local matched=0
             for sub in "${subs[@]}"; do
-                if [ "${e_path#"$cat"/}" = "$sub" ] || [ "${e_path#"$cat"/}" = "$sub/"* ]; then
-                    matched=1
+                local rel="${e_path#"$cat"/}"
+                case "$rel" in
+                    "$sub" | "$sub"/*) matched=1 ;;
+                esac
+                if [ "$matched" = 1 ]; then
                     break
                 fi
             done
@@ -120,6 +125,7 @@ catalog_install_one() {
     local id="$1"
     local entry e_id e_fn
     for entry in "${CATALOG_ORDERED[@]}"; do
+        # shellcheck disable=SC2034  # only a subset of catalog fields is used here
         IFS='|' read -r e_id e_name e_desc e_method e_tags e_fn e_pkg <<< "${entry#*|}"
         if [ "$e_id" = "$id" ]; then
             eval "$e_fn"
@@ -146,6 +152,7 @@ catalog_install_path() {
     fi
     local entry e_path e_name e_fn e_pkg ec
     for entry in "${CATALOG_ORDERED[@]}"; do
+        # shellcheck disable=SC2034  # only a subset of catalog fields is used here
         IFS='|' read -r e_path e_id e_name e_desc e_method e_tags e_fn e_pkg <<< "$entry"
         if [ "$e_path" = "$node" ]; then
             eval "$e_fn"
@@ -190,6 +197,7 @@ catalog_check_path() {
         return 0
     fi
     for entry in "${CATALOG_ORDERED[@]}"; do
+        # shellcheck disable=SC2034  # only a subset of catalog fields is used here
         IFS='|' read -r e_path e_id e_name e_desc e_method e_tags e_fn e_pkg <<< "$entry"
         if [ "$e_path" = "$node" ]; then
             local check_bin="$e_pkg"
@@ -210,8 +218,9 @@ catalog_tool_count_for() {
     local count=0
     local entry e_path
     for entry in "${CATALOG_ORDERED[@]}"; do
-        IFS='|' read -r e_path e_id e_name e_desc e_method e_tags e_fn e_pkg <<< "$entry"
-        if [ "$e_path" = "$node" ]; then
+        e_path="${entry%%|*}"
+        # include tools directly at node and in any of its subgroups
+        if [ "$e_path" = "$node" ] || [ "${e_path#"$node"/}" != "$e_path" ]; then
             count=$((count + 1))
         fi
     done
@@ -240,6 +249,7 @@ catalog_categories() {
     CATALOG_CAT_LIST=()
     local entry e_path e_first s
     for entry in "${CATALOG_ORDERED[@]}"; do
+        # shellcheck disable=SC2034  # only a subset of catalog fields is used here
         IFS='|' read -r e_path e_id e_name e_desc e_method e_tags e_fn e_pkg <<< "$entry"
         if [ "${e_path%%/*}" != "$group" ]; then
             continue
@@ -261,7 +271,7 @@ catalog_categories() {
 catalog_title() {
     local node="$1"
     local rest="${node#*/}"
-    local seg out=""
+    local out=""
     local -a segs=()
     local s
     IFS='/' read -ra segs <<< "$rest"
@@ -326,7 +336,7 @@ show_catalog_menu() {
         local s cnt
         for s in "${subs[@]}"; do
             cnt="$(catalog_tool_count_for "$node/$s")"
-            echo -e "${YELLOW}${i})${GREEN} ${catalog_title "$node/$s"} (${cnt})${NC}"
+            echo -e "${YELLOW}${i})${GREEN} $(catalog_title "$node/$s") (${cnt})${NC}"
             i=$((i+1))
         done
         echo -e "${YELLOW}${i})${GREEN} Back${NC}"

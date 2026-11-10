@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: fd
 # name: fd
 # desc: Fast file finder.

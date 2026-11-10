@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: thefuck
 # name: thefuck
 # desc: Command correction tool.

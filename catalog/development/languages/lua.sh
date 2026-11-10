@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: lua
 # name: Lua
 # desc: Lua runtime.

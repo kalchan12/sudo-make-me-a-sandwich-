@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: tmux
 # name: tmux
 # desc: Terminal multiplexer.

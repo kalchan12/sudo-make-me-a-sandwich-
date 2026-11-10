@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: masscan
 # name: Scanning
 # desc: Fast port scanner.

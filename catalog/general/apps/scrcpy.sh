@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: scrcpy
 # name: scrcpy
 # desc: Android device screen mirroring.

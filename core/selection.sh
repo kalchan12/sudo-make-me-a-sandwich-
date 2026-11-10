@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 SELECTION_MODE=false
 
 _get_item_size() {
@@ -207,8 +208,9 @@ _show_selection_menu() {
 
         available+=("$info")
 
-        local size_str="$(_get_item_size "$pkg")"
-        local num_val=0
+        local size_str
+        size_str="$(_get_item_size "$pkg")"
+        local num_val
         if [ "$size_str" != "?" ]; then
             num_val=$(echo "$size_str" | grep -oP '^[\d.]+')
             case "$size_str" in
@@ -259,7 +261,7 @@ _show_selection_menu() {
     local chosen
     for token in $raw_input; do
         if [[ "$token" =~ ^([0-9]+)-([0-9]+)$ ]]; then
-            for ((n = ${BASH_REMATCH[1]}; n <= ${BASH_REMATCH[2]}; n++)); do
+            for ((n = BASH_REMATCH[1]; n <= BASH_REMATCH[2]; n++)); do
                 chosen=$((n - 1))
                 if [ "$chosen" -ge 0 ] && [ "$chosen" -lt "$display_num" ]; then
                     selections+=("${available[$chosen]}")
@@ -304,6 +306,9 @@ show_selection_and_install() {
     fi
 
     log_message "INFO" "Installing ${#selected[@]} selected item(s)..."
+    # SELECTION_MODE is read by core/confirm.sh and exported for src/tui/confirm.py
+    # SELECTION_MODE is read by core/confirm.sh and exported for src/tui/confirm.py
+    # shellcheck disable=SC2034
     SELECTION_MODE=true
 
     for item in "${selected[@]}"; do
@@ -314,6 +319,7 @@ show_selection_and_install() {
         eval "$call"
     done
 
+    # shellcheck disable=SC2034
     SELECTION_MODE=false
     log_message "SUCCESS" "Installation tasks complete! Check $LOG_FILE for details."
 }

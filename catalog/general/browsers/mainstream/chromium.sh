@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: chromium
 # name: Chromium
 # desc: Open-source Chromium browser.

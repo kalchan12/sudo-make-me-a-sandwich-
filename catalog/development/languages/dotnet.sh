@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: dotnet
 # name: C# (.NET)
 # desc: .NET runtime.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: flutter
 # name: Flutter
 # desc: Flutter SDK.

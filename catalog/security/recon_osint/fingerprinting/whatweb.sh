@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: whatweb
 # name: Fingerprinting
 # desc: Web fingerprinting.

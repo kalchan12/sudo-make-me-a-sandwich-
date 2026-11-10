@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: rust
 # name: Rust
 # desc: Rust runtime.

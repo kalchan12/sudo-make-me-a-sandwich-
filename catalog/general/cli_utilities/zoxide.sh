@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: zoxide
 # name: zoxide
 # desc: Smart cd wrapper.

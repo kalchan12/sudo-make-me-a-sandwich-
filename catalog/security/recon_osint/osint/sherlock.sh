@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: sherlock
 # name: OSINT
 # desc: Username OSINT.

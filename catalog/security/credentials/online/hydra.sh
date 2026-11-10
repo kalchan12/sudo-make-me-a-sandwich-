@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: hydra
 # name: Online attacks
 # desc: Online password cracking.

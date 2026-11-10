@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: steghide
 # name: Stego & metadata
 # desc: Steganography.

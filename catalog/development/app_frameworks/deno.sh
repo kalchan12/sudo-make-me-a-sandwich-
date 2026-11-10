@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: deno
 # name: Deno
 # desc: Deno runtime.

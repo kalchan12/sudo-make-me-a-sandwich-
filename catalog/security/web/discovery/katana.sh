@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: katana
 # name: Discovery
 # desc: Web crawler.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: vivaldi
 # name: Vivaldi
 # desc: Chromium-based browser with built-in ad blocker.

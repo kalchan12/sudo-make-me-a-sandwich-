@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: wireshark
 # name: Sniffing
 # desc: Packet analyzer.

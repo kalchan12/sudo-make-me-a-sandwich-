@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: r
 # name: R
 # desc: R runtime.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 _distro_persona() {
     local id="$1"
     case $id in
@@ -203,7 +204,9 @@ show_persona() {
 
     local desktop="${XDG_CURRENT_DESKTOP:-}"
     [ -z "$desktop" ] && desktop=$(basename "${DESKTOP_SESSION:-}" 2>/dev/null)
-    [ -z "$desktop" ] && desktop=$(command -v gnome-session &>/dev/null && echo "GNOME" || true)
+    if [ -z "$desktop" ] && command -v gnome-session &>/dev/null; then
+        desktop="GNOME"
+    fi
     [ -z "$desktop" ] && desktop="Unknown"
 
     local cpu_model=""

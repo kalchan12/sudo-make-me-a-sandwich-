@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: tor
 # name: Tor
 # desc: Tor anonymizer.

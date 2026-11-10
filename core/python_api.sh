@@ -27,12 +27,12 @@ GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
 PURPLE='\033[1;35m'
 RED='\033[0;31m'
-BLUE='\033[0;34m'
 NC='\033[0m'
 gecho() { echo -e "${GREEN}$*${NC}"; }
 log_message() {
     local TYPE=$1 MSG=$2
-    local TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+    local TIMESTAMP
+    TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
     echo "[$TIMESTAMP] [$TYPE] $MSG" >&3
 }
 
@@ -42,6 +42,8 @@ detect_distro > /dev/null 2>&1
 # --- API Functions ---
 
 # Show package info without prompting (for Python confirm_install)
+# DISTRO is set at runtime by detect_distro, so branch reachability is dynamic.
+# shellcheck disable=SC2317
 show_package_info() {
     local pkg="$1"
     case $DISTRO in

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: proton_pass
 # name: Proton Pass
 # desc: Proton Pass password manager.

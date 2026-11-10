@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: alacritty
 # name: Alacritty
 # desc: Fast GPU-accelerated terminal emulator.

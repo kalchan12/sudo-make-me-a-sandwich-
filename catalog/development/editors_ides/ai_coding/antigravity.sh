@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: antigravity
 # name: Antigravity CLI
 # desc: Antigravity CLI (agy).
@@ -26,6 +27,8 @@ install_antigravity() {
         [ -f "$f" ] && profile_file="$f"
     done
     if [ -n "$profile_file" ] && ! grep -q '\.local/bin' "$profile_file" 2>/dev/null; then
+        # "$HOME" must stay literal so it expands later inside the shell profile
+        # shellcheck disable=SC2016
         echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$profile_file"
     fi
     export PATH="$HOME/.local/bin:$PATH"

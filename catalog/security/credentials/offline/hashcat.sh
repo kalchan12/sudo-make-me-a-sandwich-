@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: hashcat
 # name: Offline cracking
 # desc: GPU password cracking.

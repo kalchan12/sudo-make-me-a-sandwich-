@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: ffmpeg
 # name: ffmpeg
 # desc: Multimedia framework.

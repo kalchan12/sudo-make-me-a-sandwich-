@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: exiftool
 # name: Stego & metadata
 # desc: Metadata tool.

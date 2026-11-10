@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: wfuzz
 # name: Discovery
 # desc: Web fuzzer.

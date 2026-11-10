@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: elvish
 # name: Elvish
 # desc: Rust-based shell.

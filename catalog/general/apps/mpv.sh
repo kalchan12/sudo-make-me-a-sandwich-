@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: mpv
 # name: mpv
 # desc: Media player.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: ungoogled_chromium
 # name: Ungoogled Chromium
 # desc: Chromium without Google branding or services.

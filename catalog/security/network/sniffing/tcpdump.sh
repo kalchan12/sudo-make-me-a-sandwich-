@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: tcpdump
 # name: Sniffing
 # desc: Packet capture.

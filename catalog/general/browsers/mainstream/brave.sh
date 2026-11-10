@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: brave
 # name: Brave
 # desc: Privacy-respecting Chromium-based browser with built-in ad and tracker blocking.

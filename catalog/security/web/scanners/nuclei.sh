@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: nuclei
 # name: Scanners
 # desc: Template-based vulnerability scanner.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: obsidian
 # name: Obsidian
 # desc: Markdown notes app.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: bettercap
 # name: Sniffing
 # desc: MITM framework.

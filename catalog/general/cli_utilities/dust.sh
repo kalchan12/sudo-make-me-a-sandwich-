@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: dust
 # name: dust
 # desc: Disk usage analyzer.

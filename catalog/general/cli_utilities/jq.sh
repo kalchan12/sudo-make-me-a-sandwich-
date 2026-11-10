@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: jq
 # name: jq
 # desc: JSON processor.

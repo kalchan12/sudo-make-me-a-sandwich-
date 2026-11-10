@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: zig
 # name: Zig
 # desc: Zig runtime.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: gobuster
 # name: Discovery
 # desc: Web directory fuzzer.

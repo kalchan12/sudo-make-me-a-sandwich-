@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: keepassxc
 # name: KeePassXC
 # desc: KeePassXC password manager.

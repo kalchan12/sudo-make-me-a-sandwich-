@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: kiro
 # name: Kiro
 # desc: Kiro AI coding CLI.

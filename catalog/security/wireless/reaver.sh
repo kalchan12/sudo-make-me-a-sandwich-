@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: reaver
 # name: Wireless
 # desc: WPS attack.

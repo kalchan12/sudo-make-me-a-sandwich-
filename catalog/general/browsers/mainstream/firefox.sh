@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: firefox
 # name: Firefox
 # desc: Mozilla Firefox browser.

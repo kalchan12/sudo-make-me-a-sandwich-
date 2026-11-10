@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: dirsearch
 # name: Discovery
 # desc: Web directory brute force.

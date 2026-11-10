@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: tauri
 # name: Tauri
 # desc: Tauri framework.

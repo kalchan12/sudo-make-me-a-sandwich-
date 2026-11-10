@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: fzf
 # name: fzf
 # desc: Fuzzy finder.

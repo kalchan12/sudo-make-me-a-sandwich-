@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: zellij
 # name: Zellij
 # desc: Modern terminal workspace multiplexer.

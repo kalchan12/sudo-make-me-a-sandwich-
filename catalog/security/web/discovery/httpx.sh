@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: httpx
 # name: Discovery
 # desc: HTTP toolkit.

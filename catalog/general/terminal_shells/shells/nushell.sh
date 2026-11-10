@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: nushell
 # name: Nushell
 # desc: Modern shell with structured CLI output.

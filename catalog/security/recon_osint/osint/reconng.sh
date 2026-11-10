@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: reconng
 # name: OSINT
 # desc: Recon-ng framework.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: librewolf
 # name: LibreWolf
 # desc: Community Firefox fork with privacy hardening.

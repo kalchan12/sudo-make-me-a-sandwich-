@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: subfinder
 # name: Subdomains
 # desc: Subdomain discovery.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: proton_vpn
 # name: Proton VPN
 # desc: Proton VPN client.

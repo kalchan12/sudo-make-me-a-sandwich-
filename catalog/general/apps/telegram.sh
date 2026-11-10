@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: telegram
 # name: Telegram
 # desc: Telegram desktop client.

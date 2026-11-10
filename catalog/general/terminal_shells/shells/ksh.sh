@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: ksh
 # name: Ksh
 # desc: Korn shell.

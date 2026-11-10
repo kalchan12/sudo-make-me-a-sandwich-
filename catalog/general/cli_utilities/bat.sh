@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: bat
 # name: bat
 # desc: cat with syntax highlighting.

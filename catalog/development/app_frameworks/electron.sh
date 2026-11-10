@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: electron
 # name: Electron
 # desc: Electron framework.

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: theharvester
 # name: OSINT
 # desc: OSINT gathering.

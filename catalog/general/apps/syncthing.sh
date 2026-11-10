@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: syncthing
 # name: Syncthing
 # desc: File synchronization.

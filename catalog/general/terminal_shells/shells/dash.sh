@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: dash
 # name: Dash
 # desc: POSIX shell.

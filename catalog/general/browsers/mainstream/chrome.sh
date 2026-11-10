@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: chrome
 # name: Google Chrome
 # desc: Google Chrome browser.

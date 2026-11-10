@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: eza
 # name: eza
 # desc: ls alternative.

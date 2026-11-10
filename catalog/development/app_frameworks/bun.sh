@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: bun
 # name: Bun
 # desc: Bun runtime.

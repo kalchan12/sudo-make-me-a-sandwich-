@@ -639,6 +639,8 @@ if [ -f /etc/zsh_command_not_found ]; then
     . /etc/zsh_command_not_found
 fi
 EOF
+    # "~/.zshrc" is literal display text here
+    # shellcheck disable=SC2088
     log_success "~/.zshrc updated."
 }
 

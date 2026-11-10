@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: nikto
 # name: Scanners
 # desc: Web vulnerability scanner.

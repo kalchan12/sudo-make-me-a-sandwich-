@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: john
 # name: Offline cracking
 # desc: Offline password cracking.

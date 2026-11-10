@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: jetbrains_toolbox
 # name: JetBrains Toolbox
 # desc: JetBrains Toolbox IDE manager.

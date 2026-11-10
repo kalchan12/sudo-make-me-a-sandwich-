@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # id: dart
 # name: Dart
 # desc: Dart runtime.
