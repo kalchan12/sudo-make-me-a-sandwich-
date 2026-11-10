@@ -435,14 +435,16 @@ _explain_tool() {
             gecho "  • Integrated development environment with editor"
             gecho "  • Supports multiple programming languages"
             ;;
-        Antigravity)
-            echo -e "${YELLOW}Antigravity${NC}"
+        "Antigravity CLI"|Antigravity)
+            echo -e "${YELLOW}Antigravity CLI (agy)${NC}"
             gecho ""
-            gecho "AI-powered development tool that automates coding workflows."
+            gecho "Google Antigravity terminal-based AI coding assistant and agent CLI."
             gecho ""
             gecho "Tips:"
-            gecho "  • Automates repetitive coding tasks"
-            gecho "  • Integrates with existing development workflows"
+            gecho "  • Run 'agy' in any project directory to start the interactive agent"
+            gecho "  • Automates terminal execution, codebase analysis, and diff editing"
+            gecho "  • Built-in slash commands: /plan, /goal, /teamwork, /browser, /help"
+            gecho "  • Background self-updating binary with official checksum verification"
             ;;
         Kiro)
             echo -e "${YELLOW}Kiro${NC}"

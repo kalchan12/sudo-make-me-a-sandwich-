@@ -17,12 +17,12 @@ CATEGORY = "Agentic IDEs"
 TOOLS: list[tuple[str, str, str]] = [
     ("OpenCode", "install_opencode", "opencode"),
     ("ZCode", "install_zcode", "zcode"),
-    ("Antigravity", "install_antigravity", "antigravity"),
+    ("Antigravity CLI", "install_antigravity", "agy"),
     ("Kiro", "install_kiro", "kiro"),
 ]
 
 BINS: dict[str, str] = {
-    "OpenCode": "opencode", "ZCode": "zcode", "Antigravity": "antigravity", "Kiro": "kiro"
+    "OpenCode": "opencode", "ZCode": "zcode", "Antigravity CLI": "agy antigravity", "Kiro": "kiro"
 }
 
 

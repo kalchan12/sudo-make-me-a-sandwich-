@@ -1,8 +1,8 @@
 AGENTIC_IDES_LIST=(
-    "OpenCode|install_opencode"
-    "ZCode|install_zcode"
-    "Antigravity|install_antigravity"
-    "Kiro|install_kiro"
+    "OpenCode|install_opencode|opencode"
+    "ZCode|install_zcode|zcode"
+    "Antigravity CLI|install_antigravity|agy"
+    "Kiro|install_kiro|kiro"
 )
 
 show_agentic_ides_menu() {
@@ -88,41 +88,41 @@ install_zcode() {
 }
 
 install_antigravity() {
-    if command -v antigravity &> /dev/null || [ -d "/opt/antigravity" ]; then
-        log_message "WARN" "Antigravity is already installed."
-        return
+    if command -v agy &> /dev/null || [ -f "$HOME/.local/bin/agy" ]; then
+        log_message "WARN" "Antigravity CLI (agy) is already installed."
+        return 0
     fi
 
-    confirm_install "Antigravity" "antigravity" || return
+    confirm_install "Antigravity CLI" "" "Official installer from antigravity.google" || return
 
-    case $DISTRO in
-        debian)
-            log_message "INFO" "Installing Antigravity via apt repo..."
-            mkdir -p /etc/apt/keyrings
-            curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg \
-                | gpg --dearmor --yes -o /etc/apt/keyrings/antigravity-repo-key.gpg
-            echo "deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main" \
-                > /etc/apt/sources.list.d/antigravity.list
-            _verbose_cmd "apt update && apt install -y -V antigravity"
-            apt update && apt install -y -V antigravity
-            ;;
-        arch|fedora)
-            log_message "INFO" "Downloading Antigravity..."
-            local tarball_url="https://storage.googleapis.com/antigravity-public/antigravity-hub/2.2.1-5287492581195776/linux-x64/Antigravity.tar.gz"
-            _verbose_cmd "wget -O /tmp/antigravity.tar.gz $tarball_url"
-            if ! wget --progress=bar:force -O /tmp/antigravity.tar.gz "$tarball_url"; then
-                log_message "ERROR" "Failed to download Antigravity"
-                rm -f /tmp/antigravity.tar.gz
-                return 1
-            fi
-            mkdir -p /opt/antigravity
-            tar xzf /tmp/antigravity.tar.gz -C /opt/antigravity --strip-components=1
-            rm -f /tmp/antigravity.tar.gz
-            ln -sf /opt/antigravity/antigravity /usr/local/bin/antigravity
-            ;;
-    esac
-    log_message "SUCCESS" "Antigravity installed."
-    log_version "Antigravity" "" antigravity
+    log_message "INFO" "Installing Antigravity CLI (agy) via official bootstrapper..."
+    _verbose_cmd "curl -fsSL https://antigravity.google/cli/install.sh | bash"
+    if ! curl -fsSL https://antigravity.google/cli/install.sh | bash; then
+        log_message "ERROR" "Failed to install Antigravity CLI"
+        return 1
+    fi
+
+    # Ensure ~/.local/bin is in PATH in shell config files
+    local profile_file
+    for f in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.profile"; do
+        [ -f "$f" ] && profile_file="$f"
+    done
+    if [ -n "$profile_file" ] && ! grep -q '\.local/bin' "$profile_file" 2>/dev/null; then
+        echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$profile_file"
+    fi
+    export PATH="$HOME/.local/bin:$PATH"
+
+    # Create symlink in /usr/local/bin if permitted
+    if [ -f "$HOME/.local/bin/agy" ]; then
+        if [ -w "/usr/local/bin" ]; then
+            ln -sf "$HOME/.local/bin/agy" /usr/local/bin/agy 2>/dev/null || true
+        elif command -v sudo &>/dev/null; then
+            sudo ln -sf "$HOME/.local/bin/agy" /usr/local/bin/agy 2>/dev/null || true
+        fi
+    fi
+
+    log_message "SUCCESS" "Antigravity CLI (agy) installed."
+    log_version "Antigravity CLI" "" agy
 }
 
 install_kiro() {
@@ -170,7 +170,7 @@ install_kiro() {
 
 check_agentic_ides_installations() {
     _check_installations AGENTIC_IDES_LIST \
-        "OpenCode:opencode" "ZCode:zcode" "Antigravity:antigravity" "Kiro:kiro"
+        "OpenCode:opencode" "ZCode:zcode" "Antigravity CLI:agy" "Kiro:kiro"
 }
 
 install_all_agentic_ides() { _install_list "Agentic IDEs" AGENTIC_IDES_LIST; }

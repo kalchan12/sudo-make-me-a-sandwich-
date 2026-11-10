@@ -138,7 +138,7 @@ _show_selection_menu() {
             install_jetbrains_toolbox) [ -d /opt/jetbrains-toolbox ] || command -v jetbrains-toolbox &>/dev/null && already=true ;;
             install_opencode) command -v opencode &>/dev/null && already=true ;;
             install_zcode) command -v zcode &>/dev/null || [ -d /opt/zcode ] && already=true ;;
-            install_antigravity) command -v antigravity &>/dev/null || [ -d /opt/antigravity ] && already=true ;;
+            install_antigravity) (command -v agy &>/dev/null || [ -f "$HOME/.local/bin/agy" ] || command -v antigravity &>/dev/null || [ -d /opt/antigravity ]) && already=true ;;
             install_kiro) command -v kiro &>/dev/null || [ -d /opt/kiro ] && already=true ;;
             install_zsh) command -v zsh &>/dev/null && already=true ;;
             install_fish) command -v fish &>/dev/null && already=true ;;

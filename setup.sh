@@ -231,7 +231,7 @@ IDES_LIST=(
     "JetBrains Toolbox|install_jetbrains_toolbox|"
     "OpenCode|install_opencode|"
     "ZCode|install_zcode|"
-    "Antigravity|install_antigravity|"
+    "Antigravity CLI|install_antigravity|agy"
     "Kiro|install_kiro|"
 )
 
@@ -698,7 +698,7 @@ check_ides_installations() {
             "JetBrains Toolbox") bin_check jetbrains-toolbox && installed=true ;;
             OpenCode) bin_check opencode && installed=true ;;
             ZCode) bin_check zcode && installed=true ;;
-            Antigravity) bin_check antigravity && installed=true ;;
+            "Antigravity CLI"|Antigravity) (bin_check agy || bin_check antigravity || [ -f "$HOME/.local/bin/agy" ]) && installed=true ;;
             Kiro) bin_check kiro && installed=true ;;
         esac
         if [ "$installed" = true ]; then

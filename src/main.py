@@ -103,7 +103,7 @@ def cmd_list() -> None:
         ("Bug Bounty", ["subfinder", "httpx", "nuclei", "katana", "ghidra", "caido"]),
         ("Frameworks", ["Flutter", "React Native", "Next.js", "Node.js (Latest)",
                          "Electron", "Tauri", "Deno", "Bun"]),
-        ("Agentic IDEs", ["OpenCode", "ZCode", "Antigravity", "Kiro"]),
+        ("Agentic IDEs", ["OpenCode", "ZCode", "Antigravity CLI", "Kiro"]),
     ]
 
     for cat_name, tools in categories:
