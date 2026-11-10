@@ -13,7 +13,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
 YELLOW='\033[1;33m'
-RED='\033[0;31m'
 BOLD='\033[1m'
 NC='\033[0m'
 
@@ -149,6 +148,8 @@ cp "$SCRIPT_DIR/zsh/.zshrc" "$TARGET_HOME/.zshrc"
 
 # Add kitty-theme to ~/.bashrc for easy access when running bash
 if [ -f "$TARGET_HOME/.bashrc" ] && ! grep -q "kitty-theme" "$TARGET_HOME/.bashrc" 2>/dev/null; then
+    # "$HOME" must stay literal so it expands later inside .bashrc
+    # shellcheck disable=SC2016
     echo -e '\n# Kitty theme switcher\nexport PATH="$HOME/.local/bin:$PATH"\nalias kitty-theme="kitty-theme"\nalias kt="kitty-theme"' >> "$TARGET_HOME/.bashrc"
 fi
 

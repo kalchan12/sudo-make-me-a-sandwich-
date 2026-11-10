@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 show_size() {
     local raw="$1"
     if [[ "$raw" =~ ^[0-9]+(\.[0-9]+)?\ (MiB|KiB|GiB) ]]; then
@@ -46,8 +47,8 @@ confirm_install() {
                     case "$line" in
                         "Version"*:*" ") echo -e "${GREEN} Version:${NC}       ${line#*: }" ;;
                         "Description"*:*" ") echo -e "${GREEN} Description:${NC}  $(echo "${line#*: }" | head -c 100)" ;;
-                        "Download Size"*:*" ") echo -e "${GREEN} Download size:${NC} $(echo "${line#*: }" | sed 's/ //g')" ;;
-                        "Installed Size"*:*" ") echo -e "${GREEN} Install size:${NC}  $(echo "${line#*: }" | sed 's/ //g')" ;;
+                        "Download Size"*:*" ") echo -e "${GREEN} Download size:${NC} $(echo "${line#*: }" | tr -d ' ')" ;;
+                        "Installed Size"*:*" ") echo -e "${GREEN} Install size:${NC}  $(echo "${line#*: }" | tr -d ' ')" ;;
                     esac
                 done < <(pacman -Si "$pkg_name" 2>/dev/null)
                 ;;

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 SELECTION_MODE=false
 
 _get_item_size() {
@@ -51,60 +52,35 @@ _show_selection_menu() {
     echo ""
 
     if [ "$mode" = "full" ] || [ "$mode" = "minimal" ]; then
-        echo -e "  ${GREEN}── Browsers ──${NC}"
-        for info in "${BROWSERS_LIST[@]}"; do
-            local name="${info%%|*}"
-            local func="${info##*|}"
-            local pkg=""
-            case $func in
-                install_brave) pkg="brave-browser" ;;
-                install_chrome) pkg="" ;;
-                install_firefox) pkg="firefox" ;;
-                install_vivaldi) pkg="vivaldi-stable" ;;
-                install_chromium) pkg="chromium" ;;
-                install_firefox_dev) pkg="" ;;
-                install_ungoogled_chromium) pkg="ungoogled-chromium" ;;
-                install_librewolf) pkg="librewolf" ;;
-            esac
-            all_items+=("$name|$func|$pkg")
-        done
-        echo -e "  ${GREEN}── Terminals ──${NC}"
-        for info in "${TERMINALS_LIST[@]}"; do
-            all_items+=("$info")
-        done
+        if [ "$mode" = "minimal" ]; then
+            catalog_tools "general/browsers"
+            local -a min_entries=("${CATALOG_TOOLS[@]}")
+            local m
+            for m in "${min_entries[@]}"; do
+                all_items+=("$m")
+            done
+            catalog_tools "general/terminal_shells/terminals"
+            for m in "${CATALOG_TOOLS[@]}"; do
+                all_items+=("$m")
+            done
+        else
+            catalog_group_list
+            local g2
+            for g2 in "${CATALOG_GROUPS[@]}"; do
+                local gp2
+                gp2="$(catalog_group_path "$g2")"
+                catalog_categories "$gp2"
+                local c2
+                for c2 in "${CATALOG_CAT_LIST[@]}"; do
+                    catalog_tools "$c2"
+                    local t2
+                    for t2 in "${CATALOG_TOOLS[@]}"; do
+                        all_items+=("$t2")
+                    done
+                done
+            done
+        fi
     fi
-
-    if [ "$mode" = "full" ]; then
-        echo -e "  ${GREEN}── Utilities ──${NC}"
-        for info in "${PRODUCTIVITY_LIST[@]}"; do
-            all_items+=("$info")
-        done
-        echo -e "  ${GREEN}── IDEs & Editors ──${NC}"
-        for info in "${IDES_LIST[@]}"; do
-            all_items+=("$info")
-        done
-        echo -e "  ${GREEN}── Shells ──${NC}"
-        for info in "${SHELLS_LIST[@]}"; do
-            all_items+=("$info")
-        done
-        echo -e "  ${GREEN}── Dev Tools ──${NC}"
-        for info in "${DEV_TOOLS_LIST[@]}"; do
-            all_items+=("$info")
-        done
-        echo -e "  ${GREEN}── Languages ──${NC}"
-        for info in "${LANGUAGES_LIST[@]}"; do
-            all_items+=("$info")
-        done
-        echo -e "  ${GREEN}── Pentesting Tools ──${NC}"
-        for info in "${PENTEST_LIST[@]}"; do
-            all_items+=("$info")
-        done
-        echo -e "  ${GREEN}── Bug Bounty Tools ──${NC}"
-        for info in "${BUG_BOUNTY_LIST[@]}"; do
-            all_items+=("$info")
-        done
-    fi
-
     local total_bytes=0
     local display_num=0
 
@@ -232,8 +208,9 @@ _show_selection_menu() {
 
         available+=("$info")
 
-        local size_str="$(_get_item_size "$pkg")"
-        local num_val=0
+        local size_str
+        size_str="$(_get_item_size "$pkg")"
+        local num_val
         if [ "$size_str" != "?" ]; then
             num_val=$(echo "$size_str" | grep -oP '^[\d.]+')
             case "$size_str" in
@@ -284,7 +261,7 @@ _show_selection_menu() {
     local chosen
     for token in $raw_input; do
         if [[ "$token" =~ ^([0-9]+)-([0-9]+)$ ]]; then
-            for ((n = ${BASH_REMATCH[1]}; n <= ${BASH_REMATCH[2]}; n++)); do
+            for ((n = BASH_REMATCH[1]; n <= BASH_REMATCH[2]; n++)); do
                 chosen=$((n - 1))
                 if [ "$chosen" -ge 0 ] && [ "$chosen" -lt "$display_num" ]; then
                     selections+=("${available[$chosen]}")
@@ -329,6 +306,9 @@ show_selection_and_install() {
     fi
 
     log_message "INFO" "Installing ${#selected[@]} selected item(s)..."
+    # SELECTION_MODE is read by core/confirm.sh and exported for src/tui/confirm.py
+    # SELECTION_MODE is read by core/confirm.sh and exported for src/tui/confirm.py
+    # shellcheck disable=SC2034
     SELECTION_MODE=true
 
     for item in "${selected[@]}"; do
@@ -339,6 +319,7 @@ show_selection_and_install() {
         eval "$call"
     done
 
+    # shellcheck disable=SC2034
     SELECTION_MODE=false
     log_message "SUCCESS" "Installation tasks complete! Check $LOG_FILE for details."
 }

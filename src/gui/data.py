@@ -2,7 +2,6 @@
 """Data models and metadata for sudo-make-me-a-sandwich GUI."""
 
 from dataclasses import dataclass, field
-import importlib
 import os
 from pathlib import Path
 import re
@@ -10,20 +9,10 @@ import shutil
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-CATEGORIES = [
-    ("psycho", "Psycho", "💀"),
-    ("browsers", "Browsers", "🌐"),
-    ("productivity", "Productivity", "💼"),
-    ("ides", "IDEs & Editors", "💻"),
-    ("terminals", "Terminals", "🖥️"),
-    ("shells", "Shells", "🐚"),
-    ("dev_tools", "Dev Tools", "🔧"),
-    ("languages", "Languages", "📜"),
-    ("pentest", "Pentesting", "🛡️"),
-    ("bug_bounty", "Bug Bounty", "🎯"),
-    ("frameworks", "Frameworks", "🧱"),
-    ("agentic_ides", "Agentic IDEs", "🤖"),
-]
+from src.core import catalog as catalog_loader
+
+# Leaf nodes (categories / subgroups holding tools) — single source: catalog/
+CATEGORIES: list[tuple[str, str, str]] = catalog_loader.leaf_nodes()
 
 # Supplementary descriptions and tips for pentest tools and any missing tools
 EXTRA_TOOL_DESCRIPTIONS: dict[str, tuple[str, list[str]]] = {
@@ -425,7 +414,7 @@ _ALL_TOOLS_CACHE: list[ToolInfo] | None = None
 
 
 def get_all_tools() -> list[ToolInfo]:
-    """Load all tools from src/modules/."""
+    """Load all tools from the shared catalog/ tree."""
     global _ALL_TOOLS_CACHE
     if _ALL_TOOLS_CACHE is not None:
         return _ALL_TOOLS_CACHE
@@ -433,45 +422,38 @@ def get_all_tools() -> list[ToolInfo]:
     sh_explanations = _load_explanations_from_sh()
     tools: list[ToolInfo] = []
 
-    for cat_id, cat_title, cat_icon in CATEGORIES:
-        try:
-            mod = importlib.import_module(f"src.modules.{cat_id}")
-            raw_tools = getattr(mod, "TOOLS", [])
-            bins_map = getattr(mod, "BINS", {})
+    node_info = {node[0]: (node[1], node[2]) for node in CATEGORIES}
 
-            for item in raw_tools:
-                display_name = item[0]
-                bash_func = item[1]
-                pkg_name = item[2] if len(item) > 2 else ""
+    for t in catalog_loader.all_tools():
+        display_name = t.name
+        cat_id = t.path
+        cat_title, cat_icon = node_info.get(cat_id, (catalog_loader.title_of(cat_id), catalog_loader.icon_of(cat_id)))
 
-                bin_str = bins_map.get(display_name, display_name.lower())
-                bin_list = bin_str.split() if bin_str else [display_name.lower()]
+        bin_list = t.bin_names
 
-                desc = ""
-                tips = []
+        desc = ""
+        tips = []
 
-                if display_name in sh_explanations:
-                    desc, tips = sh_explanations[display_name]
-                elif display_name in EXTRA_TOOL_DESCRIPTIONS:
-                    desc, tips = EXTRA_TOOL_DESCRIPTIONS[display_name]
-                else:
-                    desc = f"Utility {display_name} in category {cat_title}."
-                    tips = [f"Install via {bash_func}"]
+        if display_name in sh_explanations:
+            desc, tips = sh_explanations[display_name]
+        elif display_name in EXTRA_TOOL_DESCRIPTIONS:
+            desc, tips = EXTRA_TOOL_DESCRIPTIONS[display_name]
+        else:
+            desc = t.desc or f"Utility {display_name} in category {cat_title}."
+            tips = [f"Install via {t.fn}"]
 
-                tool = ToolInfo(
-                    name=display_name,
-                    category_id=cat_id,
-                    category_title=cat_title,
-                    category_icon=cat_icon,
-                    bash_func=bash_func,
-                    pkg_name=pkg_name,
-                    bin_names=bin_list,
-                    description=desc,
-                    tips=tips,
-                )
-                tools.append(tool)
-        except Exception as e:
-            print(f"[WARN] Failed to load module {cat_id}: {e}")
+        tool = ToolInfo(
+            name=display_name,
+            category_id=cat_id,
+            category_title=cat_title,
+            category_icon=cat_icon,
+            bash_func=t.fn,
+            pkg_name=t.pkg,
+            bin_names=bin_list,
+            description=desc,
+            tips=tips,
+        )
+        tools.append(tool)
 
     _ALL_TOOLS_CACHE = tools
     return tools

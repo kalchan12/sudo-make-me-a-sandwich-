@@ -1,0 +1,13 @@
+# Minimal profile: browsers + terminal emulators
+brave
+chrome
+chromium
+firefox
+firefox_dev
+vivaldi
+librewolf
+ungoogled_chromium
+kitty
+alacritty
+tilix
+gnome_terminal

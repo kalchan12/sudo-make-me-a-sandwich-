@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Python Bridge — replaces bash UI functions with Python+rich equivalents
 # Sourced by setup.sh when python3 + rich are available
 

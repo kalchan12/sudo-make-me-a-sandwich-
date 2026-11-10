@@ -10,6 +10,8 @@ console = Console(highlight=False)
 def show_main_menu() -> str:
     from rich.prompt import Prompt
 
+    from src.core import catalog
+
     console.clear()
     console.print()
 
@@ -20,23 +22,10 @@ def show_main_menu() -> str:
     table.add_column(style="yellow", width=3)
     table.add_column(style="green")
 
-    categories = [
-        ("0", "Psycho (Essentials & Hacker Kitty)"),
-        ("1", "Browsers"),
-        ("2", "Productivity"),
-        ("3", "IDEs & Editors"),
-        ("4", "Terminals"),
-        ("5", "Shells"),
-        ("6", "Dev Tools"),
-        ("7", "Languages"),
-        ("8", "Pentesting"),
-        ("9", "Bug Bounty"),
-        ("10", "Frameworks"),
-        ("11", "Agentic IDEs"),
-    ]
+    for i, group in enumerate(catalog.groups()):
+        table.add_row(f"{i})", catalog.title_of(group))
 
-    for num, name in categories:
-        table.add_row(f"{num})", name)
+    table.add_row("p)", "Presets & Profiles")
 
     table.add_section()
     table.add_row("12)", "[green]Full Install (everything)[/]")

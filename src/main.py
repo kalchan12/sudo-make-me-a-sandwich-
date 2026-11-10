@@ -79,37 +79,21 @@ def cmd_explain(name: str) -> int:
 
 
 def cmd_list() -> None:
-    categories = [
-        ("Psycho", ["Kitty (Hacker Suite)", "Brave", "WPS Office", "OBS Studio", "ffmpeg", "yt-dlp", "Redshift", "scrcpy", "Zellij", "tmux"]),
-        ("Browsers", ["Brave", "Google Chrome", "Firefox", "Vivaldi", "Chromium",
-                       "Firefox Developer Edition", "Ungoogled Chromium", "LibreWolf"]),
-        ("Productivity", ["Obsidian", "Telegram", "Proton Pass", "Proton VPN", "WPS Office", "OBS Studio", "ffmpeg", "yt-dlp", "Redshift"]),
-        ("IDEs & Editors", ["VS Code", "Sublime Text", "JetBrains Toolbox"]),
-        ("Terminals", ["Kitty", "Alacritty", "Tilix", "GNOME Terminal", "Zellij", "tmux"]),
-        ("Shells", ["Zsh", "Fish", "Dash", "Ksh", "Tcsh", "Nushell", "Elvish", "Xonsh"]),
-        ("Dev Tools", ["tmux", "Neovim", "Docker", "jq", "ripgrep", "fzf", "bat", "fd",
-                        "btop", "lazygit", "zoxide", "delta", "tldr", "httpie", "glances",
-                        "thefuck", "eza", "dust", "Flameshot", "KeePassXC", "mpv",
-                        "Syncthing", "VLC", "scrcpy", "Zellij"]),
-        ("Languages", ["Python", "Node.js", "TypeScript", "Go", "Rust", "Java (OpenJDK)",
-                        "C/C++ (GCC)", "C# (.NET)", "Ruby", "PHP", "Lua", "R", "Zig",
-                        "Dart", "Kotlin"]),
-        ("Pentesting", ["nmap", "masscan", "netcat", "rustscan", "gobuster", "ffuf",
-                         "nikto", "sqlmap", "whatweb", "wfuzz", "dirsearch", "Burp Suite",
-                         "hydra", "john", "hashcat", "searchsploit", "theHarvester",
-                         "recon-ng", "sherlock", "exiftool", "steghide", "binwalk",
-                         "aircrack-ng", "bettercap", "reaver", "proxychains", "tor",
-                         "wireshark", "tcpdump"]),
-        ("Bug Bounty", ["subfinder", "httpx", "nuclei", "katana", "ghidra", "caido"]),
-        ("Frameworks", ["Flutter", "React Native", "Next.js", "Node.js (Latest)",
-                         "Electron", "Tauri", "Deno", "Bun"]),
-        ("Agentic IDEs", ["OpenCode", "ZCode", "Antigravity CLI", "Kiro"]),
-    ]
+    from src.core import catalog
 
-    for cat_name, tools in categories:
-        print(f"\n[{cat_name}]:")
-        for t in tools:
-            print(f"  - {t}")
+    for group in catalog.groups():
+        print(f"\n[{catalog.title_of(group)}]:")
+        for cat in catalog.categories(group):
+            subs = catalog.subgroups(cat)
+            if subs:
+                for sub in subs:
+                    print(f"  [{catalog.title_of(sub)}]:")
+                    for t in catalog.tools_at(sub):
+                        print(f"    - {t.name}")
+            else:
+                print(f"  [{catalog.title_of(cat)}]:")
+                for t in catalog.tools_at(cat):
+                    print(f"    - {t.name}")
 
 
 def cmd_menu(category: str = "main") -> None:
@@ -134,13 +118,14 @@ def cmd_menu(category: str = "main") -> None:
 
 
 def cmd_interactive(show_splash: bool = True) -> None:
-    """Full interactive TUI: banner → persona → main menu → category menus → install"""
+    """Full interactive TUI: banner → persona → main menu → catalog browser → install"""
+    import shutil
+
     from src.core import bash as bash_module
+    from src.core import catalog
     from src.core.bash import call as bash_call
-    from src.tui.render import show_main_menu, render_menu
     from src.core.logging import log_message
-    import importlib
-    import subprocess
+    from src.tui.render import show_main_menu, render_menu
 
     bash_module.setup(SCRIPT_DIR)
     from src.core import distro
@@ -153,20 +138,107 @@ def cmd_interactive(show_splash: bool = True) -> None:
         )
         cmd_persona()
 
-    ALL_MODULES = {
-        "0": ("psycho", "Psycho"),
-        "1": ("browsers", "Browsers"),
-        "2": ("productivity", "Productivity"),
-        "3": ("ides", "IDEs & Editors"),
-        "4": ("terminals", "Terminals"),
-        "5": ("shells", "Shells"),
-        "6": ("dev_tools", "Dev Tools"),
-        "7": ("languages", "Languages"),
-        "8": ("pentest", "Pentesting"),
-        "9": ("bug_bounty", "Bug Bounty"),
-        "10": ("frameworks", "Frameworks"),
-        "11": ("agentic_ides", "Agentic IDEs"),
-    }
+    def run_tool(t) -> None:
+        log_message("INFO", f"Installing {t.name}...")
+        code, out, err = bash_call(t.fn)
+        if code == 0:
+            log_message("SUCCESS", f"{t.name} installed.")
+        else:
+            log_message("ERROR", f"{t.name} install failed (exit {code}).")
+            if err:
+                log_message("ERROR", err)
+
+    def install_tools(tools, title: str) -> None:
+        log_message("INFO", f"--- Installing All {title} ---")
+        for t in tools:
+            run_tool(t)
+
+    def check_tools(tools, title: str) -> None:
+        from rich.console import Console
+
+        log_message("INFO", f"--- Checking {title} Installations ---")
+        console = Console(highlight=False)
+        for t in tools:
+            if any(shutil.which(b) for b in t.bin_names):
+                console.print(f"[bold green][✔] {t.name} is installed.[/]")
+            else:
+                console.print(f"[red][✘] {t.name} is NOT installed.[/]")
+
+    def browse(node_path: str) -> None:
+        while True:
+            subs = catalog.subgroups(node_path)
+            tools = catalog.tools_at(node_path)
+            entries: list[tuple[str, str, object]] = [
+                (catalog.title_of(s), "node", s) for s in subs
+            ] + [(t.name, "tool", t) for t in tools]
+            title = catalog.title_of(node_path)
+            sub_choice = render_menu([(label, "") for label, _, _ in entries], title)
+
+            back = str(len(entries) + 3)
+            check = str(len(entries) + 2)
+            all_choice = str(len(entries) + 1)
+
+            if sub_choice == back or sub_choice.lower() in ("back", "b"):
+                return
+
+            if sub_choice == check or sub_choice.lower() in ("check", "c"):
+                check_tools(catalog.tools_under(node_path), title)
+                continue
+
+            if sub_choice == all_choice or sub_choice.lower() in ("all", "a"):
+                install_tools(catalog.tools_under(node_path), title)
+                continue
+
+            if sub_choice.startswith("e"):
+                try:
+                    idx = int(sub_choice[1:])
+                    if 1 <= idx <= len(entries):
+                        label, kind, val = entries[idx - 1]
+                        if kind == "tool":
+                            cmd_explain(val.name)
+                        else:
+                            code, out, err = bash_call("_explain_tool", label)
+                            if out.strip():
+                                print(out)
+                            if err.strip():
+                                print(err, file=sys.stderr)
+                except ValueError:
+                    pass
+                continue
+
+            try:
+                idx = int(sub_choice) - 1
+            except ValueError:
+                continue
+            if not 0 <= idx < len(entries):
+                continue
+            _, kind, val = entries[idx]
+            if kind == "node":
+                browse(val)
+            else:
+                run_tool(val)
+
+    def presets_menu() -> None:
+        names = catalog.presets()
+        if not names:
+            log_message("WARN", "No presets found (presets/).")
+            return
+        entries = [(n, "preset", n) for n in names]
+        while True:
+            sub_choice = render_menu([(n, "") for n in names], "Presets & Profiles")
+            back = str(len(entries) + 3)
+            if sub_choice == back or sub_choice.lower() in ("back", "b"):
+                return
+            try:
+                idx = int(sub_choice) - 1
+            except ValueError:
+                continue
+            if not 0 <= idx < len(entries):
+                continue
+            name = entries[idx][0]
+            tools = catalog.preset_tools(name)
+            log_message("INFO", f"--- Applying profile '{name}' ({len(tools)} tools) ---")
+            install_tools(tools, name)
 
     while True:
         choice = show_main_menu()
@@ -190,71 +262,26 @@ def cmd_interactive(show_splash: bool = True) -> None:
 
         if choice in ("12", "full", "all"):
             log_message("INFO", "--- Full Install ---")
-            for key, (mod_name, _) in ALL_MODULES.items():
-                mod = importlib.import_module(f"src.modules.{mod_name}")
-                mod.install_all()
+            install_tools(catalog.all_tools(), "All Tools")
             continue
 
         if choice in ("13", "minimal"):
             log_message("INFO", "--- Minimal Install ---")
-            mod = importlib.import_module("src.modules.browsers")
-            mod.install_all()
-            mod = importlib.import_module("src.modules.terminals")
-            mod.install_all()
+            install_tools(catalog.tools_under("general/browsers"), "Browsers")
+            install_tools(catalog.tools_under("general/terminal_shells/terminals"), "Terminals")
             continue
 
-        if choice.startswith("e"):
-            try:
-                idx = int(choice[1:])
-                name_list = ["Browsers", "Productivity", "IDEs & Editors", "Terminals",
-                             "Shells", "Dev Tools", "Languages", "Pentesting", "Bug Bounty", "Frameworks",
-                             "Agentic IDEs"]
-                if 1 <= idx <= len(name_list):
-                    code, out, err = bash_call("_explain_tool", name_list[idx - 1])
-                    if out.strip():
-                        print(out)
-                    if err.strip():
-                        print(err, file=sys.stderr)
-            except ValueError:
-                pass
+        if choice.lower() == "p":
+            presets_menu()
             continue
 
-        mod_name, mod_title = ALL_MODULES.get(choice, (None, None))
-        if mod_name is None:
+        try:
+            idx = int(choice)
+        except ValueError:
             continue
-
-        mod = importlib.import_module(f"src.modules.{mod_name}")
-        tools_list = [(t[0], t[1]) for t in mod.TOOLS]
-
-        while True:
-            sub_choice = render_menu(tools_list, mod_title)
-
-            if sub_choice == str(len(tools_list) + 3) or sub_choice.lower() in ("back", "b"):
-                break
-
-            if sub_choice == str(len(tools_list) + 2) or sub_choice.lower() in ("check", "c"):
-                mod.check()
-                continue
-
-            if sub_choice == str(len(tools_list) + 1) or sub_choice.lower() in ("all", "a"):
-                mod.install_all()
-                continue
-
-            if sub_choice.startswith("e"):
-                try:
-                    idx = int(sub_choice[1:])
-                    if 1 <= idx <= len(tools_list):
-                        cmd_explain(tools_list[idx - 1][0])
-                except ValueError:
-                    pass
-                continue
-
-            try:
-                idx = int(sub_choice) - 1
-                if 0 <= idx < len(tools_list):
-                    mod.install(tools_list[idx][0])
-            except ValueError:
-                pass
+        groups = catalog.groups()
+        if 0 <= idx < len(groups):
+            browse(catalog.group_path(groups[idx]))
 
 
 def cmd_exec(args: list[str]) -> None:

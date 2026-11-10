@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Distro detection
 
 _verbose_cmd() {
@@ -15,7 +16,9 @@ detect_distro() {
         distro_id=$(grep -oP '(?<=^ID=)[a-z]+' /etc/os-release)
         distro_like=$(grep -oP '(?<=^ID_LIKE=")[^"]*' /etc/os-release)
         OS_PRETTY_NAME="$pretty_name"
+        # shellcheck disable=SC2034  # consumed by core/persona.sh in the same shell
         OS_ID="$distro_id"
+        # shellcheck disable=SC2034  # consumed by core/persona.sh in the same shell
         OS_ID_LIKE="$distro_like"
     fi
     local kernel_version
